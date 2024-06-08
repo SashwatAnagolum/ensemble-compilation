@@ -1,0 +1,13 @@
+Initial LLVM setup (starting from fresh AWS Linux instance):
+--------------------------------------------------------------------
+mkdir ensemble-compilation
+cd ensemble-compilation
+sudo dnf install git-all
+git clone --depth 1 https://github.com/llvm/llvm-project.git
+cd llvm-project
+sudo dnf install ninja-build
+sudo dnf install cmake
+mkdir build
+cd build
+sudo dnf install gcc
+cmake -G Ninja ../llvm -DLLVM_ENABLE_PROJECTS=mlir -DLLVM_BUILD_EXAMPLES=ON -DLLVM_TARGETS_TO_BUILD="Native" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
