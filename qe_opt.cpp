@@ -1,8 +1,8 @@
 #include "lib/Dialect/QuantumEnsemble/QuantumEnsembleDialect.h"
-#include "mlir/include/mlir/InitAllDialects.h"
-#include "mlir/include/mlir/Pass/PassManager.h"
-#include "mlir/include/mlir/Pass/PassRegistry.h"
-#include "mlir/include/mlir/Tools/mlir-opt/MlirOptMain.h"
+#include "mlir/InitAllDialects.h"
+#include "mlir/Pass/PassManager.h"
+#include "mlir/Pass/PassRegistry.h"
+#include "mlir/Tools/mlir-opt/MlirOptMain.h"
 
 int main(int argc, char **argv) {
   mlir::DialectRegistry registry;

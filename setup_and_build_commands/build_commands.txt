@@ -1,0 +1,3 @@
+Build a custom mlir-opt type tool for a dialect
+---------------------------------------------------
+g++ ./ensemble-compilation/qe_opt.cpp -o qeOpt -I llvm-project/mlir/include -I ensemble-compilation/ -I llvm-project/build/tools/mlir/include -I llvm-project/llvm/include

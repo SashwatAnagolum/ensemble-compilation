@@ -1,0 +1,40 @@
+include "mlir/IR/OpBase.td"
+
+// ===----------------------------------------------------------------------===//
+// Quantum Ensemble Types
+// ===----------------------------------------------------------------------===//
+
+// ===Type Base Class=== //
+// Base class for all types in our dialect
+// typeName: the string name for the type
+class QE_Type<string typeName, string description>
+    : DialectType<QuantumEnsemble_Dialect,
+                  CPred<"$_self.isa<" #typeName #">()">, description>;
+
+// ===Qubit Type=== //
+def QubitType : QE_Type<"QubitType", "Quantum qubit type">;
+
+// ===----------------------------------------------------------------------===//
+// Quantum Ensemble Operations
+// ===----------------------------------------------------------------------===//
+
+// ===Op Base Class=== //
+// Base class for all operations in our dialect
+// mnemonic: the string name for the operation
+// traits: a list of traits that describe the operation
+class QE_Op<string mnemonic, list<Trait> traits = []>
+    : Op<QuantumEnsemble_Dialect, mnemonic, traits>;
+
+// ===Generic Gate Op=== //
+class QuantumGate_Op<string mnemonic, list<Trait> traits = []>
+    : QE_Op<mnemonic, traits>;
+
+// ===H Gate Op=== //
+def HGateOp : QuantumGate_Op<"H"> {
+  let summary = "Hadamard Gate";
+  let description = [ {Applies the Hadamard gate to the passed in qubit.} ];
+
+  let arguments = (ins QubitType : $qubit_in_0);
+
+  let results = (outs QubitType : $qubit_out_0);
+}
