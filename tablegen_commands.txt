@@ -1,0 +1,26 @@
+Dialect code generation
+-----------------------
+------
+Dialect declations
+------
+./llvm-project/build/bin/mlir-tblgen -gen-dialect-decls ./ensemble-compilation/lib/Dialect/QuantumEnsemble/QuantumEnsembleDialect.td -I ./llvm-project/mlir/include
+
+./llvm-project/build/bin/mlir-tblgen -gen-dialect-decls ./ensemble-compilation/lib/Dialect/QuantumEnsemble/QuantumEnsembleDialect.td -o ./ensemble-compilation/lib/Dialect/QuantumEnsemble/QuantumEnsembleDialect.h.inc -I ./llvm-project/mlir/include
+
+------
+Dialect definitions
+------
+./llvm-project/build/bin/mlir-tblgen -gen-dialect-defs ./ensemble-compilation/lib/Dialect/QuantumEnsemble/QuantumEnsembleDialect.td -I ./llvm-project/mlir/include
+
+./llvm-project/build/bin/mlir-tblgen -gen-dialect-defs ./ensemble-compilation/lib/Dialect/QuantumEnsemble/QuantumEnsembleDialect.td -o ./ensemble-compilation/lib/Dialect/QuantumEnsemble/QuantumEnsembleDialect.cpp.inc -I ./llvm-project/mlir/include
+
+Types code generation
+-----------------------
+
+
+Operations code generation
+----------------------------
+
+
+Transforms code generation
+----------------------------
