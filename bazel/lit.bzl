@@ -52,5 +52,9 @@ def lit_test(name = None, src = None, size = "small", tags = None):
 def glob_lit_tests():
     """Searches the caller's directory for files to run as lit tests."""
     tests = native.glob(["*.mlir"])
+
+    print('running tests')
+
     for curr_test in tests:
+        print(curr_test)
         lit_test(src = curr_test, size = "small")
