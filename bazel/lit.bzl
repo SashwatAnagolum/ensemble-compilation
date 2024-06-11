@@ -54,6 +54,7 @@ def glob_lit_tests():
     tests = native.glob(["*.mlir"])
 
     print('running tests')
+    print(native.glob(["*.*"]))
 
     for curr_test in tests:
         print(curr_test)
