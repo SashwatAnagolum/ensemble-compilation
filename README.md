@@ -1,4 +1,4 @@
-Instal Bazel
+Install Bazel
 ----------------
 https://bazel.build/install/ubuntu#binary-installer
 
