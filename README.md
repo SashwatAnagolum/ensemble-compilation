@@ -44,10 +44,36 @@ export PATH="$PATH:$HOME/bin"
 
 ### Build LLVM + MLIR
 
-Follow the instructions at https://www.jeremykun.com/2023/08/10/mlir-getting-started/
-
-We also needed to install zlib o nLinux:
+Installing LLVM and MLIR via Bazel is very simple. Before we can do so, however, we must install zlib:
 
 ```
 sudo yum install zlib-devel
 ```
+
+Now, we can use Bazel to install LLVM and MLIR. Run the following command in the root folder of the copy of the repository on your device, i.e. in the same folder as the WORKSPACE file that is stored in this repository:
+
+```
+bazel build @llvm-project//mlir/…:all
+```
+
+This command will take a while to execute, but once it is complete, LLVM and MLIR will be installed on your device. We can test MLIR by trying to run the mlir-opt binary:
+
+```
+bazel run @llvm-project//mlir:mlir-opt -- --help
+```
+
+If the build was successful, you should see something like this in your terminal:
+
+```
+OVERVIEW: MLIR modular optimizer driver
+
+Available Dialects: acc, affine, amdgpu, amx, arith, arm_neon, arm_sve, async, bufferization, builtin, cf,
+complex, dlti, emitc, func, gpu, index, irdl, linalg, llvm, math, memref, ml_program, nvgpu, nvvm, omp, pdl,
+pdl_interp, quant, rocdl, scf, shape, sparse_tensor, spirv, tensor, test, test_dyn, tosa, transform, vector,
+x86vector
+USAGE: mlir-opt [options] <input file>
+
+OPTIONS:
+...
+```
+
