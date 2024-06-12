@@ -18,7 +18,7 @@ using arith::ShLIOp;
 // Replace y = C*x with y = x << a, when C is a power of 2, a = log_2(C),
 // otherwise do nothing.
 struct PowerOfTwoShiftLeft : public OpRewritePattern<MulIOp> {
-  PowerOfTwoExpand(mlir::MLIRContext *context)
+  PowerOfTwoShiftLeft(mlir::MLIRContext *context)
       : OpRewritePattern<MulIOp>(context, /*benefit=*/2) {}
 
   LogicalResult matchAndRewrite(MulIOp op,
