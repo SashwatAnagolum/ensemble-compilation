@@ -93,9 +93,9 @@ struct PeelFromMul : public OpRewritePattern<MulIOp> {
   }
 };
 
-void MulToAddPass::runOnOperation() {
+void MulToShiftAndAddPass::runOnOperation() {
   mlir::RewritePatternSet patterns(&getContext());
-  patterns.add<PowerOfTwoExpand>(&getContext());
+  patterns.add<PowerOfTwoShiftLeft>(&getContext());
   patterns.add<PeelFromMul>(&getContext());
   (void)applyPatternsAndFoldGreedily(getOperation(), std::move(patterns));
 }
