@@ -5,8 +5,8 @@ filegroup(
     name = "test_utilities",
     testonly = True,
     data = [
-        "//tests:lit.cfg.py",
         "//tools:qe-opt",
+        "//tests:lit.cfg.py",
         "@llvm-project//llvm:FileCheck",
         "@llvm-project//llvm:count",
         "@llvm-project//llvm:not",
