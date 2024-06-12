@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
   mlir::DialectRegistry registry;
   mlir::registerAllDialects(registry);
 
-  mlir::PassRegistration<mlir::tutorial::AffineFullUnrollPass>();
+  mlir::PassRegistration<mlir::qe::AffineFullUnrollPass>();
 
   return mlir::asMainReturnCode(
       mlir::MlirOptMain(argc, argv, "Quantum Ensemble Pass Driver", registry));
