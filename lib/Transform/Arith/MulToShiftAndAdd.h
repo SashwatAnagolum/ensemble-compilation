@@ -8,7 +8,8 @@ namespace mlir {
 namespace qe {
 
 class MulToShiftAndAddPass
-    : public PassWrapper<MulToAddPass, OperationPass<mlir::func::FuncOp>> {
+    : public PassWrapper<MulToShiftAndAddPass,
+                         OperationPass<mlir::func::FuncOp>> {
  private:
   void runOnOperation() override;
 
