@@ -77,3 +77,13 @@ OPTIONS:
 ...
 ```
 
+### Building the Quantum Ensemble Dialect
+
+
+### Running tests
+
+To run the tests for the Quantum Ensemble Dialect, execute the following command from the root directory of the repository:
+
+```
+bazel test //...
+```
