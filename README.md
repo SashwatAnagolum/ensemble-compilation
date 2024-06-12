@@ -92,3 +92,4 @@ bazel test //...
 ### TODOs
 
 * Fix tests using qe-opt binary which error out with ''qe-opt': command not found'
+* Add GitHub actions for CI to do testing on every new commit / merge: https://github.com/j2kun/mlir-tutorial/commit/b17efb4fdc98f9f48a680ef771ccb9e165d255f5

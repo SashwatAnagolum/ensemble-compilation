@@ -15,3 +15,15 @@ cc_library(
         "@llvm-project//mlir:Transforms",
     ],
 )
+
+cc_library(
+    name = "MulToShiftAndAdd",
+    srcs = ["MulToShiftAndAdd.cpp"],
+    hdrs = ["MulToShiftAndAdd.h"],
+    deps = [
+        "@llvm-project//mlir:ArithDialect",
+        "@llvm-project//mlir:FuncDialect",
+        "@llvm-project//mlir:Pass",
+        "@llvm-project//mlir:Transforms",
+    ],
+)
