@@ -13,6 +13,7 @@ cc_binary(
     deps = [
         "//lib/Transform/Affine:AffineFullUnroll",
         "//lib/Transform/Arith:MulToAdd",
+        "//lib/Transform/Arith:MulToShiftAndAdd",
         "@llvm-project//mlir:AllPassesAndDialects",
         "@llvm-project//mlir:MlirOptLib",
         "@llvm-project//mlir:Pass",
