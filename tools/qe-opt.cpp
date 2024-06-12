@@ -10,6 +10,6 @@ int main(int argc, char **argv) {
 
   mlir::PassRegistration<mlir::qe::AffineFullUnrollPass>();
 
-  return mlir::asMainReturnCode(
-      mlir::MlirOptMain(argc, argv, "Quantum Ensemble Pass Driver", registry));
+  return mlir::asMainReturnCode(mlir::MlirOptMain(
+      argc, argv, "Quantum Ensemble Compilation Pass Driver", registry));
 }
