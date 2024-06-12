@@ -1,4 +1,4 @@
-// RUN: qe-opt %s --affine-full-unroll > %t
+// RUN: qe-opt %s --affine-full-unroll-rewrite > %t
 // RUN: FileCheck %s < %t
 
 func.func @test_single_nested_loop(%buffer: memref<4xi32>) -> (i32) {

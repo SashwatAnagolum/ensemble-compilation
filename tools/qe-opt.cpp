@@ -9,6 +9,7 @@ int main(int argc, char **argv) {
   mlir::registerAllDialects(registry);
 
   mlir::PassRegistration<mlir::qe::AffineFullUnrollPass>();
+  mlir::PassRegistration<mlir::qe::AffineFullUnrollPassAsPatternRewrite>();
 
   return mlir::asMainReturnCode(mlir::MlirOptMain(
       argc, argv, "Quantum Ensemble Compilation Pass Driver", registry));

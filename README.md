@@ -87,3 +87,8 @@ To run the tests for the Quantum Ensemble Dialect, execute the following command
 ```
 bazel test //...
 ```
+
+
+### TODOs
+
+* Fix tests using qe-opt binary which error out with ''qe-opt': command not found'
