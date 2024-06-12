@@ -1,6 +1,7 @@
+#include "lib/Transform/Arith/MulToShiftAndAdd.h"
+
 #include <cmath>
 
-#include "lib/Transform/Arith/MulToAdd.h"
 #include "mlir/Dialect/Arith/IR/Arith.h"
 #include "mlir/IR/PatternMatch.h"
 #include "mlir/Transforms/GreedyPatternRewriteDriver.h"
