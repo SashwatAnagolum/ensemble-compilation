@@ -53,7 +53,7 @@ sudo yum install zlib-devel
 Now, we can use Bazel to install LLVM and MLIR. Run the following command in the root folder of the copy of the repository on your device, i.e. in the same folder as the WORKSPACE file that is stored in this repository:
 
 ```
-bazel build @llvm-project//mlir/…:all
+bazel build @llvm-project//mlir/...:all
 ```
 
 This command will take a while to execute, but once it is complete, LLVM and MLIR will be installed on your device. We can test MLIR by trying to run the mlir-opt binary:
