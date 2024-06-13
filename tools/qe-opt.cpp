@@ -1,4 +1,4 @@
-#include "lib/Transform/Affine/AffineFullUnroll.h"
+#include "lib/Transform/Affine/Passes.h"
 #include "lib/Transform/Arith/MulToAdd.h"
 #include "lib/Transform/Arith/MulToShiftAndAdd.h"
 #include "mlir/include/mlir/InitAllDialects.h"
@@ -10,8 +10,7 @@ int main(int argc, char **argv) {
   mlir::DialectRegistry registry;
   mlir::registerAllDialects(registry);
 
-  mlir::PassRegistration<mlir::qe::AffineFullUnrollPass>();
-  mlir::PassRegistration<mlir::qe::AffineFullUnrollPassAsPatternRewrite>();
+  mlir::qe::registerAffinePasses();
   mlir::PassRegistration<mlir::qe::MulToAddPass>();
   mlir::PassRegistration<mlir::qe::MulToShiftAndAddPass>();
 

@@ -11,7 +11,7 @@ cc_binary(
     srcs = ["qe-opt.cpp"],
     includes = ["include"],
     deps = [
-        "//lib/Transform/Affine:AffineFullUnroll",
+        "//lib/Transform/Affine:Passes",
         "//lib/Transform/Arith:MulToAdd",
         "//lib/Transform/Arith:MulToShiftAndAdd",
         "@llvm-project//mlir:AllPassesAndDialects",
