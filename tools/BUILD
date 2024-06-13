@@ -12,8 +12,7 @@ cc_binary(
     includes = ["include"],
     deps = [
         "//lib/Transform/Affine:Passes",
-        "//lib/Transform/Arith:MulToAdd",
-        "//lib/Transform/Arith:MulToShiftAndAdd",
+        "//lib/Transform/Arith:Passes",
         "@llvm-project//mlir:AllPassesAndDialects",
         "@llvm-project//mlir:MlirOptLib",
         "@llvm-project//mlir:Pass",

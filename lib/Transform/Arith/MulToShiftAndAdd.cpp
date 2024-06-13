@@ -10,6 +10,9 @@
 namespace mlir {
 namespace qe {
 
+#define GEN_PASS_DEF_MULTOSHIFTANDADD
+#include "lib/Transform/Arith/Passes.h.inc"
+
 using arith::AddIOp;
 using arith::ConstantOp;
 using arith::MulIOp;
@@ -94,12 +97,16 @@ struct PeelFromMul : public OpRewritePattern<MulIOp> {
   }
 };
 
-void MulToShiftAndAddPass::runOnOperation() {
-  mlir::RewritePatternSet patterns(&getContext());
-  patterns.add<PowerOfTwoShiftLeft>(&getContext());
-  patterns.add<PeelFromMul>(&getContext());
-  (void)applyPatternsAndFoldGreedily(getOperation(), std::move(patterns));
-}
+struct MulToShiftAndAdd : impl::MulToShiftAndAddBase<MulToShiftAndAdd> {
+  using MulToShiftAndAddBase::MulToShiftAndAddBase;
+
+  void runOnOperation() {
+    mlir::RewritePatternSet patterns(&getContext());
+    patterns.add<PowerOfTwoShiftLeft>(&getContext());
+    patterns.add<PeelFromMul>(&getContext());
+    (void)applyPatternsAndFoldGreedily(getOperation(), std::move(patterns));
+  }
+};
 
 }  // namespace qe
 }  // namespace mlir

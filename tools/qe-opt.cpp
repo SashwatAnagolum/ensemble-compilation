@@ -1,6 +1,5 @@
 #include "lib/Transform/Affine/Passes.h"
-#include "lib/Transform/Arith/MulToAdd.h"
-#include "lib/Transform/Arith/MulToShiftAndAdd.h"
+#include "lib/Transform/Arith/Passes.h"
 #include "mlir/include/mlir/InitAllDialects.h"
 #include "mlir/include/mlir/Pass/PassManager.h"
 #include "mlir/include/mlir/Pass/PassRegistry.h"
@@ -11,8 +10,7 @@ int main(int argc, char **argv) {
   mlir::registerAllDialects(registry);
 
   mlir::qe::registerAffinePasses();
-  mlir::PassRegistration<mlir::qe::MulToAddPass>();
-  mlir::PassRegistration<mlir::qe::MulToShiftAndAddPass>();
+  mlir::qe::registerArithPasses();
 
   return mlir::asMainReturnCode(mlir::MlirOptMain(
       argc, argv, "Quantum Ensemble Compilation Pass Driver", registry));

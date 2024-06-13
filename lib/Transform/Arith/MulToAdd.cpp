@@ -8,6 +8,9 @@
 namespace mlir {
 namespace qe {
 
+#define GEN_PASS_DEF_MULTOADD
+#include "lib/Transform/Arith/Passes.h.inc"
+
 using arith::AddIOp;
 using arith::ConstantOp;
 using arith::MulIOp;
@@ -84,12 +87,16 @@ struct PeelFromMul : public OpRewritePattern<MulIOp> {
   }
 };
 
-void MulToAddPass::runOnOperation() {
-  mlir::RewritePatternSet patterns(&getContext());
-  patterns.add<PowerOfTwoExpand>(&getContext());
-  patterns.add<PeelFromMul>(&getContext());
-  (void)applyPatternsAndFoldGreedily(getOperation(), std::move(patterns));
-}
+struct MulToAdd : impl::MulToAddBase<MulToAdd> {
+  using MulToAddBase::MulToAddBase;
+
+  void runOnOperation() {
+    mlir::RewritePatternSet patterns(&getContext());
+    patterns.add<PowerOfTwoExpand>(&getContext());
+    patterns.add<PeelFromMul>(&getContext());
+    (void)applyPatternsAndFoldGreedily(getOperation(), std::move(patterns));
+  }
+};
 
 }  // namespace qe
 }  // namespace mlir
