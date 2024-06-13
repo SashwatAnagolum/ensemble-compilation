@@ -6,7 +6,7 @@
 namespace mlir {
 namespace qe {
 
-#define GEN_PASS_DECL_MULTOADD
+#define GEN_PASS_DECL_MULTOSHIFTANDADD
 #include "lib/Transform/Arith/Passes.h.inc"
 
 }  // namespace qe
