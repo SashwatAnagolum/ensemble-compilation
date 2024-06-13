@@ -60,7 +60,7 @@ cc_library(
     hdrs = ["Passes.h"],
     deps = [
         ":MulToAdd",
-        ":MulToShiftAndAdd"
-        ":pass_inc_gen",
+        ":MulToShiftAndAdd",
+        ":pass_inc_gen"
     ],
 )
