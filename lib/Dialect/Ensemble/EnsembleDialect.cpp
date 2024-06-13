@@ -1,5 +1,6 @@
-#include "lib/Dialect/Poly/PolyDialect.cpp.inc"
-#include "lib/Dialect/Poly/PolyDialect.h"
+#include "lib/Dialect/Ensemble/EnsembleDialect.h"
+
+#include "lib/Dialect/Ensemble/EnsembleDialect.cpp.inc"
 
 namespace mlir {
 namespace qe {
