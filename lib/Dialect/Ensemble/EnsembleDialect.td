@@ -10,4 +10,5 @@ def Ensemble_Dialect: Dialect {
   }];
 
   let cppNamespace = "::mlir::qe::ensemble";
+  let useDefaultTypePrinterParser = 1;
 }
