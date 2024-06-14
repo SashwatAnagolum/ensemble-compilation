@@ -12,7 +12,6 @@ td_library(
     ],
     includes = ["@heir//include"],
     deps = [
-        # the base mlir target for defining operations and dialects in tablegen
         "@llvm-project//mlir:OpBaseTdFiles",
     ],
 )
@@ -32,7 +31,6 @@ gentbl_cc_library(
     tblgen = "@llvm-project//mlir:mlir-tblgen",
     td_file = "PolyDialect.td",
     deps = [
-        # the base mlir target for defining operations and dialects in tablegen
         ":td_files"
     ],
 )
@@ -57,16 +55,39 @@ gentbl_cc_library(
     ],
 )
 
+gentbl_cc_library(
+    name = "ops_inc_gen",
+    tbl_outs = [
+        (
+            ["-gen-op-decls"],
+            "PolyOps.h.inc",
+        ),
+        (
+            ["-gen-op-defs"],
+            "PolyOps.cpp.inc",
+        ),
+    ],
+    tblgen = "@llvm-project//mlir:mlir-tblgen",
+    td_file = "PolyOps.td",
+    deps = [
+        ":dialect_inc_gen",
+        ":td_files",
+        ":types_inc_gen",
+    ],
+)
+
 cc_library(
     name = "Poly",
     srcs = ["PolyDialect.cpp"],
     hdrs = [
         "PolyDialect.h",
-        "PolyTypes.h"
+        "PolyTypes.h",
+        "PolyOps.h"
     ],
     deps = [
         ":dialect_inc_gen",
         ":types_inc_gen",
+        ":ops_inc_gen",
         "@llvm-project//mlir:IR",
         "@llvm-project//mlir:Support"
     ],

@@ -1,3 +1,6 @@
+#ifndef LIB_DIALECT_ENSEMBLE_ENSEMBLEDIALECT_TD_
+#define LIB_DIALECT_ENSEMBLE_ENSEMBLEDIALECT_TD_
+
 include "mlir/IR/DialectBase.td"
 
 def Ensemble_Dialect: Dialect {
@@ -12,3 +15,5 @@ def Ensemble_Dialect: Dialect {
   let cppNamespace = "::mlir::qe::ensemble";
   let useDefaultTypePrinterParser = 1;
 }
+
+#endif  // LIB_DIALECT_ENSEMBLE_ENSEMBLEDIALECT_TD_

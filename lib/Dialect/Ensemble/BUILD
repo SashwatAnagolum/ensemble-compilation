@@ -12,7 +12,6 @@ td_library(
     ],
     includes = [],
     deps = [
-        # the base mlir target for defining operations and dialects in tablegen
         "@llvm-project//mlir:OpBaseTdFiles",
     ],
 )
@@ -32,7 +31,6 @@ gentbl_cc_library(
     tblgen = "@llvm-project//mlir:mlir-tblgen",
     td_file = "EnsembleDialect.td",
     deps = [
-        # the base mlir target for defining operations and dialects in tablegen
         ":td_files"
     ],
 )
@@ -57,16 +55,39 @@ gentbl_cc_library(
     ],
 )
 
+gentbl_cc_library(
+    name = "ops_inc_gen",
+    tbl_outs = [
+        (
+            ["-gen-op-decls"],
+            "EnsembleOps.h.inc",
+        ),
+        (
+            ["-gen-op-defs"],
+            "EnsembleOps.cpp.inc",
+        ),
+    ],
+    tblgen = "@llvm-project//mlir:mlir-tblgen",
+    td_file = "EnsembleOps.td",
+    deps = [
+        ":dialect_inc_gen",
+        ":td_files",
+        ":types_inc_gen",
+    ],
+)
+
 cc_library(
     name = "Ensemble",
     srcs = ["EnsembleDialect.cpp"],
     hdrs = [
         "EnsembleDialect.h",
-        "EnsembleTypes.h"
+        "EnsembleTypes.h",
+        "EnsembleOps.h"
     ],
     deps = [
         ":dialect_inc_gen",
         ":types_inc_gen",
+        ":ops_inc_gen",
         "@llvm-project//mlir:IR",
         "@llvm-project//mlir:Support"
     ],
