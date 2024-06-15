@@ -13,6 +13,8 @@
 #include "lib/Dialect/Ensemble/EnsembleDialect.cpp.inc"
 #define GET_TYPEDEF_CLASSES
 #include "lib/Dialect/Ensemble/EnsembleTypes.cpp.inc"
+#define GET_OP_CLASSES
+#include "lib/Dialect/Ensemble/EnsembleOps.cpp.inc"
 
 namespace mlir {
 namespace qe {
@@ -25,7 +27,7 @@ void EnsembleDialect::initialize() {
 #include "lib/Dialect/Ensemble/EnsembleTypes.cpp.inc"
       >();
 
-  // Add all of the operations for the Poly dialect
+  // Add all of the operations for the Ensemble dialect
   addOperations<
 #define GET_OP_LIST
 #include "lib/Dialect/Ensemble/EnsembleOps.cpp.inc"
