@@ -28,7 +28,7 @@ void EnsembleDialect::initialize() {
   // Add all of the operations for the Poly dialect
   addOperations<
 #define GET_OP_LIST
-#include "lib/Dialect/Poly/PolyOps.cpp.inc"
+#include "lib/Dialect/Ensemble/EnsembleOps.cpp.inc"
       >();
 }
 
