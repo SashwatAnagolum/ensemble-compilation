@@ -1,4 +1,4 @@
-#include "lib/Dialect/Ensemble/EnsembleDialect.h"
+// #include "lib/Dialect/Ensemble/EnsembleDialect.h"
 #include "lib/Dialect/Poly/PolyDialect.h"
 #include "lib/Transform/Affine/Passes.h"
 #include "lib/Transform/Arith/Passes.h"
@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
   mlir::DialectRegistry registry;
   mlir::registerAllDialects(registry);
   registry.insert<mlir::qe::poly::PolyDialect>();
-  registry.insert<mlir::qe::ensemble::EnsembleDialect>();
+  // registry.insert<mlir::qe::ensemble::EnsembleDialect>();
 
   mlir::qe::registerAffinePasses();
   mlir::qe::registerArithPasses();
