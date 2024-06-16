@@ -13,6 +13,7 @@ td_library(
     includes = ["@heir//include"],
     deps = [
         "@llvm-project//mlir:OpBaseTdFiles",
+        "@llvm-project//mlir:SideEffectInterfacesTdFiles"
     ],
 )
 
