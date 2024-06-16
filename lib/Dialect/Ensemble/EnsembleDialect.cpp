@@ -21,7 +21,7 @@ namespace qe {
 namespace ensemble {
 
 void EnsembleDialect::initialize() {
-  // This is where we will register types and operations with the dialect
+  // Add all of the types for the Ensemble dialect
   addTypes<
 #define GET_TYPEDEF_LIST
 #include "lib/Dialect/Ensemble/EnsembleTypes.cpp.inc"

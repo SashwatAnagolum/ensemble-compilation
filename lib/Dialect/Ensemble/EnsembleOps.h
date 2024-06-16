@@ -13,4 +13,4 @@
 #define GET_OP_CLASSES
 #include "lib/Dialect/Ensemble/EnsembleOps.h.inc"
 
-#endif  // #ifndef LIB_DIALECT_ENSEMBLE_ENSEMBLEOPS_H_
+#endif  // LIB_DIALECT_ENSEMBLE_ENSEMBLEOPS_H_

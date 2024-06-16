@@ -12,7 +12,6 @@ td_library(
     ],
     includes = ["@heir//include"],
     deps = [
-        # the base mlir target for defining operations and dialects in tablegen
         "@llvm-project//mlir:OpBaseTdFiles",
     ],
 )
@@ -32,7 +31,6 @@ gentbl_cc_library(
     tblgen = "@llvm-project//mlir:mlir-tblgen",
     td_file = "PolyDialect.td",
     deps = [
-        # the base mlir target for defining operations and dialects in tablegen
         ":td_files"
     ],
 )
