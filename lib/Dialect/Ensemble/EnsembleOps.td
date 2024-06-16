@@ -14,7 +14,7 @@ def Ensemble_1QGateOp : Op<Ensemble_Dialect, "1qgate"> {
 def Ensemble_2QGateOp : Op<Ensemble_Dialect, "2qgate"> {
   let summary = "Two qubit gate.";
   let arguments = (ins Qubit:$qubitIn0, Qubit:$qubitIn1);
-  let results = (outs Qubit:$qubitOut0, Qubit:qubitOut1);
+  let results = (outs Qubit:$qubitOut0, Qubit:$qubitOut1);
   let assemblyFormat = "$lhs `,` $rhs attr-dict `:` `(` type($qubitIn0) `,` type($qubitIn1) `)` `->` `(` type($qubitOut0) `,` type($qubitOut1) `)`";
 }
 
