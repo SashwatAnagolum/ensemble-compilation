@@ -4,11 +4,11 @@
 include "EnsembleDialect.td"
 include "EnsembleTypes.td"
 
-def Ensemble_1QGateOp : Op<Ensemble_Dialect, "1qgate"> {
-  let summary = "Single qubit gate.";
-  let arguments = (ins Qubit:$qubitIn0);
-  let results = (outs Qubit:$qubitOut0);
-  let assemblyFormat = "$qubitIn0 attr-dict `:` `(` type($qubitIn0) `)` `->` type($qubitOut0)";
+def Ensemble_Gate1QOp : Op<Ensemble_Dialect, "gate1q"> {
+  let summary = "Single qubit gate on a qubit.";
+  let arguments = (ins Qubit:$input);
+  let results = (outs Qubit:$output);
+  let assemblyFormat = "$input attr-dict `:` `(` type($input) `)` `->` type($output)";
 }
 
 #endif  // LIB_DIALECT_ENSEMBLE_ENSEMBLEOPS_TD_
