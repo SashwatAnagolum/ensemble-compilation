@@ -37,28 +37,10 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
     if (op->getAttr("zne-applied")) {
       return failure();
     } else {
-      // auto insertionPoint = rewriter.saveInsertionPoint();
-      // rewriter.setInsertionPointAfter(op);
-
-      // auto opLocation = op.getLoc();
-      // auto forLoopOp = rewriter.create<AffineForOp>(opLocation, 0, 10, 1);
-
-      // rewriter.setInsertionPointToStart(forLoopOp.getBody());
-      // auto newGateOp = rewriter.clone(*op.getOperation());
-      // newGateOp->setAttr("zne-applied", rewriter.getUnitAttr());
-      // rewriter.setInsertionPointToEnd(forLoopOp.getBody());
-      // auto yeildOp = rewriter.create<AffineYieldOp>(opLocation);
-
-      // rewriter.restoreInsertionPoint(insertionPoint);
-
-      // Save the current insertion point.
+      // Save the current insertion point and get the op location.
       auto insertionPoint = rewriter.saveInsertionPoint();
-
-      // Set the insertion point after the current operation.
-      rewriter.setInsertionPointAfter(op);
-
-      // Create constants for loop bounds and step.
       auto loc = op.getLoc();
+      rewriter.setInsertionPointAfter(op);
 
       // Insert an affine for loop.
       auto forOp = rewriter.create<AffineForOp>(loc, 0, 10, 1);
@@ -66,11 +48,14 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
       // Set the insertion point to the start of the loop body.
       rewriter.setInsertionPointToStart(forOp.getBody());
 
-      // Clone the original operation inside the loop body.
+      // Clone the original operation inside the loop body
+      // modify the operands so that the original op's result
+      // is fed into the new gate
       auto newGateOp = rewriter.clone(*op.getOperation());
+      newGateOp->setOperands(op.getOperands());
       newGateOp->setAttr("zne-applied", rewriter.getUnitAttr());
 
-      // Restore the original insertion point.
+      // Restore the original insertion point
       rewriter.restoreInsertionPoint(insertionPoint);
 
       rewriter.updateRootInPlace(
