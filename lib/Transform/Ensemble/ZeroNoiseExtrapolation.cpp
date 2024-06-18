@@ -35,8 +35,7 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
     if (op->getAttr("zne-applied")) {
       return failure();
     } else {
-      cout << "Updating attribute for operation: ";
-      op.getName().printAssembly();
+      std::cout << "Updating attribute for operation";
 
       rewriter.updateRootInPlace(
           op, [&]() { op->setAttr("zne-applied", rewriter.getUnitAttr()); });
