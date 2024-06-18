@@ -22,7 +22,9 @@ namespace ensemble {
 #include "lib/Transform/Ensemble/Passes.h.inc"
 
 using arith::ConstantOp;
+using mlir::affine::AffineConstantExpr;
 using mlir::affine::AffineForOp;
+using mlir::affine::AffineYieldOp;
 
 // Add an affine for loop after every gate op containing
 // the same gate and its adjoint.
@@ -32,10 +34,25 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
 
   LogicalResult matchAndRewrite(Gate1QOp op,
                                 PatternRewriter &rewriter) const override {
+    // if we have already processed the op, exit.
     if (op->getAttr("zne-applied")) {
       return failure();
     } else {
-      std::cout << "Updating attribute for operation";
+      auto insertionPoint = rewriter.saveInsertionPoint();
+      rewriter.setInsertionPointAfter(op);
+
+      auto opLocation = op.getLocation();
+
+      auto lowerBound = rewriter.create<AffineConstantExpr>(opLocation, 0);
+      auto upperBound = rewriter.create<AffineConstantExpr>(opLocation, 5);
+      auto step = rewriter.create<AffineConstantExpr>(opLocation, 1);
+      auto forLoopOp = rewriter.create<AffineForOp>(opLocation, lowerBound,
+                                                    upperBound, step);
+
+      rewriter.setInsertionPointToStart(forLoopOp.getBody());
+      rewriter.create<AffineYieldOp>(opLocation);
+
+      rewriter.restoreInsertionPoint(insertionPoint);
 
       rewriter.updateRootInPlace(
           op, [&]() { op->setAttr("zne-applied", rewriter.getUnitAttr()); });
