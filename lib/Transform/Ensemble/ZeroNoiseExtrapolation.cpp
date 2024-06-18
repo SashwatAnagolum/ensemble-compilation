@@ -54,7 +54,7 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
       auto newGateOp = rewriter.clone(*op.getOperation());
       auto numOperands = op.getNumOperands();
 
-      cout << typeid(op) << "\n";
+      std::cout << typeid(op) << "\n";
 
       // for (int i = 0; i < numOperands; i++) {
       //   newGateOp.setOperand()
