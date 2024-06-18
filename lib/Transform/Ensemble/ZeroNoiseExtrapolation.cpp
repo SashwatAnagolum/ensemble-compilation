@@ -14,6 +14,7 @@
 
 namespace mlir {
 namespace qe {
+namespace ensemble {
 
 #define GEN_PASS_DEF_ZERONOISEEXTRAPOLATION
 #include "lib/Transform/Ensemble/Passes.h.inc"
@@ -45,5 +46,6 @@ struct ZeroNoiseExtrapolation
   }
 };
 
+}  // namespace ensemble
 }  // namespace qe
 }  // namespace mlir
