@@ -22,7 +22,6 @@ namespace ensemble {
 #include "lib/Transform/Ensemble/Passes.h.inc"
 
 using arith::ConstantOp;
-using mlir::affine::AffineConstantExpr;
 using mlir::affine::AffineForOp;
 using mlir::affine::AffineYieldOp;
 
