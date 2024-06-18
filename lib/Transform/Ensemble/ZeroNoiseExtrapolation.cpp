@@ -71,7 +71,7 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
       newGateOp->setAttr("zne-applied", rewriter.getUnitAttr());
 
       // Insert an affine yield operation at the end of the loop body.
-      rewriter.setInsertionPointToEnd(forOp.getBody());
+      rewriter.setInsertionPointAfter(newGateOp);
       rewriter.create<AffineYieldOp>(loc);
 
       // Restore the original insertion point.
