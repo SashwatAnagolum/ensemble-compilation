@@ -8,7 +8,7 @@ def Ensemble_Gate1QOp : Op<Ensemble_Dialect, "gate1q"> {
   let summary = "Single qubit gate on a qubit.";
   let arguments = (ins Qubit:$input, StrAttr:$gateName);
   let results = (outs Qubit:$output);
-  let assemblyFormat = "$gateName $input attr-dict `:` `(` type($input) `)` `->` type($output)";
+  let assemblyFormat = "$gateName $input attr-dict `:` `(` type($input) `)` `->`  `(` type($output) `)`";
 }
 
 def Ensemble_Gate2QOp : Op<Ensemble_Dialect, "gate2q"> {
