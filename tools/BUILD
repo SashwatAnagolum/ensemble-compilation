@@ -15,6 +15,7 @@ cc_binary(
         "//lib/Dialect/Ensemble",
         "//lib/Transform/Affine:Passes",
         "//lib/Transform/Arith:Passes",
+        "//lib/Transform/Ensemble:Passes",
         "@llvm-project//mlir:AllPassesAndDialects",
         "@llvm-project//mlir:MlirOptLib",
         "@llvm-project//mlir:Pass",
