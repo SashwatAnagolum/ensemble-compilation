@@ -1,5 +1,7 @@
 #include "lib/Transform/Ensemble/ZeroNoiseExtrapolation.h"
 
+#include <iostream>
+
 #include "lib/Dialect/Ensemble/EnsembleOps.h"
 #include "lib/Dialect/Ensemble/EnsembleTypes.h"
 
@@ -30,7 +32,17 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
 
   LogicalResult matchAndRewrite(Gate1QOp op,
                                 PatternRewriter &rewriter) const override {
-    return failure();
+    if (op->getAttr("zne-applied")) {
+      return failure();
+    } else {
+      cout << "Updating attribute for operation: ";
+      op.getName().printAssembly();
+
+      rewriter.updateRootInPlace(
+          op, [&]() { op->setAttr("zne-applied", rewriter.getUnitAttr()); });
+
+      return success();
+    }
   }
 };
 
