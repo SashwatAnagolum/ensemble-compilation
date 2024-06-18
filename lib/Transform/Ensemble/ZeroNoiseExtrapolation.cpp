@@ -26,7 +26,7 @@ using mlir::affine::AffineForOp;
 // the same gate and its adjoint.
 struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
   AddGateAndAdjointPairs(mlir::MLIRContext *context)
-      : OpRewritePattern<MulIOp>(context, /*benefit=*/1) {}
+      : OpRewritePattern<Gate1QOp>(context, /*benefit=*/1) {}
 
   LogicalResult matchAndRewrite(Gate1QOp op,
                                 PatternRewriter &rewriter) const override {
