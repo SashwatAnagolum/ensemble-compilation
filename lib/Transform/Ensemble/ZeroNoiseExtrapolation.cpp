@@ -37,29 +37,31 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
     if (op->getAttr("zne-applied")) {
       return failure();
     } else {
-      // Save the current insertion point and get the op location.
+      // Save the current insertion point and get the op location
       auto insertionPoint = rewriter.saveInsertionPoint();
       auto loc = op.getLoc();
       rewriter.setInsertionPointAfter(op);
 
-      // Insert an affine for loop.
+      // get the Operation object associated with the op
+      auto operation = op.getOperation();
+
+      // Insert an affine for loop
       auto forOp = rewriter.create<AffineForOp>(loc, 0, 10, 1);
 
-      // Set the insertion point to the start of the loop body.
+      // Set the insertion point to the start of the loop body
       rewriter.setInsertionPointToStart(forOp.getBody());
 
       // Clone the original operation inside the loop body
-      // modify the operands so that the original op's result
-      // is fed into the new gate
-      auto newGateOp = rewriter.clone(*op.getOperation());
-      auto numOperands = op.getOperation()->getNumOperands();
+      auto newGateOp = rewriter.clone(*operation);
 
-      std::cout << numOperands << "\n";
+      // Modify the operands so that the original op's result
+      // is fed into the new gate
+      // auto numOperands = operation->getNumOperands();
 
       // for (int i = 0; i < numOperands; i++) {
       //   newGateOp.setOperand()
       // }
-      // newGateOp->setOperands(op.getOperands());
+      operation->setOperands(op.getResults());
       newGateOp->setAttr("zne-applied", rewriter.getUnitAttr());
 
       // Restore the original insertion point
