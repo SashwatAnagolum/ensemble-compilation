@@ -43,7 +43,7 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
       rewriter.setInsertionPointAfter(op);
 
       // get the Operation object associated with the op
-      auto operation = op.getOperation();
+      mlir::Operation *operation = op.getOperation();
 
       // Insert an affine for loop
       auto forOp = rewriter.create<AffineForOp>(loc, 0, 10, 1);
@@ -52,16 +52,9 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
       rewriter.setInsertionPointToStart(forOp.getBody());
 
       // Clone the original operation inside the loop body
-      auto newGateOp = rewriter.clone(*operation);
+      mlir::Operation *newGateOp = rewriter.clone(*operation);
 
-      // Modify the operands so that the original op's result
-      // is fed into the new gate
-      // auto numOperands = operation->getNumOperands();
-
-      // for (int i = 0; i < numOperands; i++) {
-      //   newGateOp.setOperand()
-      // }
-      operation->setOperands(op.getResults());
+      newGateOp->setOperands(operation->getResults());
       newGateOp->setAttr("zne-applied", rewriter.getUnitAttr());
 
       // Restore the original insertion point
