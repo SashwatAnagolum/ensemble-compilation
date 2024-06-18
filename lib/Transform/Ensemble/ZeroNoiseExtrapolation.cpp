@@ -45,10 +45,11 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
 
       rewriter.setInsertionPointToStart(forLoopOp.getBody());
       auto newGateOp = rewriter.clone(*op.getOperation());
-      auto yeildOp = rewriter.create<AffineYieldOp>(opLocation);
-      rewriter.restoreInsertionPoint(insertionPoint);
-
       newGateOp->setAttr("zne-applied", rewriter.getUnitAttr());
+      rewriter.setInsertionPointToEnd(forLoopOp.getBody());
+      auto yeildOp = rewriter.create<AffineYieldOp>(opLocation);
+
+      rewriter.restoreInsertionPoint(insertionPoint);
 
       rewriter.updateRootInPlace(
           op, [&]() { op->setAttr("zne-applied", rewriter.getUnitAttr()); });
