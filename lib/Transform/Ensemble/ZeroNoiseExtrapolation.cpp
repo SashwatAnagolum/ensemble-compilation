@@ -52,7 +52,14 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
       // modify the operands so that the original op's result
       // is fed into the new gate
       auto newGateOp = rewriter.clone(*op.getOperation());
-      newGateOp->setOperands(op.getOperands());
+      auto numOperands = op.getNumOperands();
+
+      cout << typeid(op) << "\n";
+
+      // for (int i = 0; i < numOperands; i++) {
+      //   newGateOp.setOperand()
+      // }
+      // newGateOp->setOperands(op.getOperands());
       newGateOp->setAttr("zne-applied", rewriter.getUnitAttr());
 
       // Restore the original insertion point
