@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
 
   mlir::qe::registerAffinePasses();
   mlir::qe::registerArithPasses();
-  mlir::qe::registerEnsemblePasses();
+  mlir::qe::ensemble::registerEnsemblePasses();
   mlir::registerAllPasses();
 
   return mlir::asMainReturnCode(mlir::MlirOptMain(
