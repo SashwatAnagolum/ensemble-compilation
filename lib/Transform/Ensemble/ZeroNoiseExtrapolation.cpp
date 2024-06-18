@@ -42,12 +42,7 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
       rewriter.setInsertionPointAfter(op);
 
       auto opLocation = op.getLoc();
-
-      auto lowerBound = rewriter.create<AffineConstantExpr>(opLocation, 0);
-      auto upperBound = rewriter.create<AffineConstantExpr>(opLocation, 5);
-      auto step = rewriter.create<AffineConstantExpr>(opLocation, 1);
-      auto forLoopOp = rewriter.create<AffineForOp>(opLocation, lowerBound,
-                                                    upperBound, step);
+      auto forLoopOp = rewriter.create<AffineForOp>(opLocation, 0, 10, 1);
 
       rewriter.setInsertionPointToStart(forLoopOp.getBody());
       rewriter.create<AffineYieldOp>(opLocation);
