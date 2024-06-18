@@ -2,6 +2,7 @@
 #include "lib/Dialect/Poly/PolyDialect.h"
 #include "lib/Transform/Affine/Passes.h"
 #include "lib/Transform/Arith/Passes.h"
+#include "lib/Transform/Ensemble/Passes.h"
 
 //
 
@@ -20,6 +21,7 @@ int main(int argc, char **argv) {
 
   mlir::qe::registerAffinePasses();
   mlir::qe::registerArithPasses();
+  mlir::qe::ensemble::registerEnsemblePasses();
   mlir::registerAllPasses();
 
   return mlir::asMainReturnCode(mlir::MlirOptMain(
