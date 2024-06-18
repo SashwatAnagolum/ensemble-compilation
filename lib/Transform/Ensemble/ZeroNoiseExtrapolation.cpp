@@ -52,10 +52,29 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
       rewriter.setInsertionPointToStart(forOp.getBody());
 
       // Clone the original operation inside the loop body
+      // and create two copies of the original gate
       mlir::Operation *newGateOp = rewriter.clone(*operation);
+      mlir::Operation *newGateOpAdjoint = rewriter.clone(*operation);
 
+      // mark the second copy as adjoint
+      newGateOpAdjoint->setAttr("adjoint", rewriter.getUnitAttr());
+
+      // set the operands of the first new gate as the results
+      // of the original gate
       newGateOp->setOperands(operation->getResults());
+
+      // set the operands of the adjoint gate as the
+      // results of the first new gate
+      newGateOpAdjoint->setOperands(newGateOp->getResults());
+
+      // replaces all uses of the result of the original gate
+      // with the result of the new adjoint gate
+      // operation.replaceUsesOfWith()
+
+      // mark the new gates as already processed
+      // to prevent infinite loops
       newGateOp->setAttr("zne-applied", rewriter.getUnitAttr());
+      newGateOpAdjoint->setAttr("zne-applied", rewriter.getUnitAttr());
 
       // Restore the original insertion point
       rewriter.restoreInsertionPoint(insertionPoint);
