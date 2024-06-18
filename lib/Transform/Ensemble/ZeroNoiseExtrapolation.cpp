@@ -69,7 +69,12 @@ struct AddGateAndAdjointPairs : public OpRewritePattern<Gate1QOp> {
 
       // replaces all uses of the result of the original gate
       // with the result of the new adjoint gate
-      // operation.replaceUsesOfWith()
+      unsigned numResults = operation->getNumResults();
+
+      for (int resultIndex = 0; resultIndex < numResults; resultIndex++) {
+        operation->replaceUsesOfWith(operation->getResult(resultIndex),
+                                     newGateOpAdjoint->getResult(resultIndex));
+      }
 
       // mark the new gates as already processed
       // to prevent infinite loops
