@@ -1,0 +1,37 @@
+# deterministic inputs
+secret_key = [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1]
+
+# precomputed values before circuit sampling
+
+# random variables sampled every time we sample a circuit
+measured_qubits = int_uniform(low=0, high=12, size=(2,))
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# qubits and classical bits
+qubit qubits[13];
+bit bits[2];
+
+# circuit description - Berstein-Vazirani on 12 qubits
+# secret key is 101011101001
+reset qubits;
+
+gate1q "X" qubits[12];
+
+for (i = 0; i < 13; i++) {
+	gate1q "H" qubits[i];
+}
+
+for (i = 0; i < 12; i++) {
+	if (secret_key[i]) {
+		gate2q "CX" qubits[i], qubits[12];
+	}
+}
+
+for (i = 0; i < 13; i++) {
+	gate1q "H" qubits[i];
+}
+
+measure qubits[measured_qubits[0]], bits[0];
+measure qubits[measured_qubits[1]], bits[1];

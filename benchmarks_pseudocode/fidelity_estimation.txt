@@ -1,0 +1,30 @@
+# inputs from user
+num_meas_bases = 512;
+
+# precomputed values before circuit sampling
+
+# random variables sampled every time we sample a circuit
+pauli_indices = int_unform(low=0, high=3, size=8)
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# qubits and classical bits
+qubit qubits[8];
+bit bits[8];
+
+# circuit description - GHZ on 8 qubits
+reset qubits;
+
+for (i = 0; i < 8; i++) {
+	gate1q "H" qubits[i];
+}
+
+for (i = 0; i < 7; i++) {
+	gate2q "CX" qubits[i], qubits[i + 1];
+}
+
+for (i = 0; i < 8; i++) {
+	gate1q ["X", "Y", "Z"][pauli_indices[i]] qubits[i];
+	measure qubits[i], bits[i];
+}

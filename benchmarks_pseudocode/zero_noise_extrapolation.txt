@@ -1,0 +1,38 @@
+# deterministic inputs
+loop_repetitions = [0, 2, 4, 6, 8, 10, 12, 14, 16];
+
+# precomputed values before circuit sampling
+
+# random variables sampled every time we sample a circuit
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# qubits and classical bits
+qubit qubits[21];
+bit bits[21];
+
+# circuit description - GHZ on 21 qubits
+reset qubits;
+
+for (i = 0; i < 21; i++) {
+	gate1q "H" qubits[i];
+
+	for (j = 0; j < loop_repetitions[circuit_index]; j++) {
+		gate1q "H" qubits[i];
+		@inverse gate1q "H" qubits[i];
+	}
+}
+
+for (i = 0; i < 20; i++) {
+	gate2q "CX" qubits[i], qubits[i + 1];
+
+	for (j = 0; j < loop_repetitions[circuit_index]; j++) {
+		gate2q "CX" qubits[i], qubits[i + 1];
+		@inverse gate2q "CX" qubits[i], qubits[i + 1];
+	}
+}
+
+for (i = 0; i < 21; i++) {
+	measure qubits[i], bits[i];
+}
