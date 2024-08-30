@@ -3,8 +3,22 @@
 # precomputed values before circuit sampling
 pi = 3.14159265359;
 
+pauli_left_slices = [
+	["I", "I"], ["I", "X"], ["I", "Y"], ["I", "Z"],
+	["X", "I"], ["X", "X"], ["X", "Y"], ["X", "Z"],
+	["Y", "I"], ["Y", "X"], ["Y", "Y"], ["Y", "Z"],
+	["Z", "I"], ["Z", "X"], ["Z", "Y"], ["Z", "Z"],
+]
+
+pauli_right_slices = [
+	["I", "I"], ["I", "X"], ["Z", "Y"], ["Z", "Z"],
+	["X", "X"], ["X", "I"], ["Y", "Z"], ["Y", "Y"],
+	["Y", "X"], ["Y", "I"], ["X", "Z"], ["X", "Y"],
+	["Z", "I"], ["Z", "X"], ["I", "Y"], ["I", "Z"],
+]
+
 # random variables sampled every time we sample a circuit
-pauli_randomization_indices = int_uniform(low=0, high=3, size=(13, 4))
+pauli_randomization_indices = int_uniform(low=0, high=16, size=(18,))
 
 # values passed in during circuit sampling
 global circuit_index;
@@ -27,41 +41,89 @@ gate1q "RZ" (pi / 8) qubits[2];
 gate1q "RZ" (pi / 16) qubits[3];
 
 # cycle 3
+gate1q pauli_left_slices[pauli_randomization_indices[0]][0] qubits[1];
+gate1q pauli_left_slices[pauli_randomization_indices[0]][1] qubits[0];
+
 gate2q "CX" qubits[1], qubits[0];
+
+gate1q pauli_right_slices[pauli_randomization_indices[0]][0] qubits[1];
+gate1q pauli_right_slices[pauli_randomization_indices[0]][1] qubits[0];
 
 # cycle 4
 gate1q "RZ" (-1 * pi / 4) qubits[0];
 
 # cycle 5
+gate1q pauli_left_slices[pauli_randomization_indices[1]][0] qubits[1];
+gate1q pauli_left_slices[pauli_randomization_indices[1]][1] qubits[0];
+
 gate2q "CX" qubits[1], qubits[0];
+
+gate1q pauli_right_slices[pauli_randomization_indices[1]][0] qubits[1];
+gate1q pauli_right_slices[pauli_randomization_indices[1]][1] qubits[0];
 
 # cycle 6
 gate1q "RZ" (pi / 4) qubits[0];
 
 # cycle 7
+gate1q pauli_left_slices[pauli_randomization_indices[2]][0] qubits[2];
+gate1q pauli_left_slices[pauli_randomization_indices[2]][1] qubits[0];
+
 gate2q "CX" qubits[2], qubits[0];
+
+gate1q pauli_right_slices[pauli_randomization_indices[2]][0] qubits[2];
+gate1q pauli_right_slices[pauli_randomization_indices[2]][1] qubits[0];
 
 # cycle 8
 gate1q "RZ" (-1 * pi / 8) qubits[0];
 
 # cycle 9
+gate1q pauli_left_slices[pauli_randomization_indices[3]][0] qubits[2];
+gate1q pauli_left_slices[pauli_randomization_indices[3]][1] qubits[0];
+
 gate2q "CX" qubits[2], qubits[0];
+
+gate1q pauli_right_slices[pauli_randomization_indices[3]][0] qubits[2];
+gate1q pauli_right_slices[pauli_randomization_indices[3]][1] qubits[0];
 
 # cycle 10
 gate1q "RZ" (pi / 8) qubits[0];
 gate1q "RZ" (pi / 4) qubits[2];
 
 # cycle 11
+gate1q pauli_left_slices[pauli_randomization_indices[4]][0] qubits[3];
+gate1q pauli_left_slices[pauli_randomization_indices[4]][1] qubits[0];
+
+gate1q pauli_left_slices[pauli_randomization_indices[5]][0] qubits[2];
+gate1q pauli_left_slices[pauli_randomization_indices[5]][1] qubits[1];
+
 gate2q "CX" qubits[3], qubits[0];
 gate2q "CX" qubits[2], qubits[1];
+
+gate1q pauli_right_slices[pauli_randomization_indices[4]][0] qubits[3];
+gate1q pauli_right_slices[pauli_randomization_indices[4]][1] qubits[0];
+
+gate1q pauli_right_slices[pauli_randomization_indices[5]][0] qubits[2];
+gate1q pauli_right_slices[pauli_randomization_indices[5]][1] qubits[1];
 
 # cycle 12
 gate1q "RZ" (-1 * pi / 16) qubits[0];
 gate1q "RZ" (-1 * pi / 4) qubits[1];
 
 # cycle 13
+gate1q pauli_left_slices[pauli_randomization_indices[6]][0] qubits[3];
+gate1q pauli_left_slices[pauli_randomization_indices[6]][1] qubits[0];
+
+gate1q pauli_left_slices[pauli_randomization_indices[7][0] qubits[2];
+gate1q pauli_left_slices[pauli_randomization_indices[7]][1] qubits[0];
+
 gate2q "CX" qubits[3], qubits[0];
 gate2q "CX" qubits[2], qubits[1];
+
+gate1q pauli_right_slices[pauli_randomization_indices[6]][0] qubits[3];
+gate1q pauli_right_slices[pauli_randomization_indices[6]][1] qubits[0];
+
+gate1q pauli_left_slices[pauli_randomization_indices[7][0] qubits[2];
+gate1q pauli_left_slices[pauli_randomization_indices[7]][1] qubits[0];
 
 # cycle 14
 gate1q "RZ" (pi / 16) qubits[0];
@@ -69,38 +131,98 @@ gate1q "RZ" (pi / 4) qubits[1];
 gate1q "RZ" (pi / 8) qubits[3];
 
 # cycle 15
+gate1q pauli_left_slices[pauli_randomization_indices[8]][0] qubits[3];
+gate1q pauli_left_slices[pauli_randomization_indices[8]][1] qubits[1];
+
 gate2q "CX" qubits[3], qubits[1];
+
+gate1q pauli_right_slices[pauli_randomization_indices[8]][0] qubits[3];
+gate1q pauli_right_slices[pauli_randomization_indices[8]][1] qubits[1];
 
 # cycle 16
 gate1q "RZ" (-1 * pi / 8) qubits[1];
 
 # cycle 17
+gate1q pauli_left_slices[pauli_randomization_indices[9]][0] qubits[3];
+gate1q pauli_left_slices[pauli_randomization_indices[9]][1] qubits[1];
+
 gate2q "CX" qubits[3], qubits[1];
+
+gate1q pauli_right_slices[pauli_randomization_indices[9]][0] qubits[3];
+gate1q pauli_right_slices[pauli_randomization_indices[9]][1] qubits[1];
 
 # cycle 18
 gate1q "RZ" (pi / 8) qubits[1];
 gate1q "RZ" (pi / 4) qubits[3];
 
 # cycle 19
+gate1q pauli_left_slices[pauli_randomization_indices[10]][0] qubits[3];
+gate1q pauli_left_slices[pauli_randomization_indices[10]][1] qubits[2];
+
 gate2q "CX" qubits[3], qubits[2];
+
+gate1q pauli_right_slices[pauli_randomization_indices[10]][0] qubits[3];
+gate1q pauli_right_slices[pauli_randomization_indices[10]][1] qubits[2];
 
 # cycle 20
 gate1q "RZ" (-1 * pi / 4) qubits[2];
 
 # cycle 21
+gate1q pauli_left_slices[pauli_randomization_indices[11]][0] qubits[3];
+gate1q pauli_left_slices[pauli_randomization_indices[11]][1] qubits[2];
+
 gate2q "CX" qubits[3], qubits[2];
+
+gate1q pauli_right_slices[pauli_randomization_indices[11]][0] qubits[3];
+gate1q pauli_right_slices[pauli_randomization_indices[11]][1] qubits[2];
 
 # cycle 22
 gate1q "RZ" (pi / 4) qubits[2];
 
 # cycle 23
+gate1q pauli_left_slices[pauli_randomization_indices[12]][0] qubits[3];
+gate1q pauli_left_slices[pauli_randomization_indices[12]][1] qubits[0];
+
+gate1q pauli_left_slices[pauli_randomization_indices[13]][0] qubits[2];
+gate1q pauli_left_slices[pauli_randomization_indices[13]][1] qubits[1];
+
 gate2q "CX" qubits[3], qubits[0];
 gate2q "CX" qubits[2], qubits[1];
 
+gate1q pauli_right_slices[pauli_randomization_indices[12]][0] qubits[3];
+gate1q pauli_right_slices[pauli_randomization_indices[12]][1] qubits[0];
+
+gate1q pauli_left_slices[pauli_randomization_indices[13]][0] qubits[2];
+gate1q pauli_left_slices[pauli_randomization_indices[13]][1] qubits[1];
+
 # cycle 24
+gate1q pauli_left_slices[pauli_randomization_indices[14]][0] qubits[0];
+gate1q pauli_left_slices[pauli_randomization_indices[14]][1] qubits[3];
+
+gate1q pauli_left_slices[pauli_randomization_indices[15]][0] qubits[1];
+gate1q pauli_left_slices[pauli_randomization_indices[15]][1] qubits[2];
+
 gate2q "CX" qubits[0], qubits[3];
 gate2q "CX" qubits[1], qubits[2];
 
+gate1q pauli_right_slices[pauli_randomization_indices[14]][0] qubits[0];
+gate1q pauli_right_slices[pauli_randomization_indices[14]][1] qubits[3];
+
+gate1q pauli_right_slices[pauli_randomization_indices[15]][0] qubits[1];
+gate1q pauli_right_slices[pauli_randomization_indices[15]][1] qubits[2];
+
 # cycle 25
+gate1q pauli_left_slices[pauli_randomization_indices[16]][0] qubits[3];
+gate1q pauli_left_slices[pauli_randomization_indices[16]][1] qubits[0];
+
+gate1q pauli_left_slices[pauli_randomization_indices[17]][0] qubits[2];
+gate1q pauli_left_slices[pauli_randomization_indices[17]][1] qubits[1];
+
 gate2q "CX" qubits[3], qubits[0];
 gate2q "CX" qubits[2], qubits[1];
+
+gate1q pauli_right_slices[pauli_randomization_indices[16]][0] qubits[3];
+gate1q pauli_right_slices[pauli_randomization_indices[16]][1] qubits[0];
+
+gate1q pauli_right_slices[pauli_randomization_indices[17]][0] qubits[2];
+gate1q pauli_right_slices[pauli_randomization_indices[17]][1] qubits[1];
