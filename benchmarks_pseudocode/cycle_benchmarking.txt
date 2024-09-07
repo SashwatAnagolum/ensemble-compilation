@@ -1,0 +1,52 @@
+# deterministic inputs
+num_random_paulis = 64;
+num_frame_randomizations = 10;
+num_repetitions = [4, 8, 12];
+
+pauli_cycle = [0, 1, 0, 1, 0, 1];
+
+# precomputed values before circuit sampling
+edge_frame_randomization = [
+	["Y", "Y", "X"],
+	["X", "X", "Y"],
+	["X", "Y", "Z"]
+]
+
+# random variables sampled every time we sample a circuit
+pauli_indices = int_uniform(low=0, high=3, size=(6,));
+rc_indices = int_uniform(low=0, high=3, size=(13, 6));
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# qubits and classical bits
+qubit qubits[6];
+bit bits[6];
+
+# circuit description - local Pauli cycle on 6 qubits (X, Y, X, Y, X, Y)
+reset qubits;
+
+# state preparation and zeroth frame randomization
+for (i = 0; i < 6; i++) {
+	gate1q edge_frame_randomization[pauli_indices[i]][rc_indices[0][i]] qubits[i];
+}
+
+# repeated application of gate cycle and frame randomizations
+for (rep_index = 0; rep_index < num_repetitions[circuit_index % 3] - 1; rep_index++) {
+	for (i = 0; i < 6; i++) {
+		gate1q ["X", "Y", "Z"][pauli_cycle[i]] qubits[i];
+	}
+
+	for (i = 0; i < 6; i++) {
+		gate1q ["X", "Y", "Z"][rc_indices[rep_index][i]] qubits[i];
+	}
+}
+
+for (i = 0; i < 6; i++) {
+	gate1q ["X", "Y", "Z"][pauli_cycle[i]] qubits[i];
+}
+
+# measure in basis of the chosen Pauli
+for (i = 0; i < 6; i++) {
+	gate1q edge_frame_randomization[pauli_indices[i]][rc_indices[num_repetitions[circuit_index % 3] - 1][i]] qubits[i];
+}
