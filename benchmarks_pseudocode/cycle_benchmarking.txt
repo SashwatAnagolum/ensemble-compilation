@@ -12,12 +12,15 @@ edge_frame_randomization = [
 	["X", "Y", "Z"]
 ]
 
-# random variables sampled every time we sample a circuit
-pauli_indices = int_uniform(low=0, high=3, size=(6,));
-rc_indices = int_uniform(low=0, high=3, size=(13, 6));
-
 # values passed in during circuit sampling
 global circuit_index;
+
+# random variables sampled every time we sample a circuit
+if (!(circuit_index % 30)) {
+	pauli_indices = int_uniform(low=0, high=3, size=(6,));	
+}
+
+rc_indices = int_uniform(low=0, high=3, size=(13, 6));
 
 # qubits and classical bits
 qubit qubits[6];
