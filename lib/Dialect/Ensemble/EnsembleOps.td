@@ -8,7 +8,10 @@ class Ensemble_GateOp<string mnemonic> : Op<Ensemble_Dialect, mnemonic>;
 
 class Ensemble_DistributionOp<string mnemonic> : Op<Ensemble_Dialect, mnemonic>; 
 
+class Ensemble_DistributionBit<string mnemonic> : Op<Ensemble_Dialect, mnemonic>;
+
 class Ensemble_UserInputOp<string mnemonic> : Op<Ensemble_Dialect, mnemonic>; 
+
 
 // Gate operations
  
@@ -32,7 +35,7 @@ def Ensemble_QubitMeasurement : Ensemble_GateOp<"measure"> {
   let summary = "Single qubit measurement to classical bit.";
   let arguments = (ins Qubit:$input);
   let results = (outs Cbit:$output);
-  let assemblyFormat = "`measure` attr-dict $input `:` `(` type($input) `)` `->` `(` type($output) `)`";
+  let assemblyFormat = "attr-dict $input `:` `(` type($input) `)` `->` `(` type($output) `)`";
 }
 
 // Qubit reset
@@ -41,7 +44,7 @@ def Ensemble_QubitReset : Ensemble_GateOp<"reset"> {
   let summary = "Single qubit reset.";
   let arguments = (ins Qubit:$input);
   let results = {outs Qubit:$output};
-  let assemblyFormat = "`reset` attr-dict $input `:` `(` type($input) `)` `->` `(` type($output) `)`";
+  let assemblyFormat = "attr-dict $input `:` `(` type($input) `)` `->` `(` type($output) `)`";
 }
 
 // Gate distribution operations
@@ -59,6 +62,25 @@ def Ensemble_GateDistribution2QOp : Ensemble_GateOp<"gate_distribution_2q"> {
   let results = (outs Qubit:$output0, Qubit:$output1);
   let assemblyFormat = "$gateNames `[` $index `]` attr-dict $input0 `,` $input1 `:` `(` type($input0) `,` type($input1) `,` type($index) `)` `->` `(` type($output0) `,` type($output1) `)`";
 }
+
+// Qubit distribution operations
+
+def Ensemble_QubitDistribution : Ensemble_DistributionBit<"qubit_distribution_1q"> {
+  let summary = "Qubit distribution sampled from by an integer";
+  let arguments = (ins I32:$index, Variadic<Qubit>:$input);
+  let results = (outs Qubit:$output);
+  let assemblyFormat = "$input `[` $index `]` attr-dict `:` `(` type($input) `)` `->` `(` type($output) `)`";
+}
+
+// Cbit distribution operations
+
+def Ensemble_CbitDistribution : Ensemble_DistributionBit<"cbit_distribution_1c"> {
+  let summary = "Cbit distribution sampled from by an integer";
+  let arguments = (ins I32:$index, Variadic<Cbit>:$input);
+  let results = (outs Cbit:$output);
+  let assemblyFormat = "$input `[` $index `]` attr-dict `:` `(` type($input) `)` `->` `(` type($output) `)`";
+}
+
 
 // Integer and floating-point distribution operations
 
