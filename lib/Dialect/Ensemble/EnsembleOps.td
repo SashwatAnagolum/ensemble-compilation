@@ -6,29 +6,16 @@ include "EnsembleTypes.td"
 
 class Ensemble_GateOp<string mnemonic> : Op<Ensemble_Dialect, mnemonic>; 
 
-<<<<<<< HEAD
-=======
 class Ensemble_DistributionOp<string mnemonic> : Op<Ensemble_Dialect, mnemonic>; 
 
 class Ensemble_UserInputOp<string mnemonic> : Op<Ensemble_Dialect, mnemonic>; 
 
 // Gate operations
  
->>>>>>> 876346749d51924ac24362cdcce6253fc9e49f18
 def Ensemble_Gate1QOp : Ensemble_GateOp<"gate1q"> {
   let summary = "Single qubit gate on a qubit.";
   let arguments = (ins Qubit:$input, StrAttr:$gateName);
   let results = (outs Qubit:$output);
-<<<<<<< HEAD
-  let assemblyFormat = "$gateName $input attr-dict `:` `(` type($input) `)` `->`  `(` type($output) `)`";
-}
-
-def Ensemble_Gate2QOp : Ensemble_GateOp<"gate2q"> {
-  let summary = "Single qubit gate on a qubit.";
-  let arguments = (ins Qubit:$input0, Qubit:$input1, StrAttr:$gateName);
-  let results = (outs Qubit:$output0, Qubit:$output1);
-  let assemblyFormat = "$gateName $input0 `,` $input1 attr-dict `:` `(` type($input0) `,` type($input1) `)` `->` `(` type($output0) `,` type($output1) `)`";
-=======
   let assemblyFormat = "$gateName attr-dict $input `:` `(` type($input) `)` `->`  `(` type($output) `)`";
 }
 
@@ -37,6 +24,24 @@ def Ensemble_Gate2QOp : Ensemble_GateOp<"gate2q"> {
   let arguments = (ins Qubit:$input0, Qubit:$input1, StrAttr:$gateName);
   let results = (outs Qubit:$output0, Qubit:$output1);
   let assemblyFormat = "$gateName attr-dict $input0 `,` $input1 `:` `(` type($input0) `,` type($input1) `)` `->` `(` type($output0) `,` type($output1) `)`";
+}
+
+// Qubit measurement
+
+def Ensemble_QubitMeasurement : Ensemble_GateOp<"measure"> {
+  let summary = "Single qubit measurement to classical bit.";
+  let arguments = (ins Qubit:$input);
+  let results = (outs Cbit:$output);
+  let assemblyFormat = "`measure` attr-dict $input `:` `(` type($input) `)` `->` `(` type($output) `)`";
+}
+
+// Qubit reset
+
+def Ensemble_QubitReset : Ensemble_GateOp<"reset"> {
+  let summary = "Single qubit reset.";
+  let arguments = (ins Qubit:$input);
+  let results = {outs Qubit:$output};
+  let assemblyFormat = "`reset` attr-dict $input `:` `(` type($input) `)` `->` `(` type($output) `)`";
 }
 
 // Gate distribution operations
@@ -69,7 +74,6 @@ def Ensemble_CategoricalIntegerDistributionOp: Ensemble_DistributionOp<"int_cate
   let arguments = (ins I32Attr:$low, DenseF32ArrayAttr:$probs);
   let results = (outs I32:$output);
   let assemblyFormat = "$low `,` $probs attr-dict `:` functional-type(operands, results)";  
->>>>>>> 876346749d51924ac24362cdcce6253fc9e49f18
 }
 
 #endif  // LIB_DIALECT_ENSEMBLE_ENSEMBLEOPS_TD_
