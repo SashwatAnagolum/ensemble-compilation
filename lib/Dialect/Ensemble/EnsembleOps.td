@@ -43,7 +43,7 @@ def Ensemble_QubitMeasurement : Ensemble_GateOp<"measure"> {
 def Ensemble_QubitReset : Ensemble_GateOp<"reset"> {
   let summary = "Single qubit reset.";
   let arguments = (ins Qubit:$input);
-  let results = {outs Qubit:$output};
+  let results = (outs Qubit:$output);
   let assemblyFormat = "attr-dict $input `:` `(` type($input) `)` `->` `(` type($output) `)`";
 }
 
