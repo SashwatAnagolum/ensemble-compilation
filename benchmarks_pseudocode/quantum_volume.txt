@@ -1,0 +1,77 @@
+# deterministic inputs
+max_qv = 6
+num_circuits = max_qv - 1;
+
+# precomputed values before circuit sampling
+pi = 3.14159265359;
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# random variables sampled every time we sample a circuit
+num_qubits = circuit_index + 2;
+qubit_pairs = int_permutation(num_qubits, size=(num_qubits,))
+rotation_angles = float_uniform(low=0, high=2 * pi, size=(num_qubits, num_qubits, 4, 3))
+
+# qubits and classical bits
+qubit qubits[num_qubits];
+bit bits[num_qubits];
+
+# circuit description - QV circuit with num_qubits cycles
+reset qubits;
+
+for (i = 0; i < num_qubits; i++) {
+	for (j = 0; j < num_qubits; j+= 2) {
+		gate1q "U3" (
+			rotation_angles[i][j][0][0],
+			rotation_angles[i][j][0][1],
+			rotation_angles[i][j][0][2]
+		) qubits[qubit_pairs[i][j]];
+
+		gate1q "U3" (
+			rotation_angles[i][j + 1][0][0],
+			rotation_angles[i][j + 1][0][1],
+			rotation_angles[i][j + 1][0][2]
+		) qubits[qubit_pairs[i][j + 1]];
+
+		gate2q "CX" qubits[qubit_pairs[i][j]], qubits[qubit_pairs[i][j + 1]];
+
+		gate1q "U3" (
+			rotation_angles[i][j][1][0],
+			rotation_angles[i][j][1][1],
+			rotation_angles[i][j][1][2]
+		) qubits[qubit_pairs[i][j]];
+
+		gate1q "U3" (
+			rotation_angles[i][j + 1][1][0],
+			rotation_angles[i][j + 1][1][1],
+			rotation_angles[i][j + 1][1][2]
+		) qubits[qubit_pairs[i][j + 1]];
+
+		gate2q "CX" qubits[qubit_pairs[i][j + 1]], qubits[qubit_pairs[i][j]];
+
+		gate1q "U3" (
+			rotation_angles[i][j][2][0],
+			rotation_angles[i][j][2][1],
+			rotation_angles[i][j][2][2]
+		) qubits[qubit_pairs[i][j]];
+
+		gate2q "CX" qubits[qubit_pairs[i][j]], qubits[qubit_pairs[i][j + 1]];
+
+		gate1q "U3" (
+			rotation_angles[i][j][3][0],
+			rotation_angles[i][j][3][1],
+			rotation_angles[i][j][3][2]
+		) qubits[qubit_pairs[i][j]];
+
+		gate1q "U3" (
+			rotation_angles[i][j + 1][2][0],
+			rotation_angles[i][j + 1][2][1],
+			rotation_angles[i][j + 1][2][2]
+		) qubits[qubit_pairs[i][j + 1]];
+	}
+}
+
+for (i = 0; i < num_qubits; i++) {
+	measure qubits[i], bits[i];
+}

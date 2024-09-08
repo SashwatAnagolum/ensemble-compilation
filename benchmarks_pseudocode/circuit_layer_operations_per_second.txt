@@ -1,0 +1,38 @@
+# deterministic inputs
+num_circuits = 100;
+connectivity = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 0]];
+num_qubits = 8;
+
+# precomputed values before circuit sampling
+pi = 3.14159265359;
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# random variables sampled every time we sample a circuit
+cnot_pairs = random_cnot_layers(connectivity=connectivity, num_layers=num_qubits); # size (8, 4, 2)
+rotation_angles = float_uniform(low=0, high=2 * pi, size=(num_qubits, num_qubits));
+
+# qubits and classical bits
+qubit qubits[num_qubits];
+bit bits[num_qubits];
+
+# circuit description - CLOPS_H circuits on an example 8 qubit device
+# with ring connectivity and RZ, X, SX, and CNOT native gates
+reset qubits;
+
+for (i = 0; i < num_qubits; i++) {
+	for (j = 0; j < num_qubits; j+= 2) {
+		gate2q "CX" qubits[cnot_pairs[i][j][0]], qubits[cnot_pairs[i][j][1]];
+	}
+
+	for (j = 0; j < num_qubits; j++) {
+		gate1q "RZ" (rotation_angles[i][j]) qubits[j];
+		gate1q "SX" qubits[j];
+		gate1q "X" qubits[j];
+	}
+}
+
+for (i = 0; i < num_qubits; i++) {
+	measure qubits[i], bits[i];
+}

@@ -53,3 +53,7 @@ for (i = 0; i < 6; i++) {
 for (i = 0; i < 6; i++) {
 	gate1q edge_frame_randomization[pauli_indices[i]][rc_indices[num_repetitions[circuit_index % 3] - 1][i]] qubits[i];
 }
+
+for (i = 0; i < 6; i++) {
+	measure qubits[i], bits[i];
+}
