@@ -19,11 +19,11 @@ def Qubit : Ensemble_Type<"Qubit", "qubit"> {
 
 def Cbit : Ensemble_Type<"Cbit", "cbit"> {
 
-  let summary = "A classical bit."  
+  let summary = "A classical bit.";  
 
   let description = [{
     A type representing a classical bit.
-  }]
+  }];
 }
 
 
