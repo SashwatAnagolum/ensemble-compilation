@@ -2,9 +2,6 @@
 // problem hamiltonian - adjacent ZZ terms
 // mixer hamiltonian - single-qubit Pauli X rotations
 
-
-
-
 module {
     // # values passed in during circuit sampling
     // global circuit_index;
@@ -145,60 +142,6 @@ module {
 
         return 
         
-
-
-// reset qubits;
-
-// for (i = 0; i < 16; i++) {
-// 	gate1q "H" qubits[i];
-// }
-
-// for (i = 0; i < 15; i++) {
-// 	gate2q "CX" qubits[i], qubits[i + 1];
-	
-// 	for (j = 0; j < phase_gate_powers[0][i]; j++) {
-// 		gate1q "S" qubits[i + 1];
-// 	}
-
-// 	gate2q "CX" qubits[i], qubits[i + 1];
-// }
-
-// for (i = 0; i < 16; i++) {
-// 	gate1q "S" qubits[i];
-// 	gate1q "P" qubits[i];
-
-// 	for (j = 0; j < phase_gate_powers[1][i]; j++) {
-// 		gate1q "S" qubits[i];
-// 	}
-
-// 	gate1q "P" qubits[i];
-// 	gate1q "S" qubits[i];
-// }
-
-// for (i = 0; i < 15; i++) {
-// 	gate2q "CX" qubits[i], qubits[i + 1];
-	
-// 	for (j = 0; j < phase_gate_powers[2][i]; j++) {
-// 		gate1q "S" qubits[i + 1];
-// 	}
-
-// 	gate2q "CX" qubits[i], qubits[i + 1];
-// }
-
-// for (i = 0; i < 16; i++) {
-// 	gate1q "S" qubits[i];
-// 	gate1q "P" qubits[i];
-
-// 	for (j = 0; j < phase_gate_powers[3][i]; j++) {
-// 		gate1q "S" qubits[i];
-// 	}
-
-// 	gate1q "P" qubits[i];
-// 	gate1q "S" qubits[i];
-
-// 	measure qubits[i], bits[i];
-// }
-
 
     }
 }
