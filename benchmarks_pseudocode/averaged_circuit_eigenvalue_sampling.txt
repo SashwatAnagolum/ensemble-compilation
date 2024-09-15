@@ -1,0 +1,96 @@
+# deterministic inputs
+num_circuits = 200000;
+num_base_circuits = 20;
+num_randomizations_per_circuit = 10000;
+num_qubits = 25;
+
+min_depth = 2;
+max_depth = 100;
+
+connectivity = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14], [14, 15], [15, 16], [16, 17], [17, 18], [18, 19], [19, 20], [20, 21], [21, 22], [22, 23], [23, 24]];
+ 
+# values passed in during circuit sampling
+global circuit_index;
+
+# precomputed values before circuit sampling
+2q_pauli_left_slices = [
+	["I", "I"], ["I", "X"], ["I", "Y"], ["I", "Z"],
+	["X", "I"], ["X", "X"], ["X", "Y"], ["X", "Z"],
+	["Y", "I"], ["Y", "X"], ["Y", "Y"], ["Y", "Z"],
+	["Z", "I"], ["Z", "X"], ["Z", "Y"], ["Z", "Z"],
+] # for CX gate
+
+2q_pauli_right_slices = [
+	["I", "I"], ["I", "X"], ["Z", "Y"], ["Z", "Z"],
+	["X", "X"], ["X", "I"], ["Y", "Z"], ["Y", "Y"],
+	["Y", "X"], ["Y", "I"], ["X", "Z"], ["X", "Y"],
+	["Z", "I"], ["Z", "X"], ["I", "Y"], ["I", "Z"],
+] # after commuting through CX
+
+1q_pauli_left_slices = [
+	["I", X", "Y", "Z"], ["I", "X", "Y", "Z"]
+]; # for S and H gates, respectively
+
+1q_pauli_right_slices = [
+	["I", "Z", "Y", "X"], ["I", "Y", "X", "Z"]
+]; # after commuting through S and H gates
+
+
+# random variables sampled every time we sample a circuit
+if (circuit_index % num_randomizations_per_circuit == 0) {
+	circuit_depth = int_uniform(low=min_depth, high=max_depth + 1);
+	num_cnots_in_layer = int_uniform(
+		low=0, high=1 + num_qubits // 2, size=(circuit_depth,)
+	);
+
+	cnot_pairs = random_cnot_pairs(
+		connectivity=connectivity, num_layers=circuit_depth
+	)  # size (circuit_depth, num_qubits) -> flattened version of (circuit_depth, num_qubits // 2, 2);	
+
+	clifford_indices = int_uniform(
+		low=0, high=2, size=(circuit_depth, num_qubits)
+	);
+}
+
+2q_pauli_indices = int_uniform(
+	low=0, high=16, size=(circuit_depth, num_qubits // 2)
+);
+
+1q_pauli_indices = int_uniform(
+	low=0, high=3, size=(circuit_depth, num_qubits)
+);
+
+# qubits and classical bits
+qubit qubits[num_qubits];
+bit bits[num_qubits];
+
+# circuit description - Randomly generated circuits over [CX, S, H] on 25 qubits
+reset qubits;
+
+for (i = 0; i < circuit_depth; i++) {
+	for (cnot_index = 0; cnot_index < num_cnots[i]; cnot_index++) {
+		gate1q 2q_pauli_left_slices[2q_pauli_indices[i][cnot_index][0]] qubits[cnot_pairs[2 * cnot_index]];
+
+		gate1q 2q_pauli_left_slices[2q_pauli_indices[i][cnot_index][1]] qubits[cnot_pairs[2 * cnot_index + 1]];
+
+		gate2q "CX" qubits[cnot_pairs[2 * cnot_index]], qubits[cnot_pairs[2 * cnot_index + 1]];
+
+		gate1q 2q_pauli_right_slices[2q_pauli_indices[i][cnot_index][0]] qubits[cnot_pairs[2 * cnot_index]];
+
+		gate1q 2q_pauli_right_slices[2q_pauli_indices[i][cnot_index][1]] qubits[cnot_pairs[2 * cnot_index + 1]];
+	}
+
+
+
+	for (qubit_index = 2 * num_cnots[i]; qubit_index < num_qubits; qubit_index++) {
+		gate1q 1q_pauli_left_slices[clifford_indices[i][qubit_index]][1q_pauli_indices[i][qubit_index]] qubits[qubit_index];
+
+		gate1q ["S", "H"][clifford_indices[i][qubit_index]] qubits[qubit_index];
+
+		gate1q 1q_pauli_right_slices[clifford_indices[i][qubit_index]][1q_pauli_indices[i][qubit_index]] qubits[qubit_index];
+	}
+}
+
+for (i = 0; i < num_qubits; i++) {
+	measure qubits[i], bits[i];
+}
