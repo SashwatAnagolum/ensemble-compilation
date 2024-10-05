@@ -1,0 +1,67 @@
+# deterministic inputs
+num_circuits = 640;
+num_circuits_per_depth = 32;
+depths = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40];
+connectivity = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14], [14, 15]];
+num_qubits = 16;
+
+# precomputed values before circuit sampling
+
+# random variables sampled every time we sample a circuit
+circuit_depth = depths[circuit_index // num_circuits_per_depth]
+
+num_cnots_in_layer = int_uniform(
+	low=0, high=1 + num_qubits // 2, size=(circuit_depth,)
+)
+
+cnot_pairs = random_cnot_pairs(
+	connectivity=connectivity, num_layers=circuit_depth
+)  # size (circuit_depth, num_qubits) -> flattened version of (circuit_depth, num_qubits // 2, 2)
+
+pauli_indices = int_uniform(
+	low=0, high=4, size=(circuit_depth + 1, num_qubits)
+);
+
+clifford_indices = int_uniform(low=0, high=4, size=(circuit_depth, num_qubits));
+initial_clifford_indices = int_uniform(low=0, high=4, size=(num_qubits,));
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# qubits and classical bits
+qubit qubits[num_qubits];
+bit bits[num_qubits];
+
+# circuit description - Randomly generated mirror circuits
+# over 16 qubits, and randomly sampled variables
+reset qubits;
+
+for (qubit_index = 0; qubit_index < num_qubits; qubit_index++) {
+	gate1q ["X", "Y", "Z", "H"][initial_clifford_indices[qubit_index]] qubits[qubit_index];
+}
+
+for (qubit_index = 0; qubit_index < num_qubits; qubit_index++) {
+	gate1q ["X", "Y", "Z"][pauli_indices[0][qubit_index]] qubits[qubit_index];
+}
+
+for (i = 0; i < circuit_depth; i++) {
+	for (cnot_index = 0; cnot_index < num_cnots[i]; cnot_index++) {
+		gate2q "CX" qubits[cnot_pairs[cnot_index]], qubits[cnot_pairs[cnot_index + 1]];
+	}
+
+	for (qubit_index = 2 * num_cnots[i]; qubit_index < num_qubits; qubit_index++) {
+		gate1q ["X", "Y", "Z", "H"][clifford_indices[i][qubit_index]] qubits[qubit_index];
+	}
+
+	for (qubit_index = 0; qubit_index < num_qubits; qubit_index++) {
+		gate1q ["X", "Y", "Z"][pauli_indices[i + 1][qubit_index]] qubits[qubit_index];
+	}
+}
+
+for (qubit_index = 0; qubit_index < num_qubits; qubit_index++) {
+	gate1q ["X", "Y", "Z", "H"][initial_clifford_indices[qubit_index]] qubits[qubit_index];
+}
+
+for (i = 0; i < num_qubits; i++) {
+	measure qubits[i], bits[i];
+}
