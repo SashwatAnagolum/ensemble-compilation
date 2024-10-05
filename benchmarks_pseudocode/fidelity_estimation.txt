@@ -16,15 +16,14 @@ bit bits[8];
 # circuit description - GHZ on 8 qubits
 reset qubits;
 
-for (i = 0; i < 8; i++) {
-	gate1q "H" qubits[i];
-}
+gate1q "H" qubits[0];
 
 for (i = 0; i < 7; i++) {
 	gate2q "CX" qubits[i], qubits[i + 1];
 }
 
 for (i = 0; i < 8; i++) {
-	gate1q ["X", "Y", "Z"][pauli_indices[i]] qubits[i];
+	gate1q ["I", "H", "Sdag"][pauli_indices[i]] qubits[i];
+	gate1q ["I", "I", "H"][pauli_indices[i]] qubits[i];
 	measure qubits[i], bits[i];
 }
