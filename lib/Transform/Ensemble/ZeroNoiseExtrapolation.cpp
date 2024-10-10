@@ -1,3 +1,5 @@
+/*
+
 #include "lib/Transform/Ensemble/ZeroNoiseExtrapolation.h"
 
 #include <iostream>
@@ -89,7 +91,8 @@ LogicalResult zneRewritePattern(T &op, PatternRewriter &rewriter) {
 // the same gate and its adjoint.
 struct AddGateAndAdjointPairs1Q : public OpRewritePattern<Gate1QOp> {
   AddGateAndAdjointPairs1Q(mlir::MLIRContext *context)
-      : OpRewritePattern<Gate1QOp>(context, /*benefit=*/1) {}
+    // benefit: 1
+      : OpRewritePattern<Ensemble>(context, 1) {}
 
   LogicalResult matchAndRewrite(Gate1QOp op,
                                 PatternRewriter &rewriter) const override {
@@ -99,7 +102,8 @@ struct AddGateAndAdjointPairs1Q : public OpRewritePattern<Gate1QOp> {
 
 struct AddGateAndAdjointPairs2Q : public OpRewritePattern<Gate2QOp> {
   AddGateAndAdjointPairs2Q(mlir::MLIRContext *context)
-      : OpRewritePattern<Gate2QOp>(context, /*benefit=*/1) {}
+  // benefit: 1
+      : OpRewritePattern<Gate2QOp>(context, 1) {}
 
   LogicalResult matchAndRewrite(Gate2QOp op,
                                 PatternRewriter &rewriter) const override {
@@ -123,3 +127,4 @@ struct ZeroNoiseExtrapolation
 }  // namespace ensemble
 }  // namespace qe
 }  // namespace mlir
+*/
