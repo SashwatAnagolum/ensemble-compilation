@@ -1,0 +1,102 @@
+# inputs from user
+num_circuits = 12288;
+
+# precomputed values before circuit sampling
+beta = [0.21];
+gamma = [0.1];
+
+measurement_bases_shifts = [
+	"I", "I", "H", "H", "SX", "SX", "I", "I",
+];
+
+state_prep_sequences = [
+	["I", "I"],
+	["X", "I"],
+	["H", "I"],
+	["X", "H"],
+	["SXdag", "I"],
+	["X", "SXdag"],
+	["I", "I"],
+	["X", "I"],
+];
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# random variables sampled every time we sample a circuit
+# (in this case just deterministically computed based on circuit_index)
+logical_circuit_index = circuit_index // 2;
+circuit_part_index = circuit_index % 2;
+
+move_sequence_positions = [
+	logical_circuit_index % 8,
+	(logical_circuit_index // 8) % 8,
+	(logical_circuit_index // 64) % 8,
+	(logical_circuit_index // 512) % 8,
+	(logical_circuit_index // 4096) % 8,
+]
+
+# qubits and classical bits
+qubit qubits[9];
+bit bits[9];
+
+# circuit description - QAOA on 13 qubits, 1 layer
+reset qubits;
+
+if (circuit_part_index == 0) {
+	for (i = 0; i < 9; i++) {
+		gate1q "H" qubits[i];
+	}
+
+	for (i = 0; i < 3; i++) {
+		gate2q "RZZ" (2 * beta[0]) qubits[i], qubits[i + 1];
+	}
+
+	for (qubit_1 = 0; qubit_1 < 4: qubit_1++) {
+		for (qubit_2 = 4; qubit_2 < 9; qubit_2++) {
+			gate2q "RZZ" (2 * beta[0]) qubits[qubit_1], qubits[qubit_2];
+		}
+	}
+
+	for (qubit_index = 0; qubit_index < 4; qubit_index++) {
+		gate1q "RX" (2 * gamma[0]) qubits[qubit_index];
+	}
+
+	for (move_index = 0; move_index < 5; move_index++) {
+		gate1q measurement_bases_shifts[
+			move_sequence_positions[move_index]
+		] qubits[move_index + 4];
+	}
+}
+
+if (circuit_part_index == 1) {
+	for (move_index = 0; move_index < 5; move_index++) {
+		gate1q state_prep_sequences[
+			move_sequence_positions[move_index]
+		][0] qubits[move_index];
+
+		gate1q state_prep_sequences[
+			move_sequence_positions[move_index]
+		][1] qubits[move_index];
+	}
+
+	for (i = 5; i < 9; i++) {
+		gate1q "H" qubits[i];
+	}
+
+	for (qubit_1 = 0; qubit_1 < 5: qubit_1++) {
+		for (qubit_2 = 5; qubit_2 < 9; qubit_2++) {
+			gate2q "RZZ" (2 * beta[0]) qubits[qubit_1], qubits[qubit_2];
+		}
+	}
+
+	for (i = 5; i < 8; i++) {
+		gate2q "RZZ" (2 * beta[0]) qubits[i], qubits[i + 1];
+	}
+
+	for (qubit_index = 0; qubit_index < 9; qubit_index++) {
+		gate1q "RX" (2 * gamma[0]) qubits[qubit_index];
+	}	
+}
+
+measure qubits, bits;
