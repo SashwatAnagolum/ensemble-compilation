@@ -29,7 +29,7 @@ def PhysicalQubit : Ensemble_Type<"PhysicalQubit", "physical_qubit"> {
 
 // Define an alias for AnyTypeOf<[VirtualQubit, PhysicalQubit]>
 def AnyQubit : AnyTypeOf<[VirtualQubit, PhysicalQubit]>;
-
+// can support variable number of qubits and tensors of qubits
 
 def Cbit : Ensemble_Type<"Cbit", "cbit"> {
   let summary = "A classical bit.";  
@@ -45,5 +45,16 @@ def Gate : Ensemble_Type<"Gate", "gate"> {
     A type representing a gate.
   }];
 }
+
+def GateDistribution : Ensemble_Type<"GateDistribution", "gate_distribution"> {
+  let summary = "A gate distribution.";
+  let description = [{
+    A type representing a gate distribution. (this is similar to a tensor of gates, but the 
+    verifier will check that the number of qubits in each gate matches the number of qubits 
+    in the distribution)
+  }];
+}
+
+
 
 #endif  // LIB_DIALECT_ENSEMBLE_ENSEMBLETYPES_TD_
