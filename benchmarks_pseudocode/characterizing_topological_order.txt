@@ -1,0 +1,60 @@
+# inputs from user
+num_circuits = 1024;
+
+# precomputed values before circuit sampling
+qubits_to_measure = [14, 10, 6, 19, 15, 11, 24, 20, 16];
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# random variables sampled every time we sample a circuit
+pauli_indices = int_uniform(low=0, high=3, size=(9,))
+
+# qubits and classical bits
+qubit qubits[31];
+bit bits[31];
+
+# circuit description - 5x5 toric code, with 9 qubit subset measured
+reset qubits;
+
+for (i = 0; i < 3; i++) {
+	for (j = 0; j < 4; j++) {
+		gate1q "H" qubits[9 * i + j];
+	}
+}
+
+for (i = 0; i < 3; i++) {
+	for (j = 1; j < 3; j++) {
+		gate2q "CX" qubits[9 * i + j], qubits[9 * i + j + 4];
+	}
+}
+
+for (i = 0; i < 3; i++) {
+	for (j = 1; j < 3; j++) {
+		gate2q "CX" qubits[9 * i + j], qubits[9 * i + j + 5];
+	}
+}
+
+for (i = 0; i < 3; i++) {
+	gate2q "CX" qubits[9 * i], qubits[9 * i + 4];
+	gate2q "CX" qubits[9 * i + 3], qubits[9 * i + 8];
+	gate2q "CX" qubits[9 * i + 5], qubits[9 * i + 10];
+	gate2q "CX" qubits[9 * i + 7], qubits[9 * i + 11];
+}
+
+for (i = 0; i < 3; i++) {
+	gate2q "CX" qubits[9 * i], qubits[9 * i + 5];
+	gate2q "CX" qubits[9 * i + 3], qubits[9 * i + 7];
+}
+
+for (i = 0; i < 3; i++) {
+	gate2q "CX" qubits[9 * i + 4], qubits[9 * i + 9];
+	gate2q "CX" qubits[9 * i + 8], qubits[9 * i + 12];
+}
+
+for (i = 0; i < 9; i++) {
+	gate1q ["I", "H", "Sdag"][pauli_indices[i]] qubits[qubits_to_measure[i]];
+	gate1q ["I", "I", "H"][pauli_indices[i]] qubits[qubits_to_measure[i]];
+
+	measure qubits[qubits_to_measure[i]], bits[i];	
+}

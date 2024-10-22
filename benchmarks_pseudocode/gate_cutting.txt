@@ -1,0 +1,110 @@
+# inputs from user
+num_circuits = 2592;
+params = [
+	[[0.1, 0.1, 0.1, 0.1], [0.1, 0.1, 0.1, 0.1]],
+	[[0.1, 0.1, 0.1, 0.1], [0.1, 0.1, 0.1, 0.1]],
+	[[0.1, 0.1, 0.1, 0.1], [0.1, 0.1, 0.1, 0.1]],
+	[[0.1, 0.1, 0.1, 0.1], [0.1, 0.1, 0.1, 0.1]],
+	[[0.1, 0.1, 0.1, 0.1], [0.1, 0.1, 0.1, 0.1]],
+];
+
+# precomputed values before circuit sampling
+control_gate_sequences = [
+	["Sdag"],
+	["S"],
+	["Sdag"],
+	["Sdag"],
+	["I"],
+	["Z"],
+];
+
+target_gate_sequences = [
+	["H", "Sdag", "H"],
+	["H", "S", "H"],
+	["I", "I", "I"],
+	["H", "Z", "H"],
+	["H", "Sdag", "H"],
+	["H", "Sdag", "H"],
+]
+
+should_perform_qpd_meas_on_control = [
+	False,
+	False,
+	True,
+	True,
+	False,
+	False,
+];
+
+should_perform_qpd_meas_on_target = [
+	False,
+	False,
+	False,
+	False,
+	True,
+	True,
+];
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# random variables sampled every time we sample a circuit
+use_x_basis_measurements = circuit_index % 2 == 1;
+logical_circuit_index = circuit_index // 2;
+
+cut_sequence_indices = [
+	logical_circuit_index // 216 % 6,
+	logical_circuit_index // 36 % 6,
+	logical_circuit_index // 6 % 6,
+	logical_circuit_index % 6
+];
+
+# qubits and classical bits
+qubit qubits[4];
+bit bits[6];
+
+# circuit description - HEA-4, CNOT between qubits 3 and 0 cut to reduce  
+# circuit depth
+reset qubits;
+
+for (layer_index = 0; layer_index < 4; layer_index++) {
+	for (i = 0; i < 4; i++) {
+		gate1q "RY" params[layer_index][0][i] qubits[i];
+		gate1q "RZ" params[layer_index][1][i] qubits[i];
+	}
+
+	for (control = 0; control < 3; control++) {
+		gate2q "CX" qubits[control], qubits[control + 1];
+	}
+
+	# use 1q gates instead of a CNOT on qubits[3], qubits[0]
+	gate1q control_gate_sequences[cut_sequence_indices[layer_index]] qubits[3];
+
+	if (should_perform_qpd_meas_on_control[cut_sequence_indices[layer_index]]]) {
+		measure qubits[3], bits[4];
+	}
+
+	gate1q target_gate_sequences[cut_sequence_indices[layer_index][0]] qubits[0];
+	gate1q target_gate_sequences[cut_sequence_indices[layer_index][1]] qubits[0];
+
+	if (should_perform_qpd_meas_on_target[cut_sequence_indices[layer_index]]]) {
+		measure qubits[0], bits[5];
+	}
+
+	gate1q target_gate_sequences[cut_sequence_indices[layer_index][2]] qubits[0];
+}
+
+for (i = 0; i < 4; i++) {
+	gate1q "RY" params[4][0][i] qubits[i];
+	gate1q "RZ" params[4][1][i] qubits[i];
+}
+
+if (use_x_basis_measurements) {
+	for (qubit_index = 0; qubit_index  4; qubit_index++) {
+		gate1q "H" qubits[qubit_index];
+	}
+}
+
+for (i = 0; i < 4; i++) {
+	measure qubits[i], bits[i];	
+}
