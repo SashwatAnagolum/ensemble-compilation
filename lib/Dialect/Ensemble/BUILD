@@ -78,7 +78,7 @@ gentbl_cc_library(
 
 cc_library(
     name = "Ensemble",
-    srcs = ["EnsembleDialect.cpp"],
+    srcs = ["EnsembleDialect.cpp", "EnsembleOps.cpp"],
     hdrs = [
         "EnsembleDialect.h",
         "EnsembleTypes.h",
