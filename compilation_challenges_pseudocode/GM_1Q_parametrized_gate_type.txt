@@ -1,0 +1,10 @@
+# gate merging example for a 1 qubit parametrized gate type
+qubit qubits[1];
+bit bits[1];
+reset qubits;
+
+random_indices = int_uniform(low=0, high=3, size=(10));
+1q_gate_types = [("Rz", 0.5), ("Rx", 0.7), ("Ry", -0.1)];
+for (i=0; i<10; i++) {
+    gate1q 1q_gate_types[random_indices[i]] qubits[0];
+}

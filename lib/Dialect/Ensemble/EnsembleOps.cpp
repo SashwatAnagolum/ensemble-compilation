@@ -16,9 +16,7 @@ LogicalResult GateConstructorOp::verify() {
 }
 
 LogicalResult ApplyGate::verify() {
-  if (getInput().size() != getOutput().size()) {
-    return emitOpError("Number of input qubits must match number of output qubits");
-  }
+
 
   // Get the gate operation
   auto gateOp = getGate().getDefiningOp<GateConstructorOp>();
@@ -43,17 +41,12 @@ LogicalResult QubitMeasurement::verify() {
 }
 
 LogicalResult ResetQubits::verify() {
-  if (getInput().size() != getOutput().size()) {
-    return emitOpError("Number of input qubits must match number of output qubits");
-  }
+  
   return success();
 }
 
 LogicalResult ResetQubitTensor::verify() {
-  // Verify that input and output tensors have the same shape
-  if (getInput().getType() != getOutput().getType()) {
-    return emitOpError("Input and output tensor types must match");
-  }
+  
   return success();
 }
 
@@ -84,10 +77,7 @@ LogicalResult GateDistributionConstructor::verify() {
 }
 
 LogicalResult ApplyGateDistribution::verify() {
-    // check that number of inputs matches number of outputs
-    if (getInputs().size() != getOutputs().size()) {
-        return emitOpError("Number of input qubits must match number of output qubits");
-    }
+   
 
     // Check that the number of input qubits matches the number of operands in the first gate of the distribution
     auto gateDistOp = getGates().getDefiningOp<GateDistributionConstructor>();
@@ -142,6 +132,23 @@ LogicalResult UniformFloatDistributionOp::verify() {
   }
   return success();
 }
+
+LogicalResult CNOTPairDistributionOp::verify() {
+  auto connectivityType = getConnectivity().getType().dyn_cast<RankedTensorType>();
+  if (!connectivityType || connectivityType.getRank() != 2 || connectivityType.getShape()[1] != 2) {
+    return emitOpError("Input connectivity must be a tensor of shape n x 2");
+  }
+  return success();
+}
+
+LogicalResult PermutationOp::verify() {
+  // check that size of result matches size of N
+  if (getResult().getType().getShape()[0] != getN()) {
+    return emitOpError("Size of result must match N");
+  }
+  return success();
+}
+
 
 } // end namespace ensemble
 } // end namespace qe

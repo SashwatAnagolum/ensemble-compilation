@@ -25,7 +25,7 @@ def Ensemble_GateConstructorOp : Ensemble_GateOp<"gate"> {
 def Ensemble_ApplyGate : Ensemble_GateOp<"apply"> {
   let summary = "Apply a deterministic gate to any number of qubits.";
   let arguments = (ins Gate:$gate, Variadic<AnyQubit>:$input);
-  let results = (outs Variadic<AnyQubit>:$output);
+  let results = (outs);
   let assemblyFormat = "$gate attr-dict $input `:` functional-type(operands, results)";
   let hasVerifier = 1;
 }
@@ -35,7 +35,7 @@ def Ensemble_ApplyGate : Ensemble_GateOp<"apply"> {
 def Ensemble_QubitMeasurement : Ensemble_GateOp<"measure"> {
   let summary = "Single qubit measurement to classical bit.";
   let arguments = (ins AnyQubit:$input0, Cbit:$input1);
-  let results = (outs AnyQubit:$output0, Cbit:$output1);
+  let results = (outs);
   let assemblyFormat = "$input0 `,` $input1 attr-dict `:` functional-type(operands, results)";
   let hasVerifier = 1;
 }
@@ -46,7 +46,7 @@ def Ensemble_QubitMeasurement : Ensemble_GateOp<"measure"> {
 def Ensemble_ResetQubits : Ensemble_GateOp<"reset"> {
   let summary = "variadic qubit reset.";
   let arguments = (ins Variadic<AnyQubit>:$input);
-  let results = (outs Variadic<AnyQubit>:$output);
+  let results = (outs);
   let assemblyFormat = "attr-dict $input `:` functional-type(operands, results)";
   let hasVerifier = 1;
 }
@@ -59,7 +59,7 @@ def Ensemble_ResetQubitTensor : Ensemble_GateOp<"reset_tensor"> {
     It takes a tensor of qubits as input and returns a tensor of reset qubits of the same shape.
   }];
   let arguments = (ins TensorOf<[AnyQubit]>:$input);
-  let results = (outs TensorOf<[AnyQubit]>:$output);
+  let results = (outs);
   let assemblyFormat = "attr-dict $input `:` functional-type(operands, results)";
   let hasVerifier = 1;
 }
@@ -79,7 +79,7 @@ def Ensemble_GateDistributionConstructor : Ensemble_GateOp<"gate_distribution"> 
 def Ensemble_ApplyGateDistribution : Ensemble_GateOp<"apply_distribution"> {
   let summary = "Gate distribution on a variable number of qubits and gates";
   let arguments = (ins GateDistribution:$gates, I32:$index, Variadic<AnyQubit>:$inputs);
-  let results = (outs Variadic<AnyQubit>:$outputs);
+  let results = (outs);
   let assemblyFormat = "$gates `[` $index `]` attr-dict $inputs `:` functional-type(operands, results)";
   let hasVerifier = 1;
 }
@@ -147,5 +147,31 @@ def Ensemble_UniformFloatDistributionOp: Ensemble_DistributionOp<"float_uniform"
   let assemblyFormat = "$low `,` $high `,` $shape attr-dict `:` functional-type(operands, results)";  
   let hasVerifier = 1;
 }
+
+
+def Ensemble_CNOTPairDistributionOp: Ensemble_DistributionOp<"cnot_pair_distribution"> {
+  let summary = "Distribution of non-overlapping CNOT pairs sampled from a connectivity graph.";
+  let description = [{
+    This operation generates random non-overlapping CNOT pairs sampled from a connectivity graph.
+    The operation produces a tensor of the given shape, where each element is a pair of qubits.
+  }];
+  let arguments = (ins TensorOf<[AnyQubit]>:$connectivity, I32Attr:$num_samples);
+  let results = (outs TensorOf<[AnyQubit]>:$result);
+  let assemblyFormat = "$connectivity `,` $num_samples attr-dict `:` functional-type(operands, results)";
+  let hasVerifier = 1;
+}
+
+def Ensemble_PermutationOp: Ensemble_DistributionOp<"permutation"> {
+  let summary = "Generates a random permutation of numbers from 0 to N-1.";
+  let description = [{
+    This operation generates a random permutation of numbers from 0 to N-1.
+    The operation produces a tensor of the given shape.
+  }];
+  let arguments = (ins I32Attr:$N);
+  let results = (outs TensorOf<[AnyInteger]>:$result);
+  let assemblyFormat = "$N attr-dict `:` functional-type(operands, results)";
+  let hasVerifier = 1;
+}
+
 
 #endif  // LIB_DIALECT_ENSEMBLE_ENSEMBLEOPS_TD_
