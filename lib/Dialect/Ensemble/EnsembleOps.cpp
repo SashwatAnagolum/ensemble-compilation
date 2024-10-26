@@ -16,9 +16,7 @@ LogicalResult GateConstructorOp::verify() {
 }
 
 LogicalResult ApplyGate::verify() {
-  if (getInput().size() != getOutput().size()) {
-    return emitOpError("Number of input qubits must match number of output qubits");
-  }
+
 
   // Get the gate operation
   auto gateOp = getGate().getDefiningOp<GateConstructorOp>();
@@ -43,17 +41,12 @@ LogicalResult QubitMeasurement::verify() {
 }
 
 LogicalResult ResetQubits::verify() {
-  if (getInput().size() != getOutput().size()) {
-    return emitOpError("Number of input qubits must match number of output qubits");
-  }
+  
   return success();
 }
 
 LogicalResult ResetQubitTensor::verify() {
-  // Verify that input and output tensors have the same shape
-  if (getInput().getType() != getOutput().getType()) {
-    return emitOpError("Input and output tensor types must match");
-  }
+  
   return success();
 }
 
@@ -84,10 +77,7 @@ LogicalResult GateDistributionConstructor::verify() {
 }
 
 LogicalResult ApplyGateDistribution::verify() {
-    // check that number of inputs matches number of outputs
-    if (getInputs().size() != getOutputs().size()) {
-        return emitOpError("Number of input qubits must match number of output qubits");
-    }
+   
 
     // Check that the number of input qubits matches the number of operands in the first gate of the distribution
     auto gateDistOp = getGates().getDefiningOp<GateDistributionConstructor>();
