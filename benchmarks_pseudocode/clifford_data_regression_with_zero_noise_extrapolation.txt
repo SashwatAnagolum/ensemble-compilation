@@ -1,0 +1,102 @@
+# deterministic inputs
+loop_repetitions = [0, 1, 2, 3, 4];
+
+num_circuits = 500;
+num_circuits_per_loop_repetition = 100;
+
+# precomputed values before circuit sampling
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# variables sampled / computed every time we sample a circuit
+phase_gate_powers = int_uniform(low=0, high=4, size=(8, 8))
+num_loop_repetitions = circuit_index // num_circuits_per_loop_repetition;
+
+# qubits and classical bits
+qubit qubits[8];
+bit bits[8];
+
+# circuit description - 1D Ising QAOA on 8 qubits, 4 layers
+# problem hamiltonian - adjacent ZZ terms
+# mixer hamiltonian - single-qubit Pauli X rotations
+reset qubits;
+
+for (i = 0; i < 8; i++) {
+	gate1q "H" qubits[i];
+
+	for (j = 0; j < num_loop_repetitions; j++) {
+		gate1q "H" qubits[i];
+		@inverse gate1q "H" qubits[i];
+	}
+}
+
+for (layer_index = 0; layer_index < 4; layer_index++) {
+	for (i = 0; i < 7; i++) {
+		gate2q "CX" qubits[i], qubits[i + 1];
+		
+		for (j = 0; j < num_loop_repetitions; j++) {
+			gate2q "CX" qubits[i], qubits[i + 1];
+			@inverse gate2q "CX" qubits[i], qubits[i + 1];
+		}
+
+		for (j = 0; j < phase_gate_powers[2 * layer_index][i]; j++) {
+			gate1q "S" qubits[i + 1];
+
+			for (j = 0; j < num_loop_repetitions; j++) {
+				gate1q "S" qubits[i + 1];
+				@inverse gate1q "S" qubits[i + 1];
+			}
+		}
+
+		gate2q "CX" qubits[i], qubits[i + 1];
+
+		for (j = 0; j < num_loop_repetitions; j++) {
+			gate2q "CX" qubits[i], qubits[i + 1];
+			@inverse gate2q "CX" qubits[i], qubits[i + 1];
+		}
+	}
+
+	for (i = 0; i < 8; i++) {
+		gate1q "S" qubits[i];
+
+		for (j = 0; j < num_loop_repetitions; j++) {
+			gate1q "S" qubits[i];
+			@inverse gate1q "S" qubits[i];
+		}
+
+		gate1q "P" qubits[i];
+
+		for (j = 0; j < num_loop_repetitions; j++) {
+			gate1q "P" qubits[i];
+			@inverse gate1q "P" qubits[i];
+		}
+
+		for (j = 0; j < phase_gate_powers[2 * layer_index + 1][i]; j++) {
+			gate1q "S" qubits[i];
+
+			for (j = 0; j < num_loop_repetitions; j++) {
+				gate1q "S" qubits[i];
+				@inverse gate1q "S" qubits[i];
+			}
+		}
+
+		gate1q "P" qubits[i];
+
+		for (j = 0; j < num_loop_repetitions; j++) {
+			gate1q "P" qubits[i];
+			@inverse gate1q "P" qubits[i];
+		}
+
+		gate1q "S" qubits[i];
+
+		for (j = 0; j < num_loop_repetitions; j++) {
+			gate1q "S" qubits[i];
+			@inverse gate1q "S" qubits[i];
+		}
+	}	
+}
+
+for (i = 0; i < 8; i++) {
+	measure qubits[i], bits[i];
+}
