@@ -22,7 +22,6 @@ module {
     
     %c0 = arith.constant 0 : index
     %idx = tensor.extract %index[%c0] : tensor<1xi32>
-    
 
     // TEST TWO: testing that the gate distribution verifier works. This tests that the gates used in the distribution have the same number of qubits as the gate constructor
     %gates = ensemble.gate_distribution %czgate, %cxgate : (!ensemble.gate, !ensemble.gate) -> (!ensemble.gate_distribution)
@@ -39,6 +38,13 @@ module {
     // TEST FIVE: test that when applying a gate distribution, the number of qubits in each of the gate constructors matches the number of qubits in the distribution
     %output4, %output5 = ensemble.apply_distribution %gates [%idx] %arg0, %arg1 : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit, !ensemble.physical_qubit) -> (!ensemble.physical_qubit, !ensemble.physical_qubit)
     // %output6 = ensemble.apply_distribution %gates [%idx] %arg0 : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> (!ensemble.physical_qubit)
+
+    // TEST SIX: testing that the cnot pair distribution verifier works
+    %connectivity = tensor.from_elements %raw_arg0, %raw_arg1 : tensor<1 x 2 x !ensemble.physical_qubit>
+    %cnot_pair_distribution = ensemble.cnot_pair_distribution %connectivity, 1 : (tensor<1 x 2 x !ensemble.physical_qubit>) -> tensor<1 x 2 x !ensemble.physical_qubit>
+    
+    // %connectivity = tensor.from_elements %raw_arg0, %raw_arg1 : tensor<2 x 1 x !ensemble.physical_qubit>
+    // %cnot_pair_distribution = ensemble.cnot_pair_distribution %connectivity, 1 : (tensor<2 x 1 x !ensemble.physical_qubit>) -> tensor<1 x 2 x !ensemble.physical_qubit>
     return %output4 : !ensemble.physical_qubit
   }
 }

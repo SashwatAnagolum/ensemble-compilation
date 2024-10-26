@@ -148,4 +148,18 @@ def Ensemble_UniformFloatDistributionOp: Ensemble_DistributionOp<"float_uniform"
   let hasVerifier = 1;
 }
 
+
+def Ensemble_CNOTPairDistributionOp: Ensemble_DistributionOp<"cnot_pair_distribution"> {
+  let summary = "Distribution of non-overlapping CNOT pairs sampled from a connectivity graph.";
+  let description = [{
+    This operation generates random non-overlapping CNOT pairs sampled from a connectivity graph.
+    The operation produces a tensor of the given shape, where each element is a pair of qubits.
+  }];
+  let arguments = (ins TensorOf<[AnyQubit]>:$connectivity, I32Attr:$num_samples);
+  let results = (outs TensorOf<[AnyQubit]>:$result);
+  let assemblyFormat = "$connectivity `,` $num_samples attr-dict `:` functional-type(operands, results)";
+  let hasVerifier = 1;
+}
+
+
 #endif  // LIB_DIALECT_ENSEMBLE_ENSEMBLEOPS_TD_

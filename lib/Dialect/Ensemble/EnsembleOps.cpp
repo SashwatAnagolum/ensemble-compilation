@@ -143,6 +143,15 @@ LogicalResult UniformFloatDistributionOp::verify() {
   return success();
 }
 
+LogicalResult CNOTPairDistributionOp::verify() {
+  auto connectivityType = getConnectivity().getType().dyn_cast<RankedTensorType>();
+  if (!connectivityType || connectivityType.getRank() != 2 || connectivityType.getShape()[1] != 2) {
+    return emitOpError("Input connectivity must be a tensor of shape n x 2");
+  }
+  return success();
+}
+
+
 } // end namespace ensemble
 } // end namespace qe
 } // end namespace mlir
