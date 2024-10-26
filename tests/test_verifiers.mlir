@@ -44,6 +44,11 @@ module {
     
     // %connectivity = tensor.from_elements %arg0, %arg1 : tensor<2 x 1 x !ensemble.physical_qubit>
     // %cnot_pair_distribution = ensemble.cnot_pair_distribution %connectivity, 1 : (tensor<2 x 1 x !ensemble.physical_qubit>) -> tensor<1 x 2 x !ensemble.physical_qubit>
+
+    // TEST SEVEN: testing that the permutation verifier works
+    %permutation = ensemble.permutation 4 : () -> tensor<4xi32>
+    // %permutation = ensemble.permutation 2 : () -> tensor<3xi32>
+
     return %arg0 : !ensemble.physical_qubit
   }
 }

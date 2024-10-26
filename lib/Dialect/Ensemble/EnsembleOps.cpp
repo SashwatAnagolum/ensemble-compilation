@@ -141,6 +141,14 @@ LogicalResult CNOTPairDistributionOp::verify() {
   return success();
 }
 
+LogicalResult PermutationOp::verify() {
+  // check that size of result matches size of N
+  if (getResult().getType().getShape()[0] != getN()) {
+    return emitOpError("Size of result must match N");
+  }
+  return success();
+}
+
 
 } // end namespace ensemble
 } // end namespace qe

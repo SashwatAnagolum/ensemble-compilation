@@ -161,5 +161,17 @@ def Ensemble_CNOTPairDistributionOp: Ensemble_DistributionOp<"cnot_pair_distribu
   let hasVerifier = 1;
 }
 
+def Ensemble_PermutationOp: Ensemble_DistributionOp<"permutation"> {
+  let summary = "Generates a random permutation of numbers from 0 to N-1.";
+  let description = [{
+    This operation generates a random permutation of numbers from 0 to N-1.
+    The operation produces a tensor of the given shape.
+  }];
+  let arguments = (ins I32Attr:$N);
+  let results = (outs TensorOf<[AnyInteger]>:$result);
+  let assemblyFormat = "$N attr-dict `:` functional-type(operands, results)";
+  let hasVerifier = 1;
+}
+
 
 #endif  // LIB_DIALECT_ENSEMBLE_ENSEMBLEOPS_TD_

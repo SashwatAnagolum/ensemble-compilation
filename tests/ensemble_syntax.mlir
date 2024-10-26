@@ -39,6 +39,10 @@ module {
     ensemble.apply %cnotgate %cnot_pair_0_qubit0, %cnot_pair_0_qubit1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
     ensemble.apply %cnotgate %cnot_pair_1_qubit0, %cnot_pair_1_qubit1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
 
-    return %random_qubit : !ensemble.physical_qubit
+    %permutation = ensemble.permutation 4 : () -> tensor<4xi32>
+    %permutation_index = tensor.extract %permutation[%index0] : tensor<4xi32>
+    %permuted_qubit = ensemble.qubit_distribution_1q %raw_arg0, %raw_arg1, %raw_arg2, %raw_arg3 [%permutation_index] : (!ensemble.physical_qubit, !ensemble.physical_qubit, !ensemble.physical_qubit, !ensemble.physical_qubit, i32) -> (!ensemble.physical_qubit)
+    ensemble.apply %cnotgate %permuted_qubit, %random_qubit : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+    return %permuted_qubit : !ensemble.physical_qubit
   }
 }
