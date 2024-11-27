@@ -13,10 +13,20 @@ class Ensemble_DistributionBit<string mnemonic> : Op<Ensemble_Dialect, mnemonic>
 
 class Ensemble_UserInputOp<string mnemonic> : Op<Ensemble_Dialect, mnemonic>; 
 
+// Qubit allocation
+
+def Ensemble_ProgramAllocOp : Ensemble_UserInputOp<"program_alloc"> {
+  let summary = "Allocate a tensor of qubits for a given circuit size.";
+  let arguments = (ins I32Attr:$circuit_size);
+  let results = (outs TensorOf<[PhysicalQubit]>:$output);
+  let assemblyFormat = "$circuit_size attr-dict `:` functional-type(operands, results)";
+  let hasVerifier = 0;
+}
+
 // Gate operations
 def Ensemble_GateConstructorOp : Ensemble_GateOp<"gate"> {
   let summary = "Gate constructor. Takes in a name, optional inverse annotation, and variadic floating point parameters.";
-  let arguments = (ins StrAttr:$name, OptionalAttr<StrAttr>:$inverse, I32Attr:$num_operands,  Variadic<F32>:$parameters);
+  let arguments = (ins StrAttr:$name, OptionalAttr<StrAttr>:$inverse, I32Attr:$num_operands,  Variadic<AnyFloat>:$parameters);
   let results = (outs Gate:$output);
   let assemblyFormat = "$name ($inverse^)? $num_operands (`(` $parameters^ `)`)? attr-dict `:` functional-type(operands, results)";
   let hasVerifier = 1;
@@ -105,33 +115,32 @@ def Ensemble_CbitDistribution : Ensemble_DistributionBit<"cbit_distribution_1c">
 
 
 // Integer and floating-point distribution operations
-
 def Ensemble_UniformIntegerDistributionOp: Ensemble_DistributionOp<"int_uniform"> {
   let summary = "Uniform integer distribution over low (inclusive) to high (exclusive).";
   let description = [{
     This operation generates random integers uniformly distributed between
     two bounds (`low` and `high`). The operation produces a tensor of the 
-    given shape.
+    given shape if provided, otherwise a single integer.
   }];
-  let arguments = (ins I32Attr:$low, I32Attr:$high, DenseI32ArrayAttr:$shape);
+  let arguments = (ins AnyInteger:$low, AnyInteger:$high,  Variadic<I32>:$shape);
   let results = (outs TensorOf<[AnyInteger]>:$result);
-  let assemblyFormat = "$low `,` $high `,`  $shape attr-dict `:` functional-type(operands, results)";  
+  let assemblyFormat = "$low `,` $high ( `,` `[` $shape^ `]`)? attr-dict `:` functional-type(operands, results)";  
   let hasVerifier = 1;
 }
 
-def Ensemble_CategoricalIntegerDistributionOp: Ensemble_DistributionOp<"int_categorical"> {
-  let summary = "Categorical integer distribution over low (inclusive) to low + len(probs) (exclusive).";
-  let description = [{
-    This operation generates random integers non-uniformly distributed between
-    two bounds (`low` and `low + len(probs)`)., with each integer being produced with probability
-    equal to the magnitude of the corresponding probability argument. The operation produces a tensor of the 
-    given shape.
-  }];
-  let arguments = (ins I32Attr:$low, DenseF32ArrayAttr:$probs,  DenseI32ArrayAttr:$shape);
-  let results = (outs TensorOf<[AnyInteger]>:$result);
-  let assemblyFormat = "$low `,` $probs `,` $shape attr-dict `:` functional-type(operands, results)";  
-  let hasVerifier = 1;
-}
+// def Ensemble_CategoricalIntegerDistributionOp: Ensemble_DistributionOp<"int_categorical"> {
+//   let summary = "Categorical integer distribution over low (inclusive) to low + len(probs) (exclusive).";
+//   let description = [{
+//     This operation generates random integers non-uniformly distributed between
+//     two bounds (`low` and `low + len(probs)`)., with each integer being produced with probability
+//     equal to the magnitude of the corresponding probability argument. The operation produces a tensor of the 
+//     given shape.
+//   }];
+//   let arguments = (ins AnyInteger:$low, Variadic<F32>:$probs, Variadic<I32>:$shape);
+//   let results = (outs TensorOf<[AnyInteger]>:$result);
+//   let assemblyFormat = "$low `,` `[]` $probs `,` `[` $shape `]` attr-dict `:` functional-type(operands, results)";  
+//   let hasVerifier = 1;
+// }
 
 // random floating point distribution operations
 
@@ -142,9 +151,9 @@ def Ensemble_UniformFloatDistributionOp: Ensemble_DistributionOp<"float_uniform"
     two bounds (`low` and `high`). The operation produces a tensor of the 
     given shape.
   }];
-  let arguments = (ins F32Attr:$low, F32Attr:$high, DenseI32ArrayAttr:$shape);
+  let arguments = (ins AnyFloat:$low, AnyFloat:$high, Variadic<I32>:$shape);
   let results = (outs TensorOf<[AnyFloat]>:$result);
-  let assemblyFormat = "$low `,` $high `,` $shape attr-dict `:` functional-type(operands, results)";  
+  let assemblyFormat = "$low `,` $high `,` `[` $shape `]` attr-dict `:` functional-type(operands, results)";  
   let hasVerifier = 1;
 }
 
@@ -155,9 +164,9 @@ def Ensemble_CNOTPairDistributionOp: Ensemble_DistributionOp<"cnot_pair_distribu
     This operation generates random non-overlapping CNOT pairs sampled from a connectivity graph.
     The operation produces a tensor of the given shape, where each element is a pair of qubits.
   }];
-  let arguments = (ins TensorOf<[AnyQubit]>:$connectivity, I32Attr:$num_samples);
+  let arguments = (ins TensorOf<[AnyQubit]>:$connectivity, Variadic<I32>:$num_samples);
   let results = (outs TensorOf<[AnyQubit]>:$result);
-  let assemblyFormat = "$connectivity `,` $num_samples attr-dict `:` functional-type(operands, results)";
+  let assemblyFormat = "$connectivity `,` `[` $num_samples `]` attr-dict `:` functional-type(operands, results)";
   let hasVerifier = 1;
 }
 

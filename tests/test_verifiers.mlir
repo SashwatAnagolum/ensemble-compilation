@@ -1,7 +1,14 @@
 module {
-  func.func @main(%arg0: !ensemble.physical_qubit, %arg1: !ensemble.physical_qubit, %cbits: tensor<2 x !ensemble.cbit>) -> !ensemble.physical_qubit {
+  // llvm.mlir.global constant @low(0:i32) : i32
+  // llvm.mlir.global constant @high(1:i32) : i32
+
+  func.func @main(%arg0: !ensemble.physical_qubit, %arg1: !ensemble.physical_qubit, %cbits: tensor<2 x !ensemble.cbit>, %low: i32, %high: i32) -> !ensemble.physical_qubit {
     // sample an int in [0, 2]
     // Test ApplyGateDistribution verifier
+
+    // %low = arith.constant 0 : i32
+    // %high = arith.constant 2 : i32
+
     ensemble.reset %arg0 : (!ensemble.physical_qubit) -> ()
     ensemble.reset %arg1 : (!ensemble.physical_qubit) -> ()
     
@@ -16,8 +23,9 @@ module {
 
     // Create a random index
     // TEST ONE: testing that integer distribution verifier works, low bound >= high bound
-    %index = ensemble.int_uniform 0, 1, [1] : () -> tensor<1xi32>
-    // %index = ensemble.int_uniform 1, 0, [1] : () -> tensor<1xi32>
+    
+    %index = ensemble.int_uniform %low, %high, [1] : (i32, i32) -> tensor<1xi32>
+    // %index = ensemble.int_uniform @high, @low, [1] : () -> tensor<1xi32>
     
     %c0 = arith.constant 0 : index
     %idx = tensor.extract %index[%c0] : tensor<1xi32>

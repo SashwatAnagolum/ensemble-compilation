@@ -31,6 +31,8 @@ def PhysicalQubit : Ensemble_Type<"PhysicalQubit", "physical_qubit"> {
 def AnyQubit : AnyTypeOf<[VirtualQubit, PhysicalQubit]>;
 // can support variable number of qubits and tensors of qubits
 
+def AnyIntegerConstant : AnyTypeOf<[AnyInteger]>;
+
 def Cbit : Ensemble_Type<"Cbit", "cbit"> {
   let summary = "A classical bit.";  
   let description = [{

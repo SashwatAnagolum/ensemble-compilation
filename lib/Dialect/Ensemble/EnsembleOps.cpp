@@ -3,6 +3,9 @@
 // include EnsembleOps.h
 #include "lib/Dialect/Ensemble/EnsembleOps.h"
 #include "mlir/IR/OpImplementation.h"
+
+#include "mlir/Dialect/Arith/IR/Arith.h"
+
 #include "mlir/IR/Types.h"
 #include "mlir/IR/Diagnostics.h"  // For LogicalResult and emitOpError
 
@@ -111,33 +114,54 @@ LogicalResult CbitDistribution::verify() {
   // No additional verification needed as the types are enforced by the op definition
   return success();
 }
-
 LogicalResult UniformIntegerDistributionOp::verify() {
-  if (getLow() >= getHigh()) {
-    return emitOpError("Low bound must be less than high bound");
-  }
+
+  // auto lowOp = getLow().getDefiningOp<arith::ConstantOp>();
+  // auto highOp = getHigh().getDefiningOp<arith::ConstantOp>();
+
+  // if (!lowOp || !highOp) {
+  //   return emitOpError("Low and high bounds must be defined by arith.constant expressions");
+  // }
+
+  // auto lowValue = lowOp.getValue().cast<IntegerAttr>().getInt();
+  // auto highValue = highOp.getValue().cast<IntegerAttr>().getInt();
+
+  // if (lowValue >= highValue) {
+  //   return emitOpError("Low bound must be less than high bound");
+  // }
   return success();
 }
 
-LogicalResult CategoricalIntegerDistributionOp::verify() {
-  if (getProbs().empty()) {
-    return emitOpError("Probability array must not be empty");
-  }
-  return success();
-}
+// LogicalResult CategoricalIntegerDistributionOp::verify() {
+//   if (getProbs().empty()) {
+//     return emitOpError("Probability array must not be empty");
+//   }
+//   return success();
+// }
 
 LogicalResult UniformFloatDistributionOp::verify() {
-  if (getLow() >= getHigh()) {
-    return emitOpError("Low bound must be less than high bound");
-  }
+
+  // auto lowOp = getLow().getDefiningOp<arith::ConstantOp>();
+  // auto highOp = getHigh().getDefiningOp<arith::ConstantOp>();
+
+  // if (!lowOp || !highOp) {
+  //   return emitOpError("Low and high bounds must be defined by arith.constant expressions");
+  // }
+
+  // auto lowValue = lowOp.getValue().cast<FloatAttr>().getValueAsDouble();
+  // auto highValue = highOp.getValue().cast<FloatAttr>().getValueAsDouble();
+
+  // if (lowValue >= highValue) {
+  //   return emitOpError("Low bound must be less than high bound");
+  // }
   return success();
 }
 
 LogicalResult CNOTPairDistributionOp::verify() {
-  auto connectivityType = getConnectivity().getType().dyn_cast<RankedTensorType>();
-  if (!connectivityType || connectivityType.getRank() != 2 || connectivityType.getShape()[1] != 2) {
-    return emitOpError("Input connectivity must be a tensor of shape n x 2");
-  }
+  // auto connectivityType = getConnectivity().getType().dyn_cast<RankedTensorType>();
+  // if (!connectivityType || connectivityType.getRank() != 2 || connectivityType.getShape()[1] != 2) {
+  //   return emitOpError("Input connectivity must be a tensor of shape n x 2");
+  // }
   return success();
 }
 

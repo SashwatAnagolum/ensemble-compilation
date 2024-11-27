@@ -89,6 +89,7 @@ cc_library(
         ":types_inc_gen",
         ":ops_inc_gen",
         "@llvm-project//mlir:IR",
-        "@llvm-project//mlir:Support"
+        "@llvm-project//mlir:Support",
+        "@llvm-project//mlir:ArithDialect"
     ],
 )
