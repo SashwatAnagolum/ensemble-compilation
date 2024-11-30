@@ -57,7 +57,7 @@ if (circuit_index % num_randomizations_per_circuit == 0) {
 );
 
 1q_pauli_indices = int_uniform(
-	low=0, high=3, size=(circuit_depth, num_qubits)
+	low=0, high=4, size=(circuit_depth, num_qubits)
 );
 
 # qubits and classical bits
@@ -81,13 +81,18 @@ for (i = 0; i < circuit_depth; i++) {
 	}
 
 
-
 	for (qubit_index = 2 * num_cnots[i]; qubit_index < num_qubits; qubit_index++) {
-		gate1q 1q_pauli_left_slices[clifford_indices[i][qubit_index]][1q_pauli_indices[i][qubit_index]] qubits[qubit_index];
+		oneq_pauli_left_index = clifford_indices[i][qubit_index]; // 0 or 1
+		oneq_pauli_left_slice = 1q_pauli_left_slices[oneq_pauli_left_index]; // ["I", "X", "Y", "Z"]
+		oneq_pauli_left_gate = oneq_pauli_left_slice[1q_pauli_indices[i][qubit_index]]; // 0, 1, 2, or 3 selected uniformly at random`
+		gate1q oneq_pauli_left_gate qubits[qubit_index];
 
-		gate1q ["S", "H"][clifford_indices[i][qubit_index]] qubits[qubit_index];
+		clifford_gate = ["S", "H"][oneq_pauli_left_index];
+		gate1q clifford_gate qubits[qubit_index];
 
-		gate1q 1q_pauli_right_slices[clifford_indices[i][qubit_index]][1q_pauli_indices[i][qubit_index]] qubits[qubit_index];
+		oneq_pauli_right_slice = 1q_pauli_right_slices[oneq_pauli_left_index];
+		oneq_pauli_right_gate = oneq_pauli_right_slice[1q_pauli_indices[i][qubit_index]];
+		gate1q oneq_pauli_right_gate qubits[qubit_index];
 	}
 }
 

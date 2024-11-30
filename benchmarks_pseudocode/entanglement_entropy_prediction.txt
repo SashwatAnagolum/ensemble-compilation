@@ -4,7 +4,7 @@ num_meas_bases = 512;
 # precomputed values before circuit sampling
 
 # random variables sampled every time we sample a circuit
-pauli_indices = int_unform(low=0, high=3, size=8)
+pauli_indices = int_unform(low=0, high=3, size=10)
 
 # values passed in during circuit sampling
 global circuit_index;
