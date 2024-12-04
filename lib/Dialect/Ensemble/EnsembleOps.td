@@ -23,6 +23,14 @@ def Ensemble_ProgramAllocOp : Ensemble_UserInputOp<"program_alloc"> {
   let hasVerifier = 0;
 }
 
+def Ensemble_AllocCbitsOp : Ensemble_UserInputOp<"alloc_cbits"> {
+  let summary = "Allocate a tensor of classical bits for a given circuit size.";
+  let arguments = (ins I32Attr:$circuit_size);
+  let results = (outs TensorOf<[Cbit]>:$output);
+  let assemblyFormat = "$circuit_size attr-dict `:` functional-type(operands, results)";
+  let hasVerifier = 0;
+}
+
 // Gate operations
 def Ensemble_GateConstructorOp : Ensemble_GateOp<"gate"> {
   let summary = "Gate constructor. Takes in a name, optional inverse annotation, and variadic floating point parameters.";
@@ -88,7 +96,7 @@ def Ensemble_GateDistributionConstructor : Ensemble_GateOp<"gate_distribution"> 
 // Gate distribution operations
 def Ensemble_ApplyGateDistribution : Ensemble_GateOp<"apply_distribution"> {
   let summary = "Gate distribution on a variable number of qubits and gates";
-  let arguments = (ins GateDistribution:$gates, I32:$index, Variadic<AnyQubit>:$inputs);
+  let arguments = (ins GateDistribution:$gates, AnyIndexType:$index, Variadic<AnyQubit>:$inputs);
   let results = (outs);
   let assemblyFormat = "$gates `[` $index `]` attr-dict $inputs `:` functional-type(operands, results)";
   let hasVerifier = 1;
@@ -128,19 +136,19 @@ def Ensemble_UniformIntegerDistributionOp: Ensemble_DistributionOp<"int_uniform"
   let hasVerifier = 1;
 }
 
-// def Ensemble_CategoricalIntegerDistributionOp: Ensemble_DistributionOp<"int_categorical"> {
-//   let summary = "Categorical integer distribution over low (inclusive) to low + len(probs) (exclusive).";
-//   let description = [{
-//     This operation generates random integers non-uniformly distributed between
-//     two bounds (`low` and `low + len(probs)`)., with each integer being produced with probability
-//     equal to the magnitude of the corresponding probability argument. The operation produces a tensor of the 
-//     given shape.
-//   }];
-//   let arguments = (ins AnyInteger:$low, Variadic<F32>:$probs, Variadic<I32>:$shape);
-//   let results = (outs TensorOf<[AnyInteger]>:$result);
-//   let assemblyFormat = "$low `,` `[]` $probs `,` `[` $shape `]` attr-dict `:` functional-type(operands, results)";  
-//   let hasVerifier = 1;
-// }
+def Ensemble_CategoricalIntegerDistributionOp: Ensemble_DistributionOp<"int_categorical"> {
+  let summary = "Categorical integer distribution over low (inclusive) to low + len(probs) (exclusive).";
+  let description = [{
+    This operation generates random integers non-uniformly distributed between
+    two bounds (`low` and `low + len(probs)`)., with each integer being produced with probability
+    equal to the magnitude of the corresponding probability argument. The operation produces a tensor of the 
+    given shape.
+  }];
+  let arguments = (ins AnyInteger:$low, TensorOf<[AnyFloat]>:$probs, Variadic<I32>:$shape);
+  let results = (outs TensorOf<[AnyInteger]>:$result);
+  let assemblyFormat = "$low `,` $probs `,` `[` $shape `]` attr-dict `:` functional-type(operands, results)";  
+  let hasVerifier = 0;
+}
 
 // random floating point distribution operations
 

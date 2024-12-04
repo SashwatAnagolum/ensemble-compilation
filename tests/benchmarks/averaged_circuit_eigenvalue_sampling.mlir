@@ -69,6 +69,13 @@ module {
       }
     }
 
+    %num_qubits_index = arith.index_cast %num_qubits : i32 to index
+    scf.for %i = %zero_index to %num_qubits_index step %one_index {
+      %qubit = tensor.extract %qubits[%i] : tensor<25x!ensemble.physical_qubit>
+      %bit = tensor.extract %bits[%i] : tensor<25x!ensemble.cbit>
+      ensemble.measure %qubit, %bit : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
+    }
+
 
 
     return
@@ -80,7 +87,7 @@ module {
     %max_depth = arith.constant 100 : i32
     %num_qubits = arith.constant 25 : i32
     %qubits = ensemble.program_alloc 25 : () -> tensor<25x!ensemble.physical_qubit>
-    %bits = tensor.empty() : tensor<25x!ensemble.cbit>
+    %bits = ensemble.alloc_cbits 25 : () -> tensor<25x!ensemble.cbit>
     %num_randomizations_per_circuit = arith.constant 10000 : i32
     %zero_index = arith.constant 0 : index
     %one_index = arith.constant 1 : index
