@@ -3,6 +3,7 @@ num_circuits = 1024;
 num_measurement_bases = 1024;
 num_qubits = 4;
  
+
 # values passed in during circuit sampling
 global circuit_index;
 

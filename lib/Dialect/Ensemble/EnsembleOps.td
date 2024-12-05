@@ -184,7 +184,7 @@ def Ensemble_PermutationOp: Ensemble_DistributionOp<"permutation"> {
     This operation generates a random permutation of numbers from 0 to N-1.
     The operation produces a tensor of the given shape.
   }];
-  let arguments = (ins I32Attr:$N);
+  let arguments = (ins AnyInteger:$N);
   let results = (outs TensorOf<[AnyInteger]>:$result);
   let assemblyFormat = "$N attr-dict `:` functional-type(operands, results)";
   let hasVerifier = 1;
