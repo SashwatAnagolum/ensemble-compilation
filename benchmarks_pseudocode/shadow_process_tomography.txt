@@ -3,13 +3,14 @@ num_circuits = 1024;
 num_measurement_bases = 1024;
 num_qubits = 4;
  
-
 # values passed in during circuit sampling
 global circuit_index;
 
 # precomputed values before circuit sampling
 pauli_measurement_shifts = [
-	["I"], ["H"], ["S", "H"], ["X"], ["H", "X"], ["S", "H", "X"]
+	["I", "H", "S"], 
+	["I", "I", "H"],
+	["X", "X", "X"]
 ];
 
 
@@ -22,7 +23,9 @@ bit bits[num_qubits];
 
 # circuit description - GHZ-4
 for (i = 0; i < num_qubits; i++) {
-	@inverse gate1q pauli_measurement_shifts[measurement_basis_indices[0][i]] qubits[i];
+	@inverse gate1q pauli_measurement_shifts[measurement_basis_indices[0][i]][2] qubits[i];
+	@inverse gate1q pauli_measurement_shifts[measurement_basis_indices[0][i]][1] qubits[i];
+	@inverse gate1q pauli_measurement_shifts[measurement_basis_indices[0][i]][0] qubits[i];
 }
 
 gate1q "H" qubits[0];
@@ -32,7 +35,8 @@ for (i = 0; i < num_qubits - 1; i++) {
 }
 
 for (i = 0; i < num_qubits; i++) {
-	gate1q pauli_measurement_shifts[measurement_basis_indices[1][i]] qubits[i];
+	gate1q pauli_measurement_shifts[measurement_basis_indices[1][i]][0] qubits[i];
+	gate1q pauli_measurement_shifts[measurement_basis_indices[1][i]][1] qubits[i];
 }
 
 for (i = 0; i < num_qubits; i++) {
