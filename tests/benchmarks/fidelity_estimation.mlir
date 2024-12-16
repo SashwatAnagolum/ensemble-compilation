@@ -1,5 +1,6 @@
 module {
-    func.func @main(%qubits: tensor<8 x !ensemble.physical_qubit>, %cbits: tensor<8 x !ensemble.cbit>, %circuit_index : i32) {
+
+    func.func @iteration_body(%qubits: tensor<8 x !ensemble.physical_qubit>, %cbits: tensor<8 x !ensemble.cbit>, %circuit_index : i32) {
         // pauli_indices = int_uniform(low=0, high=3, size=8)
         %zero = arith.constant 0 : i32
         %three = arith.constant 3 : i32
@@ -39,6 +40,15 @@ module {
             ensemble.apply_distribution %gates_2 [%pauli_index_at_i] %qubit_at_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
             %cbit_at_i = tensor.extract %cbits[%i] : tensor<8 x !ensemble.cbit>
             ensemble.measure %qubit_at_i, %cbit_at_i : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
+        }
+        return
+    }
+    func.func @main() {
+        %qubits = ensemble.program_alloc 8 : () -> (tensor<8 x !ensemble.physical_qubit>)
+        %cbits = ensemble.alloc_cbits 8 : () -> (tensor<8 x !ensemble.cbit>)
+        affine.for %circuit_index = 0 to 1000 {
+            %circuit_index_i32 = arith.index_cast %circuit_index : index to i32
+            func.call @iteration_body(%qubits, %cbits, %circuit_index_i32) : (tensor<8 x !ensemble.physical_qubit>, tensor<8 x !ensemble.cbit>, i32) -> ()
         }
         return
     }
