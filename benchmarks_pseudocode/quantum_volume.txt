@@ -10,7 +10,7 @@ global circuit_index;
 
 # random variables sampled every time we sample a circuit
 num_qubits = circuit_index + 2;
-qubit_pairs = int_permutation(num_qubits, size=(num_qubits,))
+qubit_pairs = int_permutation(num_qubits, num_permutations=num_qubits) # 2d array of size (num_permutations, num_qubits)
 rotation_angles = float_uniform(low=0, high=2 * pi, size=(num_qubits, num_qubits, 4, 3))
 
 # qubits and classical bits

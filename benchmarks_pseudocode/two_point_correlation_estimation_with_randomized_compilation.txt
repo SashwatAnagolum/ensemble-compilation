@@ -1,0 +1,58 @@
+# inputs from user
+num_calibration_shots = 250000;
+num_estimation_shots = 250000;
+
+hea_rx_params = [
+	[0.1, 0.2, 0.1, -0.2, 0.4, 0.3, 0.4, 0.6, 0.2, 0.1],
+	[0.1, 0.2, 0.1, -0.2, 0.4, 0.3, 0.4, 0.6, 0.2, 0.1],
+	[0.1, 0.2, 0.1, -0.2, 0.4, 0.3, 0.4, 0.6, 0.2, 0.1],
+	[0.1, 0.2, 0.1, -0.2, 0.4, 0.3, 0.4, 0.6, 0.2, 0.1],
+]; # learned via VQE training to find ground state of hamiltonian
+
+hea_rz_params = [
+	[0.1, 0.2, 0.1, -0.2, 0.4, 0.3, 0.4, 0.6, 0.2, 0.1],
+	[0.1, 0.2, 0.1, -0.2, 0.4, 0.3, 0.4, 0.6, 0.2, 0.1],
+	[0.1, 0.2, 0.1, -0.2, 0.4, 0.3, 0.4, 0.6, 0.2, 0.1],
+	[0.1, 0.2, 0.1, -0.2, 0.4, 0.3, 0.4, 0.6, 0.2, 0.1],
+]; # learned via VQE training to find ground state of hamiltonian
+
+# precomputed values before circuit sampling
+
+# random variables sampled every time we sample a circuit
+pauli_indices = int_unform(low=0, high=3, size=10)
+
+# values passed in during circuit sampling
+global circuit_index;
+
+# qubits and classical bits
+qubit qubits[10];
+bit bits[10];
+
+# circuit description - Ising 1D Hamiltonian ground state (approximated using a 
+# HEA with trained parameters) on 10 qubits
+reset qubits;
+
+if (circuit_index >= num_calibration_shots) {
+	for (layer_index = 0; layer_index < 4; layer_index ++) {
+		for (qubit_index = 0; qubit_index < 10; qubit_index ++) {
+			gate1q "RX" (hea_rx_params[layer_index][qubit_index]) qubits[qubit_index];
+		}
+
+		for (qubit_index = 0; qubit_index < 10; qubit_index ++) {
+			gate1q "RZ" (hea_rz_params[layer_index][qubit_index]) qubits[qubit_index];
+		}
+
+		if (layer_index < 3) {
+			for (qubit_index = 0; qubit_index < 9; qubit_index++) {
+				gate2q "CX" qubits[qubit_index], qubits[qubit_index + 1];
+			}
+		}
+	}
+}
+
+for (i = 0; i < 10; i++) {
+	gate1q ["I", "H", "Sdag"][pauli_indices[i]] qubits[i];
+	gate1q ["I", "I", "H"][pauli_indices[i]] qubits[i];
+}
+
+measure qubits, bits;
