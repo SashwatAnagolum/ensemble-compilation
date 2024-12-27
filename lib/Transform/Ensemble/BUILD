@@ -48,12 +48,51 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "PrintEachOperation",
+    srcs = ["PrintEachOperation.cpp"],
+    hdrs = [
+        "PrintEachOperation.h",
+        "Passes.h",
+    ],
+    deps = [
+        ":pass_inc_gen",
+        "//lib/Dialect/Ensemble",
+        "@llvm-project//mlir:AffineDialect",
+        "@llvm-project//mlir:AffineUtils",
+        "@llvm-project//mlir:ArithDialect",
+        "@llvm-project//mlir:FuncDialect",
+        "@llvm-project//mlir:Pass",
+        "@llvm-project//mlir:Transforms",
+    ],
+)
+
+cc_library(
+    name = "Inlinex",
+    srcs = ["Inlinex.cpp"],
+    hdrs = [
+        "Inlinex.h",
+        "Passes.h",
+    ],
+    deps = [
+        ":pass_inc_gen",
+        "//lib/Dialect/Ensemble",
+        "@llvm-project//mlir:AffineDialect",
+        "@llvm-project//mlir:AffineUtils",
+        "@llvm-project//mlir:ArithDialect",
+        "@llvm-project//mlir:FuncDialect",
+        "@llvm-project//mlir:Pass",
+        "@llvm-project//mlir:Transforms",
+    ],
+)
 
 cc_library(
     name = "Passes",
     hdrs = ["Passes.h"],
     deps = [
         ":ZeroNoiseExtrapolation",
+        ":PrintEachOperation",
+        ":Inlinex",
         ":pass_inc_gen",
     ],
 )
