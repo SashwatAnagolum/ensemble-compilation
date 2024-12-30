@@ -11,18 +11,18 @@ num_qubits = 16;
 circuit_depth = depths[circuit_index // num_circuits_per_depth]
 
 num_cnots_in_layer = int_uniform(
-	low=0, high=1 + num_qubits // 2, size=(circuit_depth,)
+	low=0, high=1 + num_qubits // 2, size=(circuit_depth // 2,)
 )
 
 cnot_pairs = random_cnot_pairs(
-	connectivity=connectivity, num_layers=circuit_depth
-)  # size (circuit_depth, num_qubits) -> flattened version of (circuit_depth, num_qubits // 2, 2)
+	connectivity=connectivity, num_layers=circuit_depth // 2
+)  # size (circuit_depth // 2, num_qubits) -> flattened version of (circuit_depth // 2, num_qubits // 2, 2)
 
 pauli_indices = int_uniform(
 	low=0, high=4, size=(circuit_depth + 1, num_qubits)
 );
 
-clifford_indices = int_uniform(low=0, high=4, size=(circuit_depth, num_qubits));
+clifford_indices = int_uniform(low=0, high=4, size=(circuit_depth // 2, num_qubits));
 initial_clifford_indices = int_uniform(low=0, high=4, size=(num_qubits,));
 
 # values passed in during circuit sampling
@@ -45,16 +45,16 @@ for (qubit_index = 0; qubit_index < num_qubits; qubit_index++) {
 }
 
 for (i = 0; i < circuit_depth; i++) {
-	for (cnot_index = 0; cnot_index < num_cnots[i]; cnot_index++) {
+	for (cnot_index = 0; cnot_index < 2 * num_cnots[i]; cnot_index += 2) {
 		gate2q "CX" qubits[cnot_pairs[cnot_index]], qubits[cnot_pairs[cnot_index + 1]];
 	}
 
 	for (qubit_index = 2 * num_cnots[i]; qubit_index < num_qubits; qubit_index++) {
-		gate1q ["X", "Y", "Z", "H"][clifford_indices[i][qubit_index]] qubits[qubit_index];
+		gate1q ["X", "Y", "Z", "H"][clifford_indices[i][qubit_index]] qubits[cnot_pairs[qubit_index]];
 	}
 
 	for (qubit_index = 0; qubit_index < num_qubits; qubit_index++) {
-		gate1q ["X", "Y", "Z"][pauli_indices[i + 1][qubit_index]] qubits[qubit_index];
+		gate1q ["X", "Y", "Z"][pauli_indices[i + 1][qubit_index]] qubits[cnot_pairs[qubit_index]];
 	}
 }
 
