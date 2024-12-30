@@ -3,4 +3,3 @@ bazel-bin
 bazel-ensemble-compilation
 bazel-out
 bazel-testlogs
-round_trip_test.sh
