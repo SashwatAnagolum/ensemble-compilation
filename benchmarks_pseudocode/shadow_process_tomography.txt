@@ -8,14 +8,18 @@ global circuit_index;
 
 # precomputed values before circuit sampling
 pauli_measurement_shifts = [
-	["I", "H", "S"], 
-	["I", "I", "H"],
-	["X", "X", "X"]
+	["I", "I", "I"],
+	["I", "H", "I"],
+	["S", "H", "I"],
+	["I", "I", "X"],
+	["I", "H", "X"],
+	["S", "H", "X"],
 ];
 
 
 # random variables sampled every time we sample a circuit
-measurement_basis_indices = int_uniform(low=0, high=6, size=(2, num_qubits));
+state_prep_indices = int_uniform(low=0, high=6, size=(num_qubits))
+measurement_indices = int_uniform(low=0, high=6, size=(num_qubits))
 
 # qubits and classical bits
 qubit qubits[num_qubits];
@@ -23,9 +27,9 @@ bit bits[num_qubits];
 
 # circuit description - GHZ-4
 for (i = 0; i < num_qubits; i++) {
-	@inverse gate1q pauli_measurement_shifts[measurement_basis_indices[0][i]][2] qubits[i];
-	@inverse gate1q pauli_measurement_shifts[measurement_basis_indices[0][i]][1] qubits[i];
-	@inverse gate1q pauli_measurement_shifts[measurement_basis_indices[0][i]][0] qubits[i];
+	@inverse gate1q pauli_measurement_shifts[state_prep_indices[i]][2] qubits[i];
+	@inverse gate1q pauli_measurement_shifts[state_prep_indices[i]][1] qubits[i];
+	@inverse gate1q pauli_measurement_shifts[state_prep_indices[i]][0] qubits[i];
 }
 
 gate1q "H" qubits[0];
@@ -35,8 +39,9 @@ for (i = 0; i < num_qubits - 1; i++) {
 }
 
 for (i = 0; i < num_qubits; i++) {
-	gate1q pauli_measurement_shifts[measurement_basis_indices[1][i]][0] qubits[i];
-	gate1q pauli_measurement_shifts[measurement_basis_indices[1][i]][1] qubits[i];
+	gate1q pauli_measurement_shifts[measurement_indices[i]][0] qubits[i];
+	gate1q pauli_measurement_shifts[measurement_indices[i]][1] qubits[i];
+	gate1q pauli_measurement_shifts[measurement_indices[i]][2] qubits[i];
 }
 
 for (i = 0; i < num_qubits; i++) {
