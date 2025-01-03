@@ -82,17 +82,17 @@ for (i = 0; i < circuit_depth; i++) {
 
 
 	for (qubit_index = 2 * num_cnots[i]; qubit_index < num_qubits; qubit_index++) {
-		oneq_pauli_left_index = clifford_indices[i][qubit_index]; // 0 or 1
+		oneq_pauli_left_index = clifford_indices[i][cnot_pairs[qubit_index]]; // 0 or 1
 		oneq_pauli_left_slice = 1q_pauli_left_slices[oneq_pauli_left_index]; // ["I", "X", "Y", "Z"]
-		oneq_pauli_left_gate = oneq_pauli_left_slice[1q_pauli_indices[i][qubit_index]]; // 0, 1, 2, or 3 selected uniformly at random`
-		gate1q oneq_pauli_left_gate qubits[qubit_index];
+		oneq_pauli_left_gate = oneq_pauli_left_slice[1q_pauli_indices[i][cnot_pairs[qubit_index]]]; // 0, 1, 2, or 3 selected uniformly at random
+		gate1q oneq_pauli_left_gate qubits[cnot_pairs[qubit_index]];
 
 		clifford_gate = ["S", "H"][oneq_pauli_left_index];
-		gate1q clifford_gate qubits[qubit_index];
+		gate1q clifford_gate qubits[cnot_pairs[qubit_index]];
 
 		oneq_pauli_right_slice = 1q_pauli_right_slices[oneq_pauli_left_index];
-		oneq_pauli_right_gate = oneq_pauli_right_slice[1q_pauli_indices[i][qubit_index]];
-		gate1q oneq_pauli_right_gate qubits[qubit_index];
+		oneq_pauli_right_gate = oneq_pauli_right_slice[1q_pauli_indices[i][cnot_pairs[qubit_index]]];
+		gate1q oneq_pauli_right_gate qubits[cnot_pairs[qubit_index]];
 	}
 }
 
