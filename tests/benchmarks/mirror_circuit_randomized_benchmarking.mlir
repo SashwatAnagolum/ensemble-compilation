@@ -1,5 +1,5 @@
 module {
-    func.func private @iteration_body(%qubits: tensor<16x!ensemble.physical_qubit>, %bits: tensor<16x!ensemble.cbit>, %circuit_index: index, %num_circuits_per_depth: i32, %depths: tensor<20xi32>, %connectivity: tensor<15x2x!ensemble.physical_qubit>) -> () {
+    func.func private @iteration_body(%qubits: tensor<16x!ensemble.physical_qubit>, %bits: tensor<16x!ensemble.cbit>, %circuit_index: index, %num_circuits_per_depth: i32, %depths: tensor<20xi32>, %connectivity: !ensemble.connectivity_graph) -> () {
         %X = ensemble.gate "X" 1 : () -> !ensemble.gate
         %Y = ensemble.gate "Y" 1 : () -> !ensemble.gate
         %Z = ensemble.gate "Z" 1 : () -> !ensemble.gate
@@ -23,7 +23,7 @@ module {
         %four = arith.constant 4 : i32
 
         %num_cnots_in_layer = ensemble.int_uniform %zero_i32, %one_plus_num_qubits_div_two, [%circuit_depth] : (i32, i32, i32) -> tensor<?xi32>
-        %cnot_pairs = ensemble.cnot_pair_distribution %connectivity, [%circuit_depth, %half_num_qubits] : (tensor<15x2x!ensemble.physical_qubit>, i32, i32) -> tensor<?x8x2x!ensemble.physical_qubit>
+        %cnot_pairs = ensemble.cnot_pair_distribution %connectivity, [%circuit_depth, %half_num_qubits] : (!ensemble.connectivity_graph, i32, i32) -> tensor<?x8x2x!ensemble.physical_qubit>
         %circuit_depth_plus_one = arith.addi %circuit_depth, %one_i32 : i32
         %pauli_indices = ensemble.int_uniform %zero_i32, %four, [%circuit_depth_plus_one, %num_qubits] : (i32, i32, i32, i32) -> tensor<?x16xi32>
         %clifford_indices = ensemble.int_uniform %zero_i32, %four, [%circuit_depth, %num_qubits] : (i32, i32, i32, i32) -> tensor<?x16xi32>
@@ -96,20 +96,12 @@ module {
         %depths = arith.constant dense<[2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40]> : tensor<20xi32>
         %qubits = ensemble.program_alloc 16 : () -> tensor<16x!ensemble.physical_qubit>
         %bits = ensemble.alloc_cbits 16 : () -> tensor<16x!ensemble.cbit>
-        %connectivity = tensor.empty() : tensor<15x2x!ensemble.physical_qubit>
+        %connectivity = ensemble.device_connectivity %qubits, {dense<[[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14], [14, 15]]> : tensor<15x2xi32>} : (tensor<16x!ensemble.physical_qubit>) -> !ensemble.connectivity_graph
+        %num_circuits_index = arith.index_cast %num_circuits : i32 to index
         %zero_index = arith.constant 0 : index
         %one_index = arith.constant 1 : index
-        %fifteen_index = arith.constant 15 : index
-        scf.for %i = %zero_index to %fifteen_index step %one_index {
-            %dst = arith.addi %i, %one_index : index
-            %src_qubit = tensor.extract %qubits[%i] : tensor<16x!ensemble.physical_qubit>
-            %dst_qubit = tensor.extract %qubits[%dst] : tensor<16x!ensemble.physical_qubit>
-            tensor.insert %src_qubit into %connectivity[%i, %zero_index] : tensor<15x2x!ensemble.physical_qubit>
-            tensor.insert %dst_qubit into %connectivity[%i, %one_index] : tensor<15x2x!ensemble.physical_qubit>
-        }
-        %num_circuits_index = arith.index_cast %num_circuits : i32 to index
         scf.for %i = %zero_index to %num_circuits_index step %one_index {
-            func.call @iteration_body(%qubits, %bits, %i, %num_circuits_per_depth, %depths, %connectivity) : (tensor<16x!ensemble.physical_qubit>, tensor<16x!ensemble.cbit>, index, i32, tensor<20xi32>, tensor<15x2x!ensemble.physical_qubit>) -> ()
+            func.call @iteration_body(%qubits, %bits, %i, %num_circuits_per_depth, %depths, %connectivity) : (tensor<16x!ensemble.physical_qubit>, tensor<16x!ensemble.cbit>, index, i32, tensor<20xi32>, !ensemble.connectivity_graph) -> ()
         }
         return
     }

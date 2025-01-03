@@ -100,14 +100,7 @@ module {
     %twenty_index = arith.constant 20 : index
     %thousand_index = arith.constant 1000 : index
 
-    %connectivity = tensor.empty() : tensor<24x2x!ensemble.physical_qubit>
-    scf.for %i = %zero_index to %twenty_four_index step %one_index {
-      %dst = arith.addi %i, %one_index : index
-      %src_qubit = tensor.extract %qubits[%i] : tensor<25x!ensemble.physical_qubit>
-      %dst_qubit = tensor.extract %qubits[%dst] : tensor<25x!ensemble.physical_qubit>
-      tensor.insert %src_qubit into %connectivity[%i, %zero_index] : tensor<24x2x!ensemble.physical_qubit>
-      tensor.insert %dst_qubit into %connectivity[%i, %one_index] : tensor<24x2x!ensemble.physical_qubit>
-    }
+    %connectivity = ensemble.device_connectivity %qubits, {dense<[[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14], [14, 15], [15, 16], [16, 17], [17, 18], [18, 19], [19, 20], [20, 21], [21, 22], [22, 23], [23, 24]]> : tensor<24x2xi32> }: (tensor<25x!ensemble.physical_qubit>) -> !ensemble.connectivity_graph
     
     scf.for %i = %zero_index to %twenty_index step %one_index {
       %circuit_depth = ensemble.int_uniform %min_depth, %max_depth: (i32, i32) -> tensor<1xi32>
@@ -116,7 +109,7 @@ module {
       %half_num_qubits = arith.divsi %num_qubits, %two : i32
       %half_plus_one = arith.addi %half_num_qubits, %one_i32 : i32
       %num_cnots_in_layer = ensemble.int_uniform %zero_i32, %half_plus_one, [%circuit_depth_val] : (i32, i32, i32) -> tensor<?xi32>
-      %cnot_pairs = ensemble.cnot_pair_distribution %connectivity, [%circuit_depth_val, %half_num_qubits] : (tensor<24x2x!ensemble.physical_qubit>, i32, i32) -> tensor<?x?x2x!ensemble.physical_qubit>
+      %cnot_pairs = ensemble.cnot_pair_distribution %connectivity, [%circuit_depth_val, %half_num_qubits] : (!ensemble.connectivity_graph, i32, i32) -> tensor<?x?x2x!ensemble.physical_qubit>
       %clifford_indices = ensemble.int_uniform %zero_i32, %two_i32, [%circuit_depth_val, %num_qubits] : (i32, i32, i32, i32) -> tensor<?x25xi32>
       scf.for %j = %zero_index to %thousand_index step %one_index {
         %circuit_index = arith.index_cast %j : index to i32
