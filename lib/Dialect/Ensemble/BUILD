@@ -82,7 +82,8 @@ cc_library(
     hdrs = [
         "EnsembleDialect.h",
         "EnsembleTypes.h",
-        "EnsembleOps.h"
+        "EnsembleOps.h",
+        "EnsembleInlinerInterface.h"
     ],
     deps = [
         ":dialect_inc_gen",
@@ -91,5 +92,15 @@ cc_library(
         "@llvm-project//mlir:IR",
         "@llvm-project//mlir:Support",
         "@llvm-project//mlir:ArithDialect"
+    ],
+)
+
+cc_library(
+    name = "EnsembleInlinerInterface",
+    srcs = ["EnsembleInlinerInterface.cpp"],
+    hdrs = ["EnsembleInlinerInterface.h"],
+    deps = [
+        "@llvm-project//mlir:IR",
+        "@llvm-project//mlir:Support",
     ],
 )

@@ -24,10 +24,12 @@ module {
         %four_i32 = arith.constant 4 : i32
         %one_i32 = arith.constant 1 : i32
         %three_i32 = arith.constant 3 : i32
+        %four_index = arith.constant 4 : index
+        %three_index = arith.constant 3 : index
         %measurement_basis_indices = ensemble.int_uniform %zero_i32, %six_i32, [%two_i32, %four_i32] : (i32, i32, i32, i32) -> tensor<2x4xi32>
 
         ensemble.reset_tensor %qubits : (tensor<4x!ensemble.physical_qubit>) -> ()
-        affine.for %i = 0 to 4 {
+        scf.for %i = %zero_index to %four_index step %one_index {
             %mbi_0i = tensor.extract %measurement_basis_indices[%zero_index, %i] : tensor<2x4xi32>
             %three_mbi_0i = arith.muli %three_i32, %mbi_0i : i32
             %three_mbi_plus2 = arith.addi %three_mbi_0i, %two_i32 : i32
@@ -47,14 +49,14 @@ module {
 
         %cxgate = ensemble.gate "CX" 2 : () -> !ensemble.gate
 
-        affine.for %i = 0 to 3 {
+        scf.for %i = %zero_index to %three_index step %one_index {
             %qubit_i = tensor.extract %qubits[%i] : tensor<4x!ensemble.physical_qubit>
             %i_plus1 = arith.addi %i, %one_index : index
             %qubit_i_plus1 = tensor.extract %qubits[%i_plus1] : tensor<4x!ensemble.physical_qubit>
             ensemble.apply %cxgate %qubit_i, %qubit_i_plus1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
         }
 
-        affine.for %i = 0 to 4 {
+        scf.for %i = %zero_index to %four_index step %one_index {
             %qubit_i = tensor.extract %qubits[%i] : tensor<4x!ensemble.physical_qubit>
             %mbi_1i = tensor.extract %measurement_basis_indices[%one_index, %i] : tensor<2x4xi32>
             %three_mbi_1i = arith.muli %three_i32, %mbi_1i : i32
@@ -66,7 +68,7 @@ module {
             ensemble.apply_distribution %pauli_measurement_shifts[%three_mbi_1i_plus1_index] %qubit_i : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
         }
 
-        affine.for %i = 0 to 4 {
+        scf.for %i = %zero_index to %four_index step %one_index {
             %qubit_i = tensor.extract %qubits[%i] : tensor<4x!ensemble.physical_qubit>
             %cbit_i = tensor.extract %bits[%i] : tensor<4x!ensemble.cbit>
             ensemble.measure %qubit_i, %cbit_i : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
@@ -85,8 +87,10 @@ module {
         %bits = ensemble.alloc_cbits 4 : () -> tensor<4x!ensemble.cbit>
 
         %num_circuits_i32 = arith.index_cast %num_circuits : i32 to index
+        %zero_index = arith.constant 0 : index
+        %one_index = arith.constant 1 : index
 
-        affine.for %circuit_index = 0 to %num_circuits_i32 {
+        scf.for %circuit_index = %zero_index to %num_circuits_i32 step %one_index {
             %circuit_index_i32 = arith.index_cast %circuit_index : index to i32
             func.call @iteartion_body(%circuit_index_i32, %qubits, %bits) : (i32, tensor<4x!ensemble.physical_qubit>, tensor<4x!ensemble.cbit>) -> ()
         }

@@ -23,8 +23,12 @@ module {
 
     ensemble.reset_tensor %qubits : (tensor<8x!ensemble.physical_qubit>) -> ()
 
-    affine.for %i = 0 to 8 {
-      affine.for %j = 0 to 8 {
+    %eight_index = arith.constant 8 : index
+    %seven_index = arith.constant 7 : index
+    %hundred_index = arith.constant 100 : index
+
+    scf.for %i = %zero_index to %eight_index step %one_index {
+      scf.for %j = %zero_index to %eight_index step %one_index {
         %qubit_j = tensor.extract %qubits[%j] : tensor<8x!ensemble.physical_qubit>
         ensemble.apply %S %qubit_j : (!ensemble.gate, !ensemble.physical_qubit) -> ()
         %p_noisy_gate_choice_0 = tensor.extract %p_noisy_gate_choices[%i, %j, %zero_index] : tensor<8x8x2xi32>
@@ -39,7 +43,7 @@ module {
 
         ensemble.apply %S %qubit_j : (!ensemble.gate, !ensemble.physical_qubit) -> ()
       }
-      affine.for %j = 0 to 7 {
+      scf.for %j = %zero_index to %seven_index step %one_index {
         %qubit_j = tensor.extract %qubits[%j] : tensor<8x!ensemble.physical_qubit>
         %j_plus_one = arith.addi %j, %one_index : index
         %qubit_j_plus_one = tensor.extract %qubits[%j_plus_one] : tensor<8x!ensemble.physical_qubit>
@@ -51,7 +55,7 @@ module {
 
         ensemble.apply %CX %qubit_j, %qubit_j_plus_one : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
       }
-      affine.for %j = 0 to 8 {
+      scf.for %j = %zero_index to %eight_index step %one_index {
         %qubit_i = tensor.extract %qubits[%j] : tensor<8x!ensemble.physical_qubit>
         %cbit_i = tensor.extract %bits[%j] : tensor<8x!ensemble.cbit>
         ensemble.measure %qubit_i, %cbit_i : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
@@ -67,7 +71,10 @@ module {
     %gamma_values = arith.constant dense<[0.1, 0.2, 0.1, 0.13, 0.5, 0.6, 0.3, 0.5]> : tensor<8xf64>
     %qubits = ensemble.program_alloc 8 : () -> tensor<8x!ensemble.physical_qubit>
     %bits = ensemble.alloc_cbits 8 : () -> tensor<8x!ensemble.cbit>
-    affine.for %circuit_index = 0 to 100 {
+    %zero_index = arith.constant 0 : index
+    %one_index = arith.constant 1 : index
+    %hundred_index = arith.constant 100 : index
+    scf.for %circuit_index = %zero_index to %hundred_index step %one_index {
       func.call @iteration_body(%circuit_index, %beta_values, %gamma_values, %qubits, %bits) : (index, tensor<8xf64>, tensor<8xf64>, tensor<8x!ensemble.physical_qubit>, tensor<8x!ensemble.cbit>) -> ()
     }
     return

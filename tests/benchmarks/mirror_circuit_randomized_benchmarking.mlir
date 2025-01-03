@@ -1,12 +1,12 @@
-
-
 module {
-    func.func @iteration_body(%qubits: tensor<16x!ensemble.physical_qubit>, %bits: tensor<16x!ensemble.cbit>, %circuit_index: index, %num_circuits_per_depth: i32, %depths: tensor<20xi32>, %connectivity: tensor<15x2x!ensemble.physical_qubit>) -> () {
+    func.func private @iteration_body(%qubits: tensor<16x!ensemble.physical_qubit>, %bits: tensor<16x!ensemble.cbit>, %circuit_index: index, %num_circuits_per_depth: i32, %depths: tensor<20xi32>, %connectivity: tensor<15x2x!ensemble.physical_qubit>) -> () {
         %X = ensemble.gate "X" 1 : () -> !ensemble.gate
         %Y = ensemble.gate "Y" 1 : () -> !ensemble.gate
         %Z = ensemble.gate "Z" 1 : () -> !ensemble.gate
         %H = ensemble.gate "H" 1 : () -> !ensemble.gate
         %CX = ensemble.gate "CX" 2 : () -> !ensemble.gate
+        %XYZH = ensemble.gate_distribution %X, %Y, %Z, %H : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
+        %XYZ = ensemble.gate_distribution %X, %Y, %Z : (!ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
 
         %num_circuits_per_depth_index = arith.index_cast %num_circuits_per_depth : i32 to index
         %circuit_depth_temp = arith.divsi %circuit_index, %num_circuits_per_depth_index : index
@@ -23,72 +23,73 @@ module {
         %four = arith.constant 4 : i32
 
         %num_cnots_in_layer = ensemble.int_uniform %zero_i32, %one_plus_num_qubits_div_two, [%circuit_depth] : (i32, i32, i32) -> tensor<?xi32>
-
         %cnot_pairs = ensemble.cnot_pair_distribution %connectivity, [%circuit_depth, %half_num_qubits] : (tensor<15x2x!ensemble.physical_qubit>, i32, i32) -> tensor<?x8x2x!ensemble.physical_qubit>
         %circuit_depth_plus_one = arith.addi %circuit_depth, %one_i32 : i32
         %pauli_indices = ensemble.int_uniform %zero_i32, %four, [%circuit_depth_plus_one, %num_qubits] : (i32, i32, i32, i32) -> tensor<?x16xi32>
         %clifford_indices = ensemble.int_uniform %zero_i32, %four, [%circuit_depth, %num_qubits] : (i32, i32, i32, i32) -> tensor<?x16xi32>
         %initial_clifford_indices = ensemble.int_uniform %zero_i32, %four, [%num_qubits] : (i32, i32, i32) -> tensor<16xi32>
 
-        ensemble.reset_tensor %qubits : (tensor<16x!ensemble.physical_qubit>) -> ()
-        %num_qubits_index = arith.index_cast %num_qubits : i32 to index
-        %XYZH = ensemble.gate_distribution %X, %Y, %Z, %H : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-        scf.for %qubit_index = %zero_index to %num_qubits_index step %one_index {
-            %initial_clifford_index = tensor.extract %initial_clifford_indices[%qubit_index] : tensor<16xi32>
-            %qubit_i = tensor.extract %qubits[%qubit_index] : tensor<16x!ensemble.physical_qubit>
-            ensemble.apply_distribution %XYZH [%initial_clifford_index] %qubit_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
-        }
-
-        %XYZ = ensemble.gate_distribution %X, %Y, %Z : (!ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-
-        scf.for %qubit_index = %zero_index to %num_qubits_index step %one_index {
-            %pauli_index = tensor.extract %pauli_indices[%zero_index, %qubit_index] : tensor<?x16xi32>
-            %qubit_i = tensor.extract %qubits[%qubit_index] : tensor<16x!ensemble.physical_qubit>
-            ensemble.apply_distribution %XYZ [%pauli_index] %qubit_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
-        }
-
-        scf.for %i = %zero_index to %circuit_depth_index step %one_index {
-            %num_cnots_in_layer_i = tensor.extract %num_cnots_in_layer[%i] : tensor<?xi32>
-            %num_cnots_in_layer_i_index = arith.index_cast %num_cnots_in_layer_i : i32 to index
-    
-            scf.for %cnot_index = %zero_index to %num_cnots_in_layer_i_index step %one_index {
-                %src_qubit = tensor.extract %cnot_pairs[%i, %cnot_index, %zero_index] : tensor<?x8x2x!ensemble.physical_qubit>
-                %dst_qubit = tensor.extract %cnot_pairs[%i, %cnot_index, %one_index] : tensor<?x8x2x!ensemble.physical_qubit>
-                ensemble.apply %CX %src_qubit, %dst_qubit : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
-            }
-
-            %two_times_num_cnots_in_layer_i = arith.muli %num_cnots_in_layer_i, %two : i32
-            %two_times_num_cnots_in_layer_i_index = arith.index_cast %two_times_num_cnots_in_layer_i : i32 to index
-            scf.for %qubit_index = %two_times_num_cnots_in_layer_i_index to %num_qubits_index step %one_index {
-                %clifford_index = tensor.extract %clifford_indices[%i, %qubit_index] : tensor<?x16xi32>
+        ensemble.quantum_program_iteration {
+            ensemble.reset_tensor %qubits : (tensor<16x!ensemble.physical_qubit>) -> ()
+            %num_qubits_index = arith.index_cast %num_qubits : i32 to index
+            
+            scf.for %qubit_index = %zero_index to %num_qubits_index step %one_index {
+                               %initial_clifford_index = tensor.extract %initial_clifford_indices[%qubit_index] : tensor<16xi32>
                 %qubit_i = tensor.extract %qubits[%qubit_index] : tensor<16x!ensemble.physical_qubit>
-                ensemble.apply_distribution %XYZH [%clifford_index] %qubit_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
+                ensemble.apply_distribution %XYZH [%initial_clifford_index] %qubit_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
             }
-
-            %i_plus_one = arith.addi %i, %one_index : index
 
             scf.for %qubit_index = %zero_index to %num_qubits_index step %one_index {
-                
-                %pauli_index = tensor.extract %pauli_indices[%i_plus_one, %qubit_index] : tensor<?x16xi32>
+                %pauli_index = tensor.extract %pauli_indices[%zero_index, %qubit_index] : tensor<?x16xi32>
                 %qubit_i = tensor.extract %qubits[%qubit_index] : tensor<16x!ensemble.physical_qubit>
                 ensemble.apply_distribution %XYZ [%pauli_index] %qubit_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
             }
-        }
 
-        scf.for %qubit_index = %zero_index to %num_qubits_index step %one_index {
-            %initial_clifford_index = tensor.extract %initial_clifford_indices[%qubit_index] : tensor<16xi32>
-            %qubit_i = tensor.extract %qubits[%qubit_index] : tensor<16x!ensemble.physical_qubit>
-            ensemble.apply_distribution %XYZH [%initial_clifford_index] %qubit_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
-        }
+            scf.for %i = %zero_index to %circuit_depth_index step %one_index {
+                %num_cnots_in_layer_i = tensor.extract %num_cnots_in_layer[%i] : tensor<?xi32>
+                %num_cnots_in_layer_i_index = arith.index_cast %num_cnots_in_layer_i : i32 to index
+        
+                scf.for %cnot_index = %zero_index to %num_cnots_in_layer_i_index step %one_index {
+                    %src_qubit = tensor.extract %cnot_pairs[%i, %cnot_index, %zero_index] : tensor<?x8x2x!ensemble.physical_qubit>
+                    %dst_qubit = tensor.extract %cnot_pairs[%i, %cnot_index, %one_index] : tensor<?x8x2x!ensemble.physical_qubit>
+                    ensemble.apply %CX %src_qubit, %dst_qubit : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                }
 
-        scf.for %i = %zero_index to %num_qubits_index step %one_index {
-            %qubit_i = tensor.extract %qubits[%i] : tensor<16x!ensemble.physical_qubit>
-            %bit_i = tensor.extract %bits[%i] : tensor<16x!ensemble.cbit>
-            ensemble.measure %qubit_i, %bit_i : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
+                %two_times_num_cnots_in_layer_i = arith.muli %num_cnots_in_layer_i, %two : i32
+                %two_times_num_cnots_in_layer_i_index = arith.index_cast %two_times_num_cnots_in_layer_i : i32 to index
+                scf.for %qubit_index = %two_times_num_cnots_in_layer_i_index to %num_qubits_index step %one_index {
+                    %clifford_index = tensor.extract %clifford_indices[%i, %qubit_index] : tensor<?x16xi32>
+                    %qubit_i = tensor.extract %qubits[%qubit_index] : tensor<16x!ensemble.physical_qubit>
+                    ensemble.apply_distribution %XYZH [%clifford_index] %qubit_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
+                }
+
+                %i_plus_one = arith.addi %i, %one_index : index
+
+                scf.for %qubit_index = %zero_index to %num_qubits_index step %one_index {
+                    %pauli_index = tensor.extract %pauli_indices[%i_plus_one, %qubit_index] : tensor<?x16xi32>
+                    %qubit_i = tensor.extract %qubits[%qubit_index] : tensor<16x!ensemble.physical_qubit>
+                    ensemble.apply_distribution %XYZ [%pauli_index] %qubit_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
+                }
+            }
+
+            scf.for %qubit_index = %zero_index to %num_qubits_index step %one_index {
+                %initial_clifford_index = tensor.extract %initial_clifford_indices[%qubit_index] : tensor<16xi32>
+                %qubit_i = tensor.extract %qubits[%qubit_index] : tensor<16x!ensemble.physical_qubit>
+                ensemble.apply_distribution %XYZH [%initial_clifford_index] %qubit_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
+            }
+
+            scf.for %i = %zero_index to %num_qubits_index step %one_index {
+                %qubit_i = tensor.extract %qubits[%i] : tensor<16x!ensemble.physical_qubit>
+                %bit_i = tensor.extract %bits[%i] : tensor<16x!ensemble.cbit>
+                ensemble.measure %qubit_i, %bit_i : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
+            }
+
+            ensemble.transmit_results %bits : (tensor<16x!ensemble.cbit>) -> ()
         }
 
         return
     }
+
     func.func @main() {
         %num_circuits = arith.constant 640 : i32
         %num_circuits_per_depth = arith.constant 32 : i32
@@ -98,7 +99,8 @@ module {
         %connectivity = tensor.empty() : tensor<15x2x!ensemble.physical_qubit>
         %zero_index = arith.constant 0 : index
         %one_index = arith.constant 1 : index
-        affine.for %i = 0 to 15 {
+        %fifteen_index = arith.constant 15 : index
+        scf.for %i = %zero_index to %fifteen_index step %one_index {
             %dst = arith.addi %i, %one_index : index
             %src_qubit = tensor.extract %qubits[%i] : tensor<16x!ensemble.physical_qubit>
             %dst_qubit = tensor.extract %qubits[%dst] : tensor<16x!ensemble.physical_qubit>

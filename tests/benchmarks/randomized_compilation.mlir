@@ -22,7 +22,10 @@ module {
         ensemble.reset_tensor %qubits: (tensor<4 x !ensemble.physical_qubit>) -> ()
 
         // cycle 1
-        affine.for %i = 0 to 4 {
+        %zero_index = arith.constant 0 : index
+        %four_index = arith.constant 4 : index
+        %one_index = arith.constant 1 : index
+        scf.for %i = %zero_index to %four_index step %one_index {
             %qubit_i = tensor.extract %qubits[%i] : tensor<4 x !ensemble.physical_qubit>
             ensemble.apply %H_gate %qubit_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
         }
@@ -33,7 +36,6 @@ module {
         %pi_over_8_f32 = arith.constant 0.39269908169872414 : f32
         %pi_over_16_f32 = arith.constant 0.19634954084936207 : f32
 
-        %one_index = arith.constant 1 : index
         %two_index = arith.constant 2 : index
         %three_index = arith.constant 3 : index
         %qubit_1 = tensor.extract %qubits[%one_index] : tensor<4 x !ensemble.physical_qubit>
@@ -49,7 +51,6 @@ module {
         ensemble.apply %RZ_gate_pi_over_16 %qubit_3 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
 
         // cycle 3
-        %zero_index = arith.constant 0 : index
         %qubit_0 = tensor.extract %qubits[%zero_index] : tensor<4 x !ensemble.physical_qubit>
         %pauli_randomization_index_0 = tensor.extract %pauli_randomization_indices[%zero_index] : tensor<18xi32>
 
@@ -115,7 +116,6 @@ module {
         ensemble.apply %RZ_gate_pi_over_4 %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
 
         // cycle 11
-        %four_index = arith.constant 4 : index
         %pauli_randomization_index_4 = tensor.extract %pauli_randomization_indices[%four_index] : tensor<18xi32>
         %cycle_11_pri_40 = arith.muli %pauli_randomization_index_4, %two_i32: i32
         %cycle_11_pri_41 = arith.addi %cycle_11_pri_40, %one_i32: i32
@@ -329,7 +329,10 @@ module {
     func.func @main() {
         %qubits = ensemble.program_alloc 4 : () -> (tensor<4 x !ensemble.physical_qubit>)
         %bits = ensemble.alloc_cbits 4 : () -> (tensor<4 x !ensemble.cbit>)
-        affine.for %circuit_index = 0 to 1000 {
+        %zero_index = arith.constant 0 : index
+        %one_index = arith.constant 1 : index
+        %thousand_index = arith.constant 1000 : index
+        scf.for %circuit_index = %zero_index to %thousand_index step %one_index {
             %circuit_index_i32 = arith.index_cast %circuit_index : index to i32
             func.call @iteration_body(%qubits, %bits, %circuit_index_i32) : (tensor<4 x !ensemble.physical_qubit>, tensor<4 x !ensemble.cbit>, i32) -> ()
         }

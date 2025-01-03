@@ -2,14 +2,48 @@
 
 module {
     func.func @hamiltonian_energy_estimation_iteration(%circuit_index: index, %qubits: tensor<14x!ensemble.physical_qubit>, %bits: tensor<14x!ensemble.cbit>, %hea_params: tensor<5x2x14xf64>, %pauli_indices: tensor<8192x14xi32>) {
-        ensemble.reset_tensor %qubits : (tensor<14x!ensemble.physical_qubit>) -> ()
         %zero_index = arith.constant 0 : index
         %one_index = arith.constant 1 : index
-        affine.for %layer_index = 0 to 4 {
-            affine.for %qubit_index = 0 to 14 {
-                
-                %rotation_angle1 = tensor.extract %hea_params[%layer_index, %zero_index, %qubit_index] : tensor<5x2x14xf64>
-                %rotation_angle2 = tensor.extract %hea_params[%layer_index, %one_index, %qubit_index] : tensor<5x2x14xf64>
+        %four_index = arith.constant 4 : index
+        %fourteen_index = arith.constant 14 : index
+        %thirteen_index = arith.constant 13 : index
+        %CX_gate = ensemble.gate "CX" 2 () : () -> !ensemble.gate
+        
+        %I_gate = ensemble.gate "I" 1 () : () -> !ensemble.gate
+        %H_gate = ensemble.gate "H" 1 () : () -> !ensemble.gate
+        %Sdag_gate = ensemble.gate "Sdag" 1 () : () -> !ensemble.gate
+
+        %ihs_distribution = ensemble.gate_distribution %I_gate, %H_gate, %Sdag_gate : (!ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
+        %iih_distribution = ensemble.gate_distribution %I_gate, %I_gate, %H_gate : (!ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
+
+        ensemble.quantum_program_iteration {
+            ensemble.reset_tensor %qubits : (tensor<14x!ensemble.physical_qubit>) -> ()
+        
+            scf.for %layer_index = %zero_index to %four_index step %one_index {
+                scf.for %qubit_index = %zero_index to %fourteen_index step %one_index {
+                    
+                    %rotation_angle1 = tensor.extract %hea_params[%layer_index, %zero_index, %qubit_index] : tensor<5x2x14xf64>
+                    %rotation_angle2 = tensor.extract %hea_params[%layer_index, %one_index, %qubit_index] : tensor<5x2x14xf64>
+                    %qubit_to_apply = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+
+                    %RY_gate = ensemble.gate "RY" 1 (%rotation_angle1) : (f64) -> !ensemble.gate
+                    %RZ_gate = ensemble.gate "RZ" 1 (%rotation_angle2) : (f64) -> !ensemble.gate
+
+                    ensemble.apply %RY_gate %qubit_to_apply : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                    ensemble.apply %RZ_gate %qubit_to_apply : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                }
+                scf.for %qubit_index = %zero_index to %thirteen_index step %one_index {
+                    
+                    %qubit_index_plus = arith.addi %qubit_index, %one_index : index
+                    %qubit_to_apply = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                    %qubit_to_apply_plus = tensor.extract %qubits[%qubit_index_plus] : tensor<14x!ensemble.physical_qubit>
+                    ensemble.apply %CX_gate %qubit_to_apply, %qubit_to_apply_plus : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                }
+            }
+
+            scf.for %qubit_index = %zero_index to %fourteen_index step %one_index {
+                %rotation_angle1 = tensor.extract %hea_params[%four_index, %zero_index, %qubit_index] : tensor<5x2x14xf64>
+                %rotation_angle2 = tensor.extract %hea_params[%four_index, %one_index, %qubit_index] : tensor<5x2x14xf64>
                 %qubit_to_apply = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
 
                 %RY_gate = ensemble.gate "RY" 1 (%rotation_angle1) : (f64) -> !ensemble.gate
@@ -18,46 +52,21 @@ module {
                 ensemble.apply %RY_gate %qubit_to_apply : (!ensemble.gate, !ensemble.physical_qubit) -> ()
                 ensemble.apply %RZ_gate %qubit_to_apply : (!ensemble.gate, !ensemble.physical_qubit) -> ()
             }
-            affine.for %qubit_index = 0 to 13 {
-                %CX_gate = ensemble.gate "CX" 2 () : () -> !ensemble.gate
-                %qubit_index_plus = arith.addi %qubit_index, %one_index : index
-                %qubit_to_apply = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
-                %qubit_to_apply_plus = tensor.extract %qubits[%qubit_index_plus] : tensor<14x!ensemble.physical_qubit>
-                ensemble.apply %CX_gate %qubit_to_apply, %qubit_to_apply_plus : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+
+
+            scf.for %qubit_index = %zero_index to %fourteen_index step %one_index {
+                %pauli_index_i32 = tensor.extract %pauli_indices[%circuit_index, %qubit_index] : tensor<8192x14xi32>
+                %pauli_index = arith.index_cast %pauli_index_i32 : i32 to index
+                %qubit_i = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+
+                ensemble.apply_distribution %ihs_distribution [%pauli_index] %qubit_i : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                ensemble.apply_distribution %iih_distribution [%pauli_index] %qubit_i : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+
+                %cbit = tensor.extract %bits[%qubit_index] : tensor<14x!ensemble.cbit>
+                ensemble.measure %qubit_i, %cbit : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
+            
             }
-        }
-
-        affine.for %qubit_index = 0 to 14 {
-            %four_index = arith.constant 4 : index
-            %rotation_angle1 = tensor.extract %hea_params[%four_index, %zero_index, %qubit_index] : tensor<5x2x14xf64>
-            %rotation_angle2 = tensor.extract %hea_params[%four_index, %one_index, %qubit_index] : tensor<5x2x14xf64>
-            %qubit_to_apply = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
-
-            %RY_gate = ensemble.gate "RY" 1 (%rotation_angle1) : (f64) -> !ensemble.gate
-            %RZ_gate = ensemble.gate "RZ" 1 (%rotation_angle2) : (f64) -> !ensemble.gate
-
-            ensemble.apply %RY_gate %qubit_to_apply : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-            ensemble.apply %RZ_gate %qubit_to_apply : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-        }
-
-        %I_gate = ensemble.gate "I" 1 () : () -> !ensemble.gate
-        %H_gate = ensemble.gate "H" 1 () : () -> !ensemble.gate
-        %Sdag_gate = ensemble.gate "Sdag" 1 () : () -> !ensemble.gate
-
-        %ihs_distribution = ensemble.gate_distribution %I_gate, %H_gate, %Sdag_gate : (!ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-        %iih_distribution = ensemble.gate_distribution %I_gate, %I_gate, %H_gate : (!ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-
-        affine.for %qubit_index = 0 to 14 {
-            %pauli_index_i32 = tensor.extract %pauli_indices[%circuit_index, %qubit_index] : tensor<8192x14xi32>
-            %pauli_index = arith.index_cast %pauli_index_i32 : i32 to index
-            %qubit_i = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
-
-            ensemble.apply_distribution %ihs_distribution [%pauli_index] %qubit_i : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
-            ensemble.apply_distribution %iih_distribution [%pauli_index] %qubit_i : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
-
-            %cbit = tensor.extract %bits[%qubit_index] : tensor<14x!ensemble.cbit>
-            ensemble.measure %qubit_i, %cbit : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
-           
+            ensemble.transmit_results %bits : (tensor<14x!ensemble.cbit>) -> ()
         }
 
         return
@@ -8268,7 +8277,9 @@ module {
         %qubits = ensemble.program_alloc 14 : () -> tensor<14x!ensemble.physical_qubit>
         %cbits = ensemble.alloc_cbits 14 : () -> tensor<14x!ensemble.cbit>
         %num_iterations = arith.constant 8192 : index
-        affine.for %circuit_index = 0 to %num_iterations {
+        %zero_index = arith.constant 0 : index
+        %one_index = arith.constant 1 : index
+        scf.for %circuit_index = %zero_index to %num_iterations step %one_index {
             func.call @hamiltonian_energy_estimation_iteration(%circuit_index, %qubits, %cbits, %hea_params, %pauli_indices) : (index, tensor<14x!ensemble.physical_qubit>, tensor<14x!ensemble.cbit>, tensor<5x2x14xf64>, tensor<8192x14xi32>) -> ()
         }
         return

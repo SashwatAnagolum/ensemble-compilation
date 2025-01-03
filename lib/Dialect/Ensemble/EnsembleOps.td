@@ -172,7 +172,7 @@ def Ensemble_CNOTPairDistributionOp: Ensemble_DistributionOp<"cnot_pair_distribu
     This operation generates random non-overlapping CNOT pairs sampled from a connectivity graph.
     The operation produces a tensor of the given shape, where each element is a pair of qubits.
   }];
-  let arguments = (ins TensorOf<[AnyQubit]>:$connectivity, Variadic<I32>:$num_samples);
+  let arguments = (ins ConnectivityGraph:$connectivity, Variadic<I32>:$num_samples);
   let results = (outs TensorOf<[AnyQubit]>:$result);
   let assemblyFormat = "$connectivity `,` `[` $num_samples `]` attr-dict `:` functional-type(operands, results)";
   let hasVerifier = 1;
@@ -188,6 +188,41 @@ def Ensemble_PermutationOp: Ensemble_DistributionOp<"permutation"> {
   let results = (outs TensorOf<[AnyInteger]>:$result);
   let assemblyFormat = "$N attr-dict `:` functional-type(operands, results)";
   let hasVerifier = 1;
+}
+
+def Quantum_Program_Execution : Ensemble_UserInputOp<"quantum_program_iteration"> {
+  let summary = "An operation that wraps multiple operations and contains all of the code for one iteration of a quantum program.";
+  let description = [{
+    This operation wraps a single region. The region can have multiple blocks, and
+    the operation itself persists across transformations unless explicitly targeted.
+  }];
+
+  let regions = (region AnyRegion:$body); // Allow a single region
+  let assemblyFormat = "$body attr-dict ";
+  let hasVerifier = 0;
+}
+
+def TransmitResults : Ensemble_UserInputOp<"transmit_results"> {
+  let summary = "Transmit results from a quantum program iteration.";
+  let description = [{
+    This operation transmits results from a quantum program iteration.
+  }];
+  let arguments = (ins TensorOf<[Cbit]>:$results);
+  let results = (outs);
+  let assemblyFormat = "$results attr-dict `:` functional-type(operands, results)";
+  let hasVerifier = 0;
+  let traits = [Terminator];
+}
+def DeviceConnectivityOp : Ensemble_UserInputOp<"device_connectivity"> {
+  let summary = "Create a connectivity graph for a device.";
+  let description = [{
+    This operation creates a connectivity graph for a device from a tensor of qubits and a dense array 
+    of indices specifying the connectivity between qubits.
+  }];
+  let arguments = (ins TensorOf<[AnyQubit]>:$qubits, I32ElementsAttr:$indices);
+  let results = (outs ConnectivityGraph:$connectivity);
+  let assemblyFormat = "$qubits `,` `{` $indices `}` attr-dict `:` functional-type(operands, results)";
+  let hasVerifier = 0;
 }
 
 

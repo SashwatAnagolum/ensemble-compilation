@@ -5,6 +5,8 @@ module {
         %loop_repetition_index = arith.index_cast %loop_repetition : i32 to index
         %zero_index = arith.constant 0 : index
         %one_index = arith.constant 1 : index
+        %twenty_one_index = arith.constant 21 : index
+        %twenty_index = arith.constant 20 : index
 
         ensemble.reset_tensor %qubits : (tensor<21x!ensemble.physical_qubit>) -> ()
 
@@ -13,7 +15,7 @@ module {
         %CX = ensemble.gate "CX" 2 : () -> !ensemble.gate
         %Inverse_CX = ensemble.gate "CX" "inverse" 2 : () -> !ensemble.gate
 
-        affine.for %i = 0 to 21 {
+        scf.for %i = %zero_index to %twenty_one_index step %one_index {
             %qubit_i = tensor.extract %qubits[%i] : tensor<21x!ensemble.physical_qubit>
             ensemble.apply %H %qubit_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
 
@@ -23,7 +25,7 @@ module {
             }
         }
 
-        affine.for %i = 0 to 20 {
+        scf.for %i = %zero_index to %twenty_index step %one_index {
             %qubit_i = tensor.extract %qubits[%i] : tensor<21x!ensemble.physical_qubit>
             %i_plus_one = arith.addi %i, %one_index : index
             %qubit_i_plus_one = tensor.extract %qubits[%i_plus_one] : tensor<21x!ensemble.physical_qubit>
@@ -35,7 +37,7 @@ module {
             }
         }
 
-        affine.for %i = 0 to 21 {
+        scf.for %i = %zero_index to %twenty_one_index step %one_index {
             %qubit_i = tensor.extract %qubits[%i] : tensor<21x!ensemble.physical_qubit>
             %bit_i = tensor.extract %bits[%i] : tensor<21x!ensemble.cbit>
             ensemble.measure %qubit_i, %bit_i : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
@@ -46,7 +48,10 @@ module {
     func.func @main() {
         %qubits = ensemble.program_alloc 21 : () -> tensor<21x!ensemble.physical_qubit>
         %bits = ensemble.alloc_cbits 21 : () -> tensor<21x!ensemble.cbit>
-        affine.for %circuit_index = 0 to 9 {
+        %zero_index = arith.constant 0 : index
+        %nine_index = arith.constant 9 : index
+        %one_index = arith.constant 1 : index
+        scf.for %circuit_index = %zero_index to %nine_index step %one_index {
             func.call @iteration_body(%circuit_index, %qubits, %bits) : (index, tensor<21x!ensemble.physical_qubit>, tensor<21x!ensemble.cbit>) -> ()
         }
         return
