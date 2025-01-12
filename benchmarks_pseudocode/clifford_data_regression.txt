@@ -33,13 +33,13 @@ for (i = 0; i < 15; i++) {
 
 for (i = 0; i < 16; i++) {
 	gate1q "S" qubits[i];
-	gate1q "P" qubits[i];
+	gate1q "SX" qubits[i];
 
 	for (j = 0; j < phase_gate_powers[1][i]; j++) {
 		gate1q "S" qubits[i];
 	}
 
-	gate1q "P" qubits[i];
+	gate1q "SX" qubits[i];
 	gate1q "S" qubits[i];
 }
 
@@ -55,13 +55,13 @@ for (i = 0; i < 15; i++) {
 
 for (i = 0; i < 16; i++) {
 	gate1q "S" qubits[i];
-	gate1q "P" qubits[i];
+	gate1q "SX" qubits[i];
 
 	for (j = 0; j < phase_gate_powers[3][i]; j++) {
 		gate1q "S" qubits[i];
 	}
 
-	gate1q "P" qubits[i];
+	gate1q "SX" qubits[i];
 	gate1q "S" qubits[i];
 
 	measure qubits[i], bits[i];
