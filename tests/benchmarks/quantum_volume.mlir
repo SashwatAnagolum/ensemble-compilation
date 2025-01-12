@@ -36,7 +36,10 @@ module {
         %qubits = ensemble.program_alloc 10 : () -> tensor<10x!ensemble.physical_qubit>
         %bits = ensemble.alloc_cbits 10 : () -> tensor<10x!ensemble.cbit>
 
-        affine.for %circuit_index = 0 to 6 {
+        %zero_index = arith.constant 0 : index
+        %six_index = arith.constant 6 : index 
+        %one_index = arith.constant 1 : index
+        scf.for %circuit_index = %zero_index to %six_index step %one_index {
             func.call @quantum_volume_iteration(%circuit_index, %qubits, %bits) : (index, tensor<10x!ensemble.physical_qubit>, tensor<10x!ensemble.cbit>) -> ()
         }
         return

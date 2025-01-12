@@ -16,6 +16,11 @@
 #define GET_OP_CLASSES
 #include "lib/Dialect/Ensemble/EnsembleOps.cpp.inc"
 
+#include "lib/Dialect/Ensemble/EnsembleInlinerInterface.h"
+#include "mlir/IR/Region.h"
+#include "mlir/IR/Value.h"
+#include "mlir/IR/Block.h"
+
 namespace mlir {
 namespace qe {
 namespace ensemble {
@@ -32,6 +37,8 @@ void EnsembleDialect::initialize() {
 #define GET_OP_LIST
 #include "lib/Dialect/Ensemble/EnsembleOps.cpp.inc"
       >();
+
+  addInterfaces<EnsembleInlinerInterface>();
 }
 
 }  // namespace ensemble

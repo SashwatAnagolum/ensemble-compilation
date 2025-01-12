@@ -58,6 +58,13 @@ def GateDistribution : Ensemble_Type<"GateDistribution", "gate_distribution"> {
   }];
 }
 
+def ConnectivityGraph : Ensemble_Type<"ConnectivityGraph", "connectivity_graph"> {
+  let summary = "A connectivity graph.";
+  let description = [{
+    A type representing the connectivity graph of a device.
+  }];
+}
+
 
 
 #endif  // LIB_DIALECT_ENSEMBLE_ENSEMBLETYPES_TD_
