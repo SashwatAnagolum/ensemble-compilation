@@ -12,7 +12,7 @@ cx_noisy_gate_choices = categorical([0.92, 0.04, 0.04], size=(8, 14));
 global circuit_index;
 
 # qubits and classical bits
-qubit qubits[8];
+qubit qubits[8]; 
 bit bits[8];
 
 # circuit description - 1D Ising QAOA on 8 qubits

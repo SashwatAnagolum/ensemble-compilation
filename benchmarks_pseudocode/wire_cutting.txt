@@ -1,5 +1,5 @@
 # inputs from user
-num_circuits = 12288;
+num_circuits = 65536;
 
 # precomputed values before circuit sampling
 beta = [0.21];
