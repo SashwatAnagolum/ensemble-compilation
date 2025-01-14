@@ -4,6 +4,7 @@
 #include "lib/Transform/Ensemble/ZeroNoiseExtrapolation.h"
 #include "lib/Transform/Ensemble/PrintEachOperation.h"
 #include "lib/Transform/Ensemble/Inlinex.h"
+#include "lib/Transform/Ensemble/PDag.h"
 
 namespace mlir {
 namespace qe {

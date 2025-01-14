@@ -87,6 +87,15 @@ cc_library(
 )
 
 cc_library(
+    name = "PDag",
+    srcs = ["PDag.cpp"],
+    hdrs = ["PDag.h"],
+    deps = [
+        ":pass_inc_gen",
+    ],
+)
+
+cc_library(
     name = "Passes",
     hdrs = ["Passes.h"],
     deps = [
@@ -94,5 +103,7 @@ cc_library(
         ":PrintEachOperation",
         ":Inlinex",
         ":pass_inc_gen",
+        ":PDag"
     ],
 )
+
