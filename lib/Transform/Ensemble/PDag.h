@@ -17,6 +17,7 @@ using GateOperationPtr = std::shared_ptr<class GateOperation>;
 using RandomValuePtr = std::shared_ptr<class RandomValue>;
 using ValuePtr = std::shared_ptr<class Value>;
 using PermutationIntDistributionPtr = std::shared_ptr<class PermutationIntDistribution>;
+using ConditionalPtr = std::shared_ptr<class Conditional>;
 
 
 class RandomValueCollection {
@@ -100,10 +101,11 @@ public:
     bool unconditional = false;
 };
 
-struct GateOperation{
+class GateOperation{
 public:
     std::string name;
     std::vector<Value> parameters;
+    int num_operands;
     bool inverse;
 };
 
@@ -111,32 +113,37 @@ class PDagNode{
     GateOperationPtr op;
 
     // there is a one to one mapping between next_operations and probabilistic_edges
-    // We take edge next_operations[i] when probabalistic_edges[i] is satisfied
+    // We take edge next_operations[i] when probabilistic_edges[i] is satisfied
     std::vector<PDagNodePtr> next_operations;
-    std::vector<Conditional> probabalistic_edges;
+    std::vector<ConditionalPtr> probabilistic_edges;
 
-    std::vector<PDagNodePtr> operands; // inputs. This is used by operations like CNOT to maintain ordering of which operands are control and target
+    std::vector<std::vector<PDagNodePtr>> operands; // inputs. This is used by operations like CNOT to maintain ordering of which operands are control and target
+    // its a vector of vectors because a qubit can have multiple operations before and all of them come in to the this node. For example, if the last applied operation was a Gate Distribution of X, Y, Z, I on qubit 0, and just a hadamard on qubit 1, then the operands would be nodes corresponding to [[X, Y, Z, I], [H]]
+    GateOperationPtr its_operation;
 
 public:
     PDagNode(GateOperationPtr op);
-    void addPath(PDagNodePtr next_operation, Conditional probabalistic_edge);
+    // adds the next operation 
+    void addNextOp(PDagNodePtr next_operation, ConditionalPtr probabilistic_edge);
+    void setOperands(std::vector<PDagNodePtr>& operands, int operand_number);
 
 
 };
 
 class PDag {
-    std::vector<PDagNodePtr> qubit_trees;
+    std::vector<std::vector<PDagNodePtr>> qubit_trees;
     std::vector<std::vector<PDagNodePtr>> frontier_nodes; // these are basically the most recent operations added to a given qubit, sometimes probabilistically
     
     public:
-    
     PDag(int numqubits);
-    void addOperation(GateOperation op, std::vector<int> qubit_indices);
+    void addOperation(GateOperationPtr op, const std::vector<int>& qubit_indices);
+    void addOperation(std::vector<GateOperationPtr>& ops, std::vector<ConditionalPtr>& conditions, const std::vector<int>& qubit_indices);
+    
 
 };
 
 } // namespace ensemble
-} // namespace qe
+} // namespace qe 
 } // namespace mlir
 
 #endif
