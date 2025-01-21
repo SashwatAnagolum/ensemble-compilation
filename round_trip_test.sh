@@ -24,5 +24,7 @@ fi
 # ./bazel-bin/tools/qe-opt --inlinex $1
 # ./bazel-bin/tools/qe-opt --inline="op-pipelines=func.func(canonicalize,cse)" $1 -o inlined.mlir
 # ./bazel-bin/tools/qe-opt --inline="op-pipelines=func.func(canonicalize,cse),inline-threshold=100000000" $1 -o inlined.mlir
-./bazel-bin/tools/qe-opt -inline -inline-threshold=100000000 -print-each-operation $1 -o inlined.mlir
+
+./bazel-bin/tools/qe-opt -inline -inline-threshold=100000000  $1 -o inlined.mlir
+./bazel-bin/tools/qe-opt -pdag-parse inlined.mlir
 

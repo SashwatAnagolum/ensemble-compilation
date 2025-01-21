@@ -10,136 +10,145 @@ namespace mlir {
 namespace qe {
 namespace ensemble {
 
-using PDagNodePtr = std::shared_ptr<class PDagNode>;
-using ParameterPtr = std::shared_ptr<class Parameter>;
-using RandomValueCollectionPtr = std::shared_ptr<class RandomValueCollection>;
-using GateOperationPtr = std::shared_ptr<class GateOperation>;
-using RandomValuePtr = std::shared_ptr<class RandomValue>;
-using ValuePtr = std::shared_ptr<class Value>;
-using PermutationIntDistributionPtr = std::shared_ptr<class PermutationIntDistribution>;
-using ConditionalPtr = std::shared_ptr<class Conditional>;
+using PDag_PDagNodePtr = std::shared_ptr<class PDag_PDagNode>;
+using PDag_ParameterPtr = std::shared_ptr<class PDag_Parameter>;
+using PDag_RandomValueCollectionPtr = std::shared_ptr<class PDag_RandomValueCollection>;
+using PDag_GateOperationPtr = std::shared_ptr<class PDag_GateOperation>;
+using PDag_RandomValuePtr = std::shared_ptr<class PDag_RandomValue>;
+using PDag_ValuePtr = std::shared_ptr<class PDag_Value>;
+using PDag_PermutationIntDistributionPtr = std::shared_ptr<class PDag_PermutationIntDistribution>;
+using PDag_ConditionalPtr = std::shared_ptr<class PDag_Conditional>;
+using PDag_Ptr = std::shared_ptr<class PDag>;
+using PDag_UniformIntDistributionPtr = std::shared_ptr<class PDag_UniformIntDistribution>;
+using PDag_UniformFloatDistributionPtr = std::shared_ptr<class PDag_UniformFloatDistribution>;
+using PDag_CategoricalIntDistributionPtr = std::shared_ptr<class PDag_CategoricalIntDistribution>;
+using PDag_RandomValueCollectionPtr = std::shared_ptr<class PDag_RandomValueCollection>;
+using PDag_QubitDistributionPtr = std::shared_ptr<class PDag_QubitDistribution>;
 
-
-class RandomValueCollection {
-public:
-    std::vector<int> shape;
-    virtual ~RandomValueCollection() = default;
+enum PDag_ValueType {
+    PDag_INTEGER, PDag_FLOAT
 };
 
-class UniformIntDistribution : public RandomValueCollection {
+class PDag_RandomValueCollection {
 public:
-    int low;
-    int high;
+    std::vector<PDag_ValuePtr> shape;
+    PDag_ValueType dist_type;
+    virtual ~PDag_RandomValueCollection() = default;
+};
 
-    UniformIntDistribution(int low, int high, std::vector<int> shape)
+class PDag_UniformIntDistribution : public PDag_RandomValueCollection {
+public:
+    PDag_ValuePtr low;
+    PDag_ValuePtr high;
+
+    PDag_UniformIntDistribution(PDag_ValuePtr low, PDag_ValuePtr high, std::vector<PDag_ValuePtr> shape)
         : low(low), high(high) {
         this->shape = shape;
+        this->dist_type = PDag_INTEGER;
     }
 };
 
-class UniformFloatDistribution : public RandomValueCollection {
+class PDag_UniformFloatDistribution : public PDag_RandomValueCollection {
 public:
-    float low;
-    float high;
+    PDag_ValuePtr low;
+    PDag_ValuePtr high;
 
-    UniformFloatDistribution(float low, float high, std::vector<int> shape)
+    PDag_UniformFloatDistribution(PDag_ValuePtr low, PDag_ValuePtr high, std::vector<PDag_ValuePtr> shape)
         : low(low), high(high) {
         this->shape = shape;
+        this->dist_type = PDag_FLOAT;
     }
 };
 
-class CategoricalIntDistribution : public RandomValueCollection {
+class PDag_CategoricalIntDistribution : public PDag_RandomValueCollection {
 public:
-    int low;
+    PDag_ValuePtr low;
     std::vector<float> probabilities;
 
-    CategoricalIntDistribution(int low, std::vector<float> probabilities, std::vector<int> shape)
+    PDag_CategoricalIntDistribution(PDag_ValuePtr low, std::vector<float> probabilities, std::vector<PDag_ValuePtr> shape)
         : low(low), probabilities(probabilities) {
         this->shape = shape;
+        this->dist_type = PDag_INTEGER;
     }
 };
 
-class PermutationIntDistribution : public RandomValueCollection {
+class PDag_PermutationIntDistribution : public PDag_RandomValueCollection {
 public:
     int N;
-    PermutationIntDistribution(int N): N(N) {}
+    PDag_PermutationIntDistribution(int N): N(N) {
+        this->dist_type = PDag_INTEGER;
+    }
 };
 
-class RandomValue {
-    // consists of a pointer to a parameter collection and an index
+class PDag_QubitDistribution: public PDag_RandomValueCollection {
 public:
-    RandomValueCollectionPtr collection;
-    int index;
+    int num_qubits;
+    PDag_QubitDistribution(int num_qubits): num_qubits(num_qubits) {
+        this->dist_type = PDag_INTEGER;
+    }
 };
 
-enum ValueType {
-    INTEGER, FLOAT
-};
-
-class Value {
+class PDag_RandomValue {
 public:
-    ValueType vt;
+    PDag_RandomValueCollectionPtr collection;
+    std::vector<PDag_ValuePtr> indices;
+};
+
+
+
+class PDag_Value {
+public:
+    PDag_ValueType vt;
     bool isDeterministic;
-    int int_value; // if applicable and deterministic
-    double float_value; // if applicable and deterministic
-    RandomValuePtr random_value; // if nondeterministic and applicable
-    
+    int int_value;
+    double float_value;
+    PDag_RandomValuePtr random_value;
 };
 
-struct Restriction {
-    bool GT; // greater than
-    bool LT; // less than
-    bool EQ; // equal
-    // could be any combinations of these. For example != is GT and LT, and <= is LT and EQ
+enum PDag_Restriction {
+    PDAG_RESTRICTION_GT,
+    PDAG_RESTRICTION_LT,
+    PDAG_RESTRICTION_EQ
 };
 
-class Conditional {
+class PDag_Conditional {
 public:
-    ValuePtr lhs; 
-    Restriction restriction_type;
-    ValuePtr rhs; 
+    PDag_ValuePtr lhs;
+    PDag_Restriction restriction_type;
+    PDag_ValuePtr rhs;
     bool unconditional = false;
 };
 
-class GateOperation{
+class PDag_GateOperation {
 public:
     std::string name;
-    std::vector<Value> parameters;
+    std::vector<PDag_ValuePtr> parameters;
     int num_operands;
     bool inverse;
 };
 
-class PDagNode{
-    GateOperationPtr op;
-
-    // there is a one to one mapping between next_operations and probabilistic_edges
-    // We take edge next_operations[i] when probabilistic_edges[i] is satisfied
-    std::vector<PDagNodePtr> next_operations;
-    std::vector<ConditionalPtr> probabilistic_edges;
-
-    std::vector<std::vector<PDagNodePtr>> operands; // inputs. This is used by operations like CNOT to maintain ordering of which operands are control and target
-    // its a vector of vectors because a qubit can have multiple operations before and all of them come in to the this node. For example, if the last applied operation was a Gate Distribution of X, Y, Z, I on qubit 0, and just a hadamard on qubit 1, then the operands would be nodes corresponding to [[X, Y, Z, I], [H]]
-    GateOperationPtr its_operation;
+class PDag_PDagNode {
+    PDag_GateOperationPtr op;
+    std::vector<PDag_PDagNodePtr> next_operations;
+    std::vector<PDag_ConditionalPtr> probabilistic_edges;
+    std::vector<std::vector<PDag_PDagNodePtr>> operands;
+    PDag_GateOperationPtr its_operation;
 
 public:
-    PDagNode(GateOperationPtr op);
-    // adds the next operation 
-    void addNextOp(PDagNodePtr next_operation, ConditionalPtr probabilistic_edge);
-    void setOperands(std::vector<PDagNodePtr>& operands, int operand_number);
-
-
+    PDag_PDagNode(PDag_GateOperationPtr op);
+    void addNextOp(PDag_PDagNodePtr next_operation, PDag_ConditionalPtr probabilistic_edge);
+    void setOperands(std::vector<PDag_PDagNodePtr>& operands, int operand_number);
 };
 
 class PDag {
-    std::vector<std::vector<PDagNodePtr>> qubit_trees;
-    std::vector<std::vector<PDagNodePtr>> frontier_nodes; // these are basically the most recent operations added to a given qubit, sometimes probabilistically
-    
-    public:
-    PDag(int numqubits);
-    void addOperation(GateOperationPtr op, const std::vector<int>& qubit_indices);
-    void addOperation(std::vector<GateOperationPtr>& ops, std::vector<ConditionalPtr>& conditions, const std::vector<int>& qubit_indices);
-    
+    std::vector<std::vector<PDag_PDagNodePtr>> qubit_trees;
+    std::vector<std::vector<PDag_PDagNodePtr>> frontier_nodes;
 
+public:
+    PDag() {}
+    PDag(int numqubits);
+    void addOperation(PDag_GateOperationPtr op, const std::vector<int>& qubit_indices);
+    void addOperation(std::vector<PDag_GateOperationPtr>& ops, std::vector<PDag_ConditionalPtr>& conditions, const std::vector<int>& qubit_indices);
 };
 
 } // namespace ensemble

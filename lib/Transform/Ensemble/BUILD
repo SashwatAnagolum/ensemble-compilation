@@ -49,10 +49,10 @@ cc_library(
 )
 
 cc_library(
-    name = "PrintEachOperation",
-    srcs = ["PrintEachOperation.cpp"],
+    name = "PDagParse",
+    srcs = ["PDagParse.cpp"],
     hdrs = [
-        "PrintEachOperation.h",
+        "PDagParse.h",
         "Passes.h",
     ],
     deps = [
@@ -64,6 +64,8 @@ cc_library(
         "@llvm-project//mlir:FuncDialect",
         "@llvm-project//mlir:Pass",
         "@llvm-project//mlir:Transforms",
+        ":PDag",
+
     ],
 )
 
@@ -90,9 +92,6 @@ cc_library(
     name = "PDag",
     srcs = ["PDag.cpp"],
     hdrs = ["PDag.h"],
-    deps = [
-        ":pass_inc_gen",
-    ],
 )
 
 cc_library(
@@ -100,10 +99,9 @@ cc_library(
     hdrs = ["Passes.h"],
     deps = [
         ":ZeroNoiseExtrapolation",
-        ":PrintEachOperation",
+        ":PDagParse",
         ":Inlinex",
         ":pass_inc_gen",
-        ":PDag"
     ],
 )
 

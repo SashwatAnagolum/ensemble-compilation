@@ -2,7 +2,7 @@
 #define LIB_TRANSFORM_ENSEMBLE_PASSES_H_
 
 #include "lib/Transform/Ensemble/ZeroNoiseExtrapolation.h"
-#include "lib/Transform/Ensemble/PrintEachOperation.h"
+#include "lib/Transform/Ensemble/PDagParse.h"
 #include "lib/Transform/Ensemble/Inlinex.h"
 #include "lib/Transform/Ensemble/PDag.h"
 

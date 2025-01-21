@@ -16,10 +16,10 @@ def ZeroNoiseExtrapolation : Pass<"zero-noise-extrapolation"> {
   ];
 }
 
-def PrintEachOperation : Pass<"print-each-operation"> {
-  let summary = "Print each operation in the circuit";
+def PDagParse : Pass<"pdag-parse"> {
+  let summary = "Parse the PDAG";
   let description = [{
-    Print each operation in the circuit
+    Parse the PDAG
   }];
   let dependentDialects = [
     "mlir::affine::AffineDialect",

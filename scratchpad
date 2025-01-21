@@ -1,629 +1,481 @@
+hi
+Testing './tests/ensemble_syntax.mlir'
+Constant float: -1.000000e+00
 Operation: arith.constant
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":56:29 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Location: loc("inlined.mlir":3:12)
 Operands:
 Results:
-  %c25 = arith.constant 25 : index
+  %cst = arith.constant -1.000000e+00 : f32
+Attributes:
+  "value": -1.000000e+00 : f32
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
 
+Constant float: 1.000000e+00
 Operation: arith.constant
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":21:16 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Location: loc("inlined.mlir":4:14)
 Operands:
 Results:
-  %c16_i32 = arith.constant 16 : i32
+  %cst_0 = arith.constant 1.000000e+00 : f32
+Attributes:
+  "value": 1.000000e+00 : f32
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
 
+Constant int: 3
 Operation: arith.constant
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":22:13 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Location: loc("inlined.mlir":5:15)
+Operands:
+Results:
+  %c3_i32 = arith.constant 3 : i32
+Attributes:
+  "value": 3 : i32
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
+
+Constant int: 4
+Operation: arith.constant
+Location: loc("inlined.mlir":6:15)
 Operands:
 Results:
   %c4_i32 = arith.constant 4 : i32
+Attributes:
+  "value": 4 : i32
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
 
+Constant int: 1
 Operation: arith.constant
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":110:24)
+Location: loc("inlined.mlir":7:15)
 Operands:
 Results:
-  %c13_i32 = arith.constant 13 : i32
+  %c1_i32 = arith.constant 1 : i32
+Attributes:
+  "value": 1 : i32
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
 
+Constant int: 0
 Operation: arith.constant
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":109:26)
-Operands:
-Results:
-  %c12_i32 = arith.constant 12 : i32
-
-Operation: arith.constant
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":101:23)
-Operands:
-Results:
-  %c1000 = arith.constant 1000 : index
-
-Operation: arith.constant
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":100:21)
-Operands:
-Results:
-  %c20 = arith.constant 20 : index
-
-Operation: arith.constant
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":96:17)
+Location: loc("inlined.mlir":8:15)
 Operands:
 Results:
   %c0_i32 = arith.constant 0 : i32
+Attributes:
+  "value": 0 : i32
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
 
+Constant int: 3
 Operation: arith.constant
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":95:18)
+Location: loc("inlined.mlir":9:11)
+Operands:
+Results:
+  %c3 = arith.constant 3 : index
+Attributes:
+  "value": 3 : index
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
+
+Constant int: 2
+Operation: arith.constant
+Location: loc("inlined.mlir":10:11)
+Operands:
+Results:
+  %c2 = arith.constant 2 : index
+Attributes:
+  "value": 2 : index
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
+
+Constant int: 1
+Operation: arith.constant
+Location: loc("inlined.mlir":11:11)
 Operands:
 Results:
   %c1 = arith.constant 1 : index
+Attributes:
+  "value": 1 : index
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
 
+Constant int: 0
 Operation: arith.constant
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":94:19)
+Location: loc("inlined.mlir":12:11)
 Operands:
 Results:
   %c0 = arith.constant 0 : index
-
-Operation: arith.constant
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":88:18)
-Operands:
-Results:
-  %c2_i32 = arith.constant 2 : i32
-
-Operation: arith.constant
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":89:18)
-Operands:
-Results:
-  %c100_i32 = arith.constant 100 : i32
-
-Operation: arith.constant
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":90:19)
-Operands:
-Results:
-  %c25_i32 = arith.constant 25 : i32
+Attributes:
+  "value": 0 : index
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
 
 Operation: ensemble.program_alloc
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":91:15)
+Location: loc("inlined.mlir":13:10)
 Operands:
 Results:
-  %0 = ensemble.program_alloc 25 : () -> tensor<25x!ensemble.physical_qubit>
+  %0 = ensemble.program_alloc 4 : () -> tensor<4x!ensemble.physical_qubit>
+Attributes:
+  "circuit_size": 4 : i32
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
 
 Operation: ensemble.alloc_cbits
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":92:13)
+Location: loc("inlined.mlir":14:10)
 Operands:
 Results:
-  %1 = ensemble.alloc_cbits 25 : () -> tensor<25x!ensemble.cbit>
+  %1 = ensemble.alloc_cbits 2 : () -> tensor<2x!ensemble.cbit>
+Attributes:
+  "circuit_size": 2 : i32
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
 
-Operation: ensemble.device_connectivity
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":103:21)
+indices: 0
+Distribution not found: arith.constant
+indices: 1
+Operation: tensor.extract
+Location: loc("inlined.mlir":15:18)
 Operands:
-  %0 = ensemble.program_alloc 25 : () -> tensor<25x!ensemble.physical_qubit>
+  %0 = ensemble.program_alloc 4 : () -> tensor<4x!ensemble.physical_qubit>(visited)
+  %c0 = arith.constant 0 : index(visited)
 Results:
-  %2 = ensemble.device_connectivity %0, {dense<[[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14], [14, 15], [15, 16], [16, 17], [17, 18], [18, 19], [19, 20], [20, 21], [21, 22], [22, 23], [23, 24]]> : tensor<24x2xi32>} : (tensor<25x!ensemble.physical_qubit>) -> !ensemble.connectivity_graph
+  %extracted = tensor.extract %0[%c0] : tensor<4x!ensemble.physical_qubit>
+Attributes:
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
+
+indices: 0
+Distribution not found: arith.constant
+indices: 1
+Operation: tensor.extract
+Location: loc("inlined.mlir":16:20)
+Operands:
+  %0 = ensemble.program_alloc 4 : () -> tensor<4x!ensemble.physical_qubit>(visited)
+  %c1 = arith.constant 1 : index(visited)
+Results:
+  %extracted_1 = tensor.extract %0[%c1] : tensor<4x!ensemble.physical_qubit>
+Attributes:
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
+
+indices: 0
+Distribution not found: arith.constant
+indices: 1
+Operation: tensor.extract
+Location: loc("inlined.mlir":17:20)
+Operands:
+  %0 = ensemble.program_alloc 4 : () -> tensor<4x!ensemble.physical_qubit>(visited)
+  %c2 = arith.constant 2 : index(visited)
+Results:
+  %extracted_2 = tensor.extract %0[%c2] : tensor<4x!ensemble.physical_qubit>
+Attributes:
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
+
+indices: 0
+Distribution not found: arith.constant
+indices: 1
+Operation: tensor.extract
+Location: loc("inlined.mlir":18:20)
+Operands:
+  %0 = ensemble.program_alloc 4 : () -> tensor<4x!ensemble.physical_qubit>(visited)
+  %c3 = arith.constant 3 : index(visited)
+Results:
+  %extracted_3 = tensor.extract %0[%c3] : tensor<4x!ensemble.physical_qubit>
+Attributes:
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
 
 Operation: ensemble.int_uniform
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":106:24)
+Location: loc("inlined.mlir":19:10)
 Operands:
-  %c2_i32 = arith.constant 2 : i32
-  %c100_i32 = arith.constant 100 : i32
+  %c0_i32 = arith.constant 0 : i32(visited)
+  %c1_i32 = arith.constant 1 : i32(visited)
+  %c1_i32 = arith.constant 1 : i32(visited)
 Results:
-  %3 = ensemble.int_uniform %c2_i32, %c100_i32 : (i32, i32) -> tensor<1xi32>
+  %2 = ensemble.int_uniform %c0_i32, %c1_i32, [%c1_i32] : (i32, i32, i32) -> tensor<1xi32>
+Attributes:
+ParentOps:
+  func.func
+GrandparentOps:
+  builtin.module
 
+Operation: ensemble.reset
+Location: loc("inlined.mlir":21:7)
+Operands:
+  %extracted = tensor.extract %0[%c0] : tensor<4x!ensemble.physical_qubit>(visited)
+Results:
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
+
+Operation: ensemble.reset
+Location: loc("inlined.mlir":22:7)
+Operands:
+  %extracted_1 = tensor.extract %0[%c1] : tensor<4x!ensemble.physical_qubit>(visited)
+Results:
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
+
+Operation: ensemble.reset
+Location: loc("inlined.mlir":23:7)
+Operands:
+  %extracted_2 = tensor.extract %0[%c2] : tensor<4x!ensemble.physical_qubit>(visited)
+Results:
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
+
+Operation: ensemble.reset
+Location: loc("inlined.mlir":24:7)
+Operands:
+  %extracted_3 = tensor.extract %0[%c3] : tensor<4x!ensemble.physical_qubit>(visited)
+Results:
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
+
+Operation: ensemble.float_uniform
+Location: loc("inlined.mlir":25:12)
+Operands:
+  %cst = arith.constant -1.000000e+00 : f32(visited)
+  %cst_0 = arith.constant 1.000000e+00 : f32(visited)
+  %c3_i32 = arith.constant 3 : i32(visited)
+Results:
+  %3 = ensemble.float_uniform %cst, %cst_0, [%c3_i32] : (f32, f32, i32) -> tensor<3xf32>
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
+
+indices: 0
+Distribution not found: arith.constant
+indices: 1
 Operation: tensor.extract
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":107:28)
+Location: loc("inlined.mlir":26:22)
 Operands:
-  %3 = ensemble.int_uniform %c2_i32, %c100_i32 : (i32, i32) -> tensor<1xi32>
-  %c0 = arith.constant 0 : index
+  %3 = ensemble.float_uniform %cst, %cst_0, [%c3_i32] : (f32, f32, i32) -> tensor<3xf32>(visited)
+  %c0 = arith.constant 0 : index(visited)
 Results:
-  %extracted = tensor.extract %3[%c0] : tensor<1xi32>
+  %extracted_4 = tensor.extract %3[%c0] : tensor<3xf32>
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
-Operation: ensemble.int_uniform
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":111:29)
-Operands:
-  %c0_i32 = arith.constant 0 : i32
-  %c13_i32 = arith.constant 13 : i32
-  %extracted = tensor.extract %3[%c0] : tensor<1xi32>
-Results:
-  %4 = ensemble.int_uniform %c0_i32, %c13_i32, [%extracted] : (i32, i32, i32) -> tensor<?xi32>
-
-Operation: ensemble.cnot_pair_distribution
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":112:21)
-Operands:
-  %2 = ensemble.device_connectivity %0, {dense<[[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14], [14, 15], [15, 16], [16, 17], [17, 18], [18, 19], [19, 20], [20, 21], [21, 22], [22, 23], [23, 24]]> : tensor<24x2xi32>} : (tensor<25x!ensemble.physical_qubit>) -> !ensemble.connectivity_graph
-  %extracted = tensor.extract %3[%c0] : tensor<1xi32>
-  %c12_i32 = arith.constant 12 : i32
-Results:
-  %5 = ensemble.cnot_pair_distribution %2, [%extracted, %c12_i32] : (!ensemble.connectivity_graph, i32, i32) -> tensor<?x?x2x!ensemble.physical_qubit>
-
-Operation: ensemble.int_uniform
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":113:27)
-Operands:
-  %c0_i32 = arith.constant 0 : i32
-  %c2_i32 = arith.constant 2 : i32
-  %extracted = tensor.extract %3[%c0] : tensor<1xi32>
-  %c25_i32 = arith.constant 25 : i32
-Results:
-  %6 = ensemble.int_uniform %c0_i32, %c2_i32, [%extracted, %c25_i32] : (i32, i32, i32, i32) -> tensor<?x25xi32>
-
-Operation: ensemble.gate
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":4:10 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-
-Operation: ensemble.gate
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":5:10 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-
-Operation: ensemble.gate
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":6:10 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-  %9 = ensemble.gate "H" 1 : () -> !ensemble.gate
-
-Operation: ensemble.gate
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":7:10 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-  %10 = ensemble.gate "S" 1 : () -> !ensemble.gate
-
-Operation: ensemble.gate
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":8:10 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-
-Operation: ensemble.gate
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":9:10 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-
-Operation: ensemble.gate
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":10:11 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-  %13 = ensemble.gate "CX" 2 : () -> !ensemble.gate
-
-Operation: ensemble.gate_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":12:33 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-Results:
-  %14 = ensemble.gate_distribution %7, %7, %7, %7, %8, %8, %8, %8, %11, %11, %11, %11, %12, %12, %12, %12 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-
-Operation: ensemble.gate_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":13:33 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-Results:
-  %15 = ensemble.gate_distribution %7, %8, %11, %12, %7, %8, %11, %12, %7, %8, %11, %12, %7, %8, %11, %12 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-
-Operation: ensemble.gate_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":15:34 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-Results:
-  %16 = ensemble.gate_distribution %7, %7, %12, %12, %8, %8, %11, %11, %11, %11, %8, %8, %12, %12, %7, %7 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-
-Operation: ensemble.gate_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":16:34 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-Results:
-  %17 = ensemble.gate_distribution %7, %8, %11, %12, %8, %7, %12, %11, %8, %7, %12, %11, %7, %8, %11, %12 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-
-Operation: ensemble.gate_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":18:31 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-Results:
-  %18 = ensemble.gate_distribution %7, %8, %11, %12 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-
-Operation: ensemble.gate_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":19:32 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %7 = ensemble.gate "I" 1 : () -> !ensemble.gate
-  %11 = ensemble.gate "Y" 1 : () -> !ensemble.gate
-  %8 = ensemble.gate "X" 1 : () -> !ensemble.gate
-  %12 = ensemble.gate "Z" 1 : () -> !ensemble.gate
-Results:
-  %19 = ensemble.gate_distribution %7, %12, %11, %8, %7, %11, %8, %12 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-
-Operation: ensemble.int_uniform
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":28:27 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %c0_i32 = arith.constant 0 : i32
-  %c16_i32 = arith.constant 16 : i32
-  %extracted = tensor.extract %3[%c0] : tensor<1xi32>
-  %c12_i32 = arith.constant 12 : i32
-Results:
-  %20 = ensemble.int_uniform %c0_i32, %c16_i32, [%extracted, %c12_i32] : (i32, i32, i32, i32) -> tensor<?x?xi32>
-
-Operation: ensemble.int_uniform
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":29:27 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %c0_i32 = arith.constant 0 : i32
-  %c4_i32 = arith.constant 4 : i32
-  %extracted = tensor.extract %3[%c0] : tensor<1xi32>
-  %c25_i32 = arith.constant 25 : i32
-Results:
-  %21 = ensemble.int_uniform %c0_i32, %c4_i32, [%extracted, %c25_i32] : (i32, i32, i32, i32) -> tensor<?x?xi32>
-
-Operation: ensemble.reset_tensor
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":32:7 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %0 = ensemble.program_alloc 25 : () -> tensor<25x!ensemble.physical_qubit>
-Results:
-
-Operation: arith.index_cast
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":33:30 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %extracted = tensor.extract %3[%c0] : tensor<1xi32>
-Results:
-  %22 = arith.index_cast %extracted : i32 to index
-
+indices: 0
+Distribution not found: arith.constant
+indices: 1
 Operation: tensor.extract
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":35:22 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Location: loc("inlined.mlir":27:22)
 Operands:
-  %4 = ensemble.int_uniform %c0_i32, %c13_i32, [%extracted] : (i32, i32, i32) -> tensor<?xi32>
-  <block argument> of type 'index' at index: 0
+  %3 = ensemble.float_uniform %cst, %cst_0, [%c3_i32] : (f32, f32, i32) -> tensor<3xf32>(visited)
+  %c1 = arith.constant 1 : index(visited)
 Results:
-  %extracted_0 = tensor.extract %4[%arg2] : tensor<?xi32>
+  %extracted_5 = tensor.extract %3[%c1] : tensor<3xf32>
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
-Operation: arith.index_cast
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":36:28 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %extracted_0 = tensor.extract %4[%arg2] : tensor<?xi32>
-Results:
-  %23 = arith.index_cast %extracted_0 : i32 to index
-
+indices: 0
+Distribution not found: arith.constant
+indices: 1
 Operation: tensor.extract
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":38:31 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Location: loc("inlined.mlir":28:22)
 Operands:
-  %20 = ensemble.int_uniform %c0_i32, %c16_i32, [%extracted, %c12_i32] : (i32, i32, i32, i32) -> tensor<?x?xi32>
-  <block argument> of type 'index' at index: 0
-  <block argument> of type 'index' at index: 0
+  %3 = ensemble.float_uniform %cst, %cst_0, [%c3_i32] : (f32, f32, i32) -> tensor<3xf32>(visited)
+  %c2 = arith.constant 2 : index(visited)
 Results:
-  %extracted_1 = tensor.extract %20[%arg2, %arg3] : tensor<?x?xi32>
+  %extracted_6 = tensor.extract %3[%c2] : tensor<3xf32>
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
-Operation: tensor.extract
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":43:23 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Operation: ensemble.gate
+Location: loc("inlined.mlir":29:12)
 Operands:
-  %5 = ensemble.cnot_pair_distribution %2, [%extracted, %c12_i32] : (!ensemble.connectivity_graph, i32, i32) -> tensor<?x?x2x!ensemble.physical_qubit>
-  <block argument> of type 'index' at index: 0
-  <block argument> of type 'index' at index: 0
-  %c0 = arith.constant 0 : index
+  %extracted_4 = tensor.extract %3[%c0] : tensor<3xf32>(visited)
+  %extracted_5 = tensor.extract %3[%c1] : tensor<3xf32>(visited)
+  %extracted_6 = tensor.extract %3[%c2] : tensor<3xf32>(visited)
 Results:
-  %extracted_2 = tensor.extract %5[%arg2, %arg3, %c0] : tensor<?x?x2x!ensemble.physical_qubit>
+  %4 = ensemble.gate "U3" "inverse" 1(%extracted_4, %extracted_5, %extracted_6) : (f32, f32, f32) -> !ensemble.gate
+Attributes:
+  "inverse": "inverse"
+  "name": "U3"
+  "num_operands": 1 : i32
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
-Operation: tensor.extract
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":44:32 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Operation: ensemble.gate
+Location: loc("inlined.mlir":30:12)
 Operands:
-  %5 = ensemble.cnot_pair_distribution %2, [%extracted, %c12_i32] : (!ensemble.connectivity_graph, i32, i32) -> tensor<?x?x2x!ensemble.physical_qubit>
-  <block argument> of type 'index' at index: 0
-  <block argument> of type 'index' at index: 0
-  %c1 = arith.constant 1 : index
+  %extracted_6 = tensor.extract %3[%c2] : tensor<3xf32>(visited)
+  %extracted_4 = tensor.extract %3[%c0] : tensor<3xf32>(visited)
+  %extracted_5 = tensor.extract %3[%c1] : tensor<3xf32>(visited)
 Results:
-  %extracted_3 = tensor.extract %5[%arg2, %arg3, %c1] : tensor<?x?x2x!ensemble.physical_qubit>
+  %5 = ensemble.gate "U3" 1(%extracted_6, %extracted_4, %extracted_5) : (f32, f32, f32) -> !ensemble.gate
+Attributes:
+  "name": "U3"
+  "num_operands": 1 : i32
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
-Operation: ensemble.apply_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":46:11 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Operation: ensemble.gate_distribution
+Location: loc("inlined.mlir":31:12)
 Operands:
-  %14 = ensemble.gate_distribution %7, %7, %7, %7, %8, %8, %8, %8, %11, %11, %11, %11, %12, %12, %12, %12 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-  %extracted_1 = tensor.extract %20[%arg2, %arg3] : tensor<?x?xi32>
-  %extracted_2 = tensor.extract %5[%arg2, %arg3, %c0] : tensor<?x?x2x!ensemble.physical_qubit>
+  %4 = ensemble.gate "U3" "inverse" 1(%extracted_4, %extracted_5, %extracted_6) : (f32, f32, f32) -> !ensemble.gate(visited)
+  %5 = ensemble.gate "U3" 1(%extracted_6, %extracted_4, %extracted_5) : (f32, f32, f32) -> !ensemble.gate(visited)
 Results:
+  %6 = ensemble.gate_distribution %4, %5 : (!ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
-Operation: ensemble.apply_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":47:11 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Operation: ensemble.gate
+Location: loc("inlined.mlir":32:12)
 Operands:
-  %15 = ensemble.gate_distribution %7, %8, %11, %12, %7, %8, %11, %12, %7, %8, %11, %12, %7, %8, %11, %12 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-  %extracted_1 = tensor.extract %20[%arg2, %arg3] : tensor<?x?xi32>
-  %extracted_3 = tensor.extract %5[%arg2, %arg3, %c1] : tensor<?x?x2x!ensemble.physical_qubit>
 Results:
+  %7 = ensemble.gate "CZ" 2 : () -> !ensemble.gate
+Attributes:
+  "name": "CZ"
+  "num_operands": 2 : i32
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
+
+Operation: ensemble.gate
+Location: loc("inlined.mlir":33:12)
+Operands:
+Results:
+  %8 = ensemble.gate "CNOT" 2 : () -> !ensemble.gate
+Attributes:
+  "name": "CNOT"
+  "num_operands": 2 : i32
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
 Operation: ensemble.apply
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":49:11 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Location: loc("inlined.mlir":34:7)
 Operands:
-  %13 = ensemble.gate "CX" 2 : () -> !ensemble.gate
-  %extracted_2 = tensor.extract %5[%arg2, %arg3, %c0] : tensor<?x?x2x!ensemble.physical_qubit>
-  %extracted_3 = tensor.extract %5[%arg2, %arg3, %c1] : tensor<?x?x2x!ensemble.physical_qubit>
+  %7 = ensemble.gate "CZ" 2 : () -> !ensemble.gate(visited)
+  %extracted = tensor.extract %0[%c0] : tensor<4x!ensemble.physical_qubit>(visited)
+  %extracted_1 = tensor.extract %0[%c1] : tensor<4x!ensemble.physical_qubit>(visited)
 Results:
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
 Operation: ensemble.apply_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":51:11 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Location: loc("inlined.mlir":35:7)
 Operands:
-  %16 = ensemble.gate_distribution %7, %7, %12, %12, %8, %8, %11, %11, %11, %11, %8, %8, %12, %12, %7, %7 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-  %extracted_1 = tensor.extract %20[%arg2, %arg3] : tensor<?x?xi32>
-  %extracted_2 = tensor.extract %5[%arg2, %arg3, %c0] : tensor<?x?x2x!ensemble.physical_qubit>
+  %6 = ensemble.gate_distribution %4, %5 : (!ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution(visited)
+  %c0_i32 = arith.constant 0 : i32(visited)
+  %extracted = tensor.extract %0[%c0] : tensor<4x!ensemble.physical_qubit>(visited)
 Results:
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
-Operation: ensemble.apply_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":52:11 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %17 = ensemble.gate_distribution %7, %8, %11, %12, %8, %7, %12, %11, %8, %7, %12, %11, %7, %8, %11, %12 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-  %extracted_1 = tensor.extract %20[%arg2, %arg3] : tensor<?x?xi32>
-  %extracted_3 = tensor.extract %5[%arg2, %arg3, %c1] : tensor<?x?x2x!ensemble.physical_qubit>
-Results:
-
-Operation: scf.yield
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":37:9 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-
-Operation: scf.for
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":37:9 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %c0 = arith.constant 0 : index
-  %23 = arith.index_cast %extracted_0 : i32 to index
-  %c1 = arith.constant 1 : index
-Results:
-
-Operation: arith.muli
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":54:34 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %extracted_0 = tensor.extract %4[%arg2] : tensor<?xi32>
-  %c2_i32 = arith.constant 2 : i32
-Results:
-  %24 = arith.muli %extracted_0, %c2_i32 : i32
-
-Operation: arith.index_cast
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":55:30 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %24 = arith.muli %extracted_0, %c2_i32 : i32
-Results:
-  %25 = arith.index_cast %24 : i32 to index
-
+indices: 0
+Distribution not found: arith.constant
+indices: 1
 Operation: tensor.extract
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":58:36 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Location: loc("inlined.mlir":36:22)
 Operands:
-  %6 = ensemble.int_uniform %c0_i32, %c2_i32, [%extracted, %c25_i32] : (i32, i32, i32, i32) -> tensor<?x25xi32>
-  <block argument> of type 'index' at index: 0
-  <block argument> of type 'index' at index: 0
+  %2 = ensemble.int_uniform %c0_i32, %c1_i32, [%c1_i32] : (i32, i32, i32) -> tensor<1xi32>(visited)
+  %c0 = arith.constant 0 : index(visited)
 Results:
-  %extracted_1 = tensor.extract %6[%arg2, %arg3] : tensor<?x25xi32>
+  %extracted_7 = tensor.extract %2[%c0] : tensor<1xi32>
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
-Operation: tensor.extract
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":59:46 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Operation: ensemble.qubit_distribution_1q
+Location: loc("inlined.mlir":37:12)
 Operands:
-  %21 = ensemble.int_uniform %c0_i32, %c4_i32, [%extracted, %c25_i32] : (i32, i32, i32, i32) -> tensor<?x?xi32>
-  <block argument> of type 'index' at index: 0
-  <block argument> of type 'index' at index: 0
+  %extracted = tensor.extract %0[%c0] : tensor<4x!ensemble.physical_qubit>(visited)
+  %extracted_1 = tensor.extract %0[%c1] : tensor<4x!ensemble.physical_qubit>(visited)
+  %extracted_7 = tensor.extract %2[%c0] : tensor<1xi32>(visited)
 Results:
-  %extracted_2 = tensor.extract %21[%arg2, %arg3] : tensor<?x?xi32>
+  %9 = ensemble.qubit_distribution_1q %extracted, %extracted_1[%extracted_7] : (!ensemble.physical_qubit, !ensemble.physical_qubit, i32) -> !ensemble.physical_qubit
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
-Operation: tensor.extract
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":60:20 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
+Operation: ensemble.permutation
+Location: loc("inlined.mlir":38:13)
 Operands:
-  %0 = ensemble.program_alloc 25 : () -> tensor<25x!ensemble.physical_qubit>
-  <block argument> of type 'index' at index: 0
+  %c4_i32 = arith.constant 4 : i32(visited)
 Results:
-  %extracted_3 = tensor.extract %0[%arg3] : tensor<25x!ensemble.physical_qubit>
+  %10 = ensemble.permutation %c4_i32 : (i32) -> tensor<4xi32>
+Attributes:
+ParentOps:
+  ensemble.quantum_program_iteration
+GrandparentOps:
+  func.func
 
-Operation: ensemble.apply_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":61:11 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %18 = ensemble.gate_distribution %7, %8, %11, %12 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-  %extracted_2 = tensor.extract %21[%arg2, %arg3] : tensor<?x?xi32>
-  %extracted_3 = tensor.extract %0[%arg3] : tensor<25x!ensemble.physical_qubit>
-Results:
-
-Operation: ensemble.gate_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":63:42 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %10 = ensemble.gate "S" 1 : () -> !ensemble.gate
-  %9 = ensemble.gate "H" 1 : () -> !ensemble.gate
-Results:
-  %26 = ensemble.gate_distribution %10, %9 : (!ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-
-Operation: ensemble.apply_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":64:11 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %26 = ensemble.gate_distribution %10, %9 : (!ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-  %extracted_1 = tensor.extract %6[%arg2, %arg3] : tensor<?x25xi32>
-  %extracted_3 = tensor.extract %0[%arg3] : tensor<25x!ensemble.physical_qubit>
-Results:
-
-Operation: arith.muli
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":67:52 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %extracted_1 = tensor.extract %6[%arg2, %arg3] : tensor<?x25xi32>
-  %c4_i32 = arith.constant 4 : i32
-Results:
-  %27 = arith.muli %extracted_1, %c4_i32 : i32
-
-Operation: arith.addi
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":68:47 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %27 = arith.muli %extracted_1, %c4_i32 : i32
-  %extracted_2 = tensor.extract %21[%arg2, %arg3] : tensor<?x?xi32>
-Results:
-  %28 = arith.addi %27, %extracted_2 : i32
-
-Operation: ensemble.apply_distribution
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":69:11 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %19 = ensemble.gate_distribution %7, %12, %11, %8, %7, %11, %8, %12 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
-  %28 = arith.addi %27, %extracted_2 : i32
-  %extracted_3 = tensor.extract %0[%arg3] : tensor<25x!ensemble.physical_qubit>
-Results:
-
-Operation: scf.yield
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":57:9 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-
-Operation: scf.for
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":57:9 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %25 = arith.index_cast %24 : i32 to index
-  %c25 = arith.constant 25 : index
-  %c1 = arith.constant 1 : index
-Results:
-
-Operation: scf.yield
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":34:7 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-
-Operation: scf.for
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":34:7 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %c0 = arith.constant 0 : index
-  %22 = arith.index_cast %extracted : i32 to index
-  %c1 = arith.constant 1 : index
-Results:
-
-Operation: tensor.extract
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":75:18 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %0 = ensemble.program_alloc 25 : () -> tensor<25x!ensemble.physical_qubit>
-  <block argument> of type 'index' at index: 0
-Results:
-  %extracted_0 = tensor.extract %0[%arg2] : tensor<25x!ensemble.physical_qubit>
-
-Operation: tensor.extract
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":76:16 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %1 = ensemble.alloc_cbits 25 : () -> tensor<25x!ensemble.cbit>
-  <block argument> of type 'index' at index: 0
-Results:
-  %extracted_1 = tensor.extract %1[%arg2] : tensor<25x!ensemble.cbit>
-
-Operation: ensemble.measure
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":77:9 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %extracted_0 = tensor.extract %0[%arg2] : tensor<25x!ensemble.physical_qubit>
-  %extracted_1 = tensor.extract %1[%arg2] : tensor<25x!ensemble.cbit>
-Results:
-
-Operation: scf.yield
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":74:7 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-
-Operation: scf.for
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":74:7 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %c0 = arith.constant 0 : index
-  %c25 = arith.constant 25 : index
-  %c1 = arith.constant 1 : index
-Results:
-
-Operation: ensemble.transmit_results
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":79:7 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-  %1 = ensemble.alloc_cbits 25 : () -> tensor<25x!ensemble.cbit>
-Results:
-
-Operation: ensemble.quantum_program_iteration
-Location: loc(callsite("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":31:5 at "./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":116:9))
-Operands:
-Results:
-
-Operation: scf.yield
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":114:7)
-Operands:
-Results:
-
-Operation: scf.for
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":114:7)
-Operands:
-  %c0 = arith.constant 0 : index
-  %c1000 = arith.constant 1000 : index
-  %c1 = arith.constant 1 : index
-Results:
-
-Operation: scf.yield
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":105:5)
-Operands:
-Results:
-
-Operation: scf.for
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":105:5)
-Operands:
-  %c0 = arith.constant 0 : index
-  %c20 = arith.constant 20 : index
-  %c1 = arith.constant 1 : index
-Results:
-
-Operation: func.return
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":120:5)
-Operands:
-Results:
-
-Operation: func.func
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":87:3)
-Operands:
-Results:
-
-Operation: builtin.module
-Location: loc("./tests/benchmarks/averaged_circuit_eigenvalue_sampling.mlir":1:1)
-Operands:
-Results:
-
-[ec2-user@ip-172-31-72-136 ensemble-compilation]$ 
+Distribution not found: ensemble.permutation
