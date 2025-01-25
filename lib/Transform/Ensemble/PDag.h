@@ -23,10 +23,10 @@ using PDag_UniformIntDistributionPtr = std::shared_ptr<class PDag_UniformIntDist
 using PDag_UniformFloatDistributionPtr = std::shared_ptr<class PDag_UniformFloatDistribution>;
 using PDag_CategoricalIntDistributionPtr = std::shared_ptr<class PDag_CategoricalIntDistribution>;
 using PDag_RandomValueCollectionPtr = std::shared_ptr<class PDag_RandomValueCollection>;
-using PDag_QubitDistributionPtr = std::shared_ptr<class PDag_QubitDistribution>;
+using PDag_ProgramQubitsDistributionPtr = std::shared_ptr<class PDag_ProgramQubitsDistribution>;
 
 enum PDag_ValueType {
-    PDag_INTEGER, PDag_FLOAT
+    PDag_INTEGER, PDag_FLOAT, PDag_QUBIT
 };
 
 class PDag_RandomValueCollection {
@@ -74,17 +74,18 @@ public:
 
 class PDag_PermutationIntDistribution : public PDag_RandomValueCollection {
 public:
-    int N;
-    PDag_PermutationIntDistribution(int N): N(N) {
+    PDag_ValuePtr N;
+    PDag_PermutationIntDistribution(PDag_ValuePtr N): N(N) {
+        this->shape = {N};
         this->dist_type = PDag_INTEGER;
     }
 };
 
-class PDag_QubitDistribution: public PDag_RandomValueCollection {
+class PDag_ProgramQubitsDistribution: public PDag_RandomValueCollection {
 public:
     int num_qubits;
-    PDag_QubitDistribution(int num_qubits): num_qubits(num_qubits) {
-        this->dist_type = PDag_INTEGER;
+    PDag_ProgramQubitsDistribution(int num_qubits): num_qubits(num_qubits) {
+        this->dist_type = PDag_QUBIT;
     }
 };
 
@@ -100,8 +101,11 @@ class PDag_Value {
 public:
     PDag_ValueType vt;
     bool isDeterministic;
+    // the following three are only relevant if isDeterministic is true
     int int_value;
     double float_value;
+    int qubit_index;
+    // the following is only relevant if isDeterministic is false
     PDag_RandomValuePtr random_value;
 };
 

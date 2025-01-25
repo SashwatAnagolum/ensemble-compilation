@@ -33,6 +33,7 @@ struct PDagParse
   std::unordered_map<Operation *, PDag_ValuePtr> values;
   std::unordered_map<Operation *, PDag_RandomValueCollectionPtr> distributions;
   std::unordered_map<Operation *, PDag_GateOperationPtr> gates;
+  std::unordered_map<Operation *, std::vector<PDag_GateOperationPtr>> gate_distributions;
 
 
 
@@ -152,6 +153,16 @@ struct PDagParse
       }
       PDag_UniformFloatDistributionPtr distribution = std::make_shared<PDag_UniformFloatDistribution>(low, high, shape);
       distributions[op] = distribution;
+    } else if (opName == "ensemble.permutation") {
+      // Handle ensemble.permutation
+      // get argument N, the first operand
+      Operation *operand_op = op->getOperand(0).getDefiningOp();
+      assert(values.find(operand_op) != values.end());
+      PDag_ValuePtr value = values[operand_op];
+      PDag_PermutationIntDistributionPtr distribution = std::make_shared<PDag_PermutationIntDistribution>(value);
+      distributions[op] = distribution;
+      
+        
     } else if (opName == "ensemble.gate") {
         // Handle ensemble.gate
         PDag_GateOperationPtr gate = std::make_shared<PDag_GateOperation>();
@@ -182,29 +193,78 @@ struct PDagParse
         // dag->addGate(gate);
     } else if (opName == "ensemble.gate_distribution") {
         // Handle ensemble.gate_distribution
+        gate_distributions[op] = std::vector<PDag_GateOperationPtr>();
+        for (unsigned int i = 0; i < op->getNumOperands(); i++) {
+          Operation *operand_op = op->getOperand(i).getDefiningOp();
+          assert(gates.find(operand_op) != gates.end());
+          PDag_GateOperationPtr gate = gates[operand_op];
+          gate_distributions[op].push_back(gate);
+        }
     } else if (opName == "ensemble.apply") {
+      // Handle ensemble.apply
+      PDag_GateOperationPtr gate_op;
+      std::vector<PDag_ValuePtr> qubit_indices;
+      bool all_qubits_deterministic = true;
+      for (unsigned int i = 0; i < op->getNumOperands(); i++) {
+        if (i == 0) {
+          // first operand is the gate
+          Operation *operand_op = op->getOperand(i).getDefiningOp();
+          assert(gates.find(operand_op) != gates.end());
+          gate_op = gates[operand_op];
+          assert(gate_op->num_operands == op->getNumOperands() - 1);
+          continue;
+        }  
+  
+        // all the other operands will be qubits
+        Operation *qubit_op = op->getOperand(i).getDefiningOp();
+        assert(values.find(qubit_op) != values.end());
+        PDag_ValuePtr qubit_value = values[qubit_op];
+        assert(qubit_value->vt == PDag_QUBIT);
+        qubit_indices.push_back(qubit_value);
+        if (!qubit_value->isDeterministic) {
+          all_qubits_deterministic = false;
+        }
+      }
+
+      if (all_qubits_deterministic) {
+        // easiest case in this PDAG, just add the operation to the DAG
+        std::vector<int> qubit_indices_int;
+        for (PDag_ValuePtr qubit_index : qubit_indices) {
+          qubit_indices_int.push_back(qubit_index->qubit_index);
+        }
+        dag->addOperation(gate_op, qubit_indices_int);
+      } 
+      else {
+        // probabilistic case, lots of work to do
+        // for each probabilistic qubit, we identify the range of qubits that it can be, and based on that add identities or gates probabilistically. 
+        
+        
+      }
+      
+      
         // Handle ensemble.apply
     } else if (opName == "ensemble.apply_distribution") {
         // Handle ensemble.apply_distribution
     } else if (opName == "tensor.extract") {
         // Handle tensor.extract
+
+        // Tensor extract is either a random parameter, or a random qubit
+        // A random qubit is deterministic if the indices are deterministic and there is a qubit distribution, else it is not deterministic
+        // A random parameter is not deterministic
+
         
         for (unsigned int i = 0; i < op->getNumOperands(); i++) {
           Operation *operand_op = op->getOperand(i).getDefiningOp();
-          if (distributions.find(operand_op) == distributions.end()) { 
-            llvm::outs() << "Distribution not found: " << operand_op->getName() << "\n";
-            llvm::outs().flush();
-          }
 
           if (i == 0) {
             // first one will be the distribution
             assert(distributions.find(operand_op) != distributions.end());
             PDag_RandomValueCollectionPtr collection = distributions[operand_op];
-
             PDag_RandomValuePtr random_value = std::make_shared<PDag_RandomValue>();
             random_value->collection = collection;
             PDag_ValuePtr value = std::make_shared<PDag_Value>();
-            value->isDeterministic = false;
+            // deterministic should be true for tensor extractions for qubits at first, false for parameters, and we will find out for qubits by seeing the indices of the qubits are random or not
+            value->isDeterministic = false; 
             value->random_value = random_value;
             value->vt = collection->dist_type;
             values[op] = value;
@@ -212,15 +272,30 @@ struct PDagParse
             // all the rest will be indices
             assert(values.find(operand_op) != values.end());
             PDag_ValuePtr value = values[operand_op]; // this is the index's valueptr
-
             PDag_ValuePtr thisOpsValue = values[op];
             PDag_RandomValuePtr random_value = thisOpsValue->random_value;
             random_value->indices.push_back(value);
           }
-          llvm::outs() << "indices: " << values[op]->random_value->indices.size() << "\n";
-          llvm::outs().flush();
         }
-        
+
+        PDag_ValuePtr thisOpsValue = values[op];
+
+        // special case for qubits that come from the program qubits distribution
+        bool is_qubit = thisOpsValue->vt == PDag_QUBIT;
+        bool distribution_is_program_qubits = is_qubit && std::dynamic_pointer_cast<PDag_ProgramQubitsDistribution>(thisOpsValue->random_value->collection) != nullptr;
+        if (distribution_is_program_qubits) {
+          assert(thisOpsValue->random_value->indices.size() == 1); // program qubits is a 1d distribution
+          
+          PDag_ValuePtr first_index = thisOpsValue->random_value->indices[0];
+          if (first_index->isDeterministic) {
+            thisOpsValue->qubit_index = first_index->int_value;
+            thisOpsValue->random_value = nullptr;
+            thisOpsValue->isDeterministic = true; 
+          }
+          else {
+            thisOpsValue->isDeterministic = false;            
+          }
+        }
     }
   }
 
