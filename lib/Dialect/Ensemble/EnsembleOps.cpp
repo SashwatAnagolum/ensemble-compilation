@@ -13,6 +13,17 @@ namespace mlir {
 namespace qe {
 namespace ensemble {
 
+bool check_within_iteration_block(Operation *op) {
+  auto parentOp = op->getParentOp();
+  if (parentOp == nullptr) {
+    return false;
+  }
+  if (isa<QuantumProgramIteration>(parentOp)) {
+    return true;
+  }
+  return check_within_iteration_block(parentOp);
+}
+
 LogicalResult GateConstructorOp::verify() {
   // No additional verification needed as the types are enforced by the op definition
   return success();
@@ -80,29 +91,33 @@ LogicalResult GateDistributionConstructor::verify() {
 }
 
 LogicalResult ApplyGateDistribution::verify() {
+
+  if (!check_within_iteration_block(getOperation())) {
+    return emitOpError("ApplyGateDistribution must be within the block of quantum_program_iteration");
+  }
    
 
-    // Check that the number of input qubits matches the number of operands in the first gate of the distribution
-    auto gateDistOp = getGates().getDefiningOp<GateDistributionConstructor>();
-    if (!gateDistOp) {
-        return emitOpError("Gate distribution must be defined by a GateDistributionConstructor");
-    }
+  // Check that the number of input qubits matches the number of operands in the first gate of the distribution
+  auto gateDistOp = getGates().getDefiningOp<GateDistributionConstructor>();
+  if (!gateDistOp) {
+      return emitOpError("Gate distribution must be defined by a GateDistributionConstructor");
+  }
 
-    if (gateDistOp.getGates().empty()) {
-        return emitOpError("Gate distribution must contain at least one gate");
-    }
+  if (gateDistOp.getGates().empty()) {
+      return emitOpError("Gate distribution must contain at least one gate");
+  }
 
-    auto firstGateOp = gateDistOp.getGates().front().getDefiningOp<GateConstructorOp>();
-    if (!firstGateOp) {
-        return emitOpError("First gate in the distribution must be defined by GateConstructorOp");
-    }
+  auto firstGateOp = gateDistOp.getGates().front().getDefiningOp<GateConstructorOp>();
+  if (!firstGateOp) {
+      return emitOpError("First gate in the distribution must be defined by GateConstructorOp");
+  }
 
-    unsigned numOperandsInGate = firstGateOp.getNumOperands();
-    if (getInputs().size() != numOperandsInGate) {
-        return emitOpError("Number of input qubits must match the number of operands in the first gate of the distribution");
-    }
-    
-    return success();
+  unsigned numOperandsInGate = firstGateOp.getNumOperands();
+  if (getInputs().size() != numOperandsInGate) {
+      return emitOpError("Number of input qubits must match the number of operands in the first gate of the distribution");
+  }
+  
+  return success();
 }
 
 LogicalResult QubitDistribution::verify() {
@@ -116,60 +131,54 @@ LogicalResult CbitDistribution::verify() {
 }
 LogicalResult UniformIntegerDistributionOp::verify() {
 
-  // auto lowOp = getLow().getDefiningOp<arith::ConstantOp>();
-  // auto highOp = getHigh().getDefiningOp<arith::ConstantOp>();
-
-  // if (!lowOp || !highOp) {
-  //   return emitOpError("Low and high bounds must be defined by arith.constant expressions");
-  // }
-
-  // auto lowValue = lowOp.getValue().cast<IntegerAttr>().getInt();
-  // auto highValue = highOp.getValue().cast<IntegerAttr>().getInt();
-
-  // if (lowValue >= highValue) {
-  //   return emitOpError("Low bound must be less than high bound");
-  // }
+  if (check_within_iteration_block(getOperation())) {
+    return emitOpError("UniformIntegerDistributionOp cannot be within the block of quantum_program_iteration");
+  }
   return success();
 }
 
-// LogicalResult CategoricalIntegerDistributionOp::verify() {
-//   if (getProbs().empty()) {
-//     return emitOpError("Probability array must not be empty");
-//   }
-//   return success();
-// }
+LogicalResult CategoricalIntegerDistributionOp::verify() {
+
+  if (check_within_iteration_block(getOperation())) {
+    return emitOpError("CategoricalIntegerDistributionOp cannot be within the block of quantum_program_iteration");
+  }
+  return success();
+}
 
 LogicalResult UniformFloatDistributionOp::verify() {
 
-  // auto lowOp = getLow().getDefiningOp<arith::ConstantOp>();
-  // auto highOp = getHigh().getDefiningOp<arith::ConstantOp>();
-
-  // if (!lowOp || !highOp) {
-  //   return emitOpError("Low and high bounds must be defined by arith.constant expressions");
-  // }
-
-  // auto lowValue = lowOp.getValue().cast<FloatAttr>().getValueAsDouble();
-  // auto highValue = highOp.getValue().cast<FloatAttr>().getValueAsDouble();
-
-  // if (lowValue >= highValue) {
-  //   return emitOpError("Low bound must be less than high bound");
-  // }
+  if (check_within_iteration_block(getOperation())) {
+    return emitOpError("UniformFloatDistributionOp cannot be within the block of quantum_program_iteration");
+  }
   return success();
 }
 
 LogicalResult CNOTPairDistributionOp::verify() {
-  // auto connectivityType = getConnectivity().getType().dyn_cast<RankedTensorType>();
-  // if (!connectivityType || connectivityType.getRank() != 2 || connectivityType.getShape()[1] != 2) {
-  //   return emitOpError("Input connectivity must be a tensor of shape n x 2");
-  // }
+  
+  if (check_within_iteration_block(getOperation())) {
+    return emitOpError("CNOTPairDistributionOp cannot be within the block of quantum_program_iteration");
+  }
   return success();
 }
 
 LogicalResult PermutationOp::verify() {
-  // check that size of result matches size of N
-  // if (getResult().getType().getShape()[0] != getN()) {
-  //   return emitOpError("Size of result must match N");
-  // }
+  if (check_within_iteration_block(getOperation())) {
+    return emitOpError("PermutationOp cannot be within the block of quantum_program_iteration");
+  }
+  return success();
+}
+
+LogicalResult TransmitResults::verify() {
+  if (!check_within_iteration_block(getOperation())) {
+    return emitOpError("TransmitResults must be within the block of quantum_program_iteration");
+  }
+  return success();
+}
+
+LogicalResult DeviceConnectivityOp::verify() {
+  if (check_within_iteration_block(getOperation())) {
+    return emitOpError("DeviceConnectivityOp cannot be within the block of quantum_program_iteration");
+  }
   return success();
 }
 

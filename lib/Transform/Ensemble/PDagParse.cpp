@@ -111,7 +111,7 @@ struct PDagParse
     } else if (opName == "ensemble.program_alloc") {
       int num_qubits = op->getAttr("circuit_size").cast<IntegerAttr>().getInt();
       dag = std::make_shared<PDag>(num_qubits);
-      PDag_QubitDistributionPtr distribution = std::make_shared<PDag_QubitDistribution>(num_qubits);
+      PDag_ProgramQubitsDistributionPtr distribution = std::make_shared<PDag_ProgramQubitsDistribution>(num_qubits);
       distributions[op] = distribution;
 
         // Handle ensemble.program_alloc

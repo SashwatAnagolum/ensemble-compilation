@@ -147,7 +147,7 @@ def Ensemble_CategoricalIntegerDistributionOp: Ensemble_DistributionOp<"int_cate
   let arguments = (ins AnyInteger:$low, TensorOf<[AnyFloat]>:$probs, Variadic<I32>:$shape);
   let results = (outs TensorOf<[AnyInteger]>:$result);
   let assemblyFormat = "$low `,` $probs `,` `[` $shape `]` attr-dict `:` functional-type(operands, results)";  
-  let hasVerifier = 0;
+  let hasVerifier = 1;
 }
 
 // random floating point distribution operations
@@ -190,7 +190,7 @@ def Ensemble_PermutationOp: Ensemble_DistributionOp<"permutation"> {
   let hasVerifier = 1;
 }
 
-def Quantum_Program_Execution : Ensemble_UserInputOp<"quantum_program_iteration"> {
+def Ensemble_QuantumProgramIteration : Ensemble_UserInputOp<"quantum_program_iteration"> {
   let summary = "An operation that wraps multiple operations and contains all of the code for one iteration of a quantum program.";
   let description = [{
     This operation wraps a single region. The region can have multiple blocks, and
@@ -210,7 +210,7 @@ def TransmitResults : Ensemble_UserInputOp<"transmit_results"> {
   let arguments = (ins TensorOf<[Cbit]>:$results);
   let results = (outs);
   let assemblyFormat = "$results attr-dict `:` functional-type(operands, results)";
-  let hasVerifier = 0;
+  let hasVerifier = 1;
   let traits = [Terminator];
 }
 def DeviceConnectivityOp : Ensemble_UserInputOp<"device_connectivity"> {
@@ -222,7 +222,7 @@ def DeviceConnectivityOp : Ensemble_UserInputOp<"device_connectivity"> {
   let arguments = (ins TensorOf<[AnyQubit]>:$qubits, I32ElementsAttr:$indices);
   let results = (outs ConnectivityGraph:$connectivity);
   let assemblyFormat = "$qubits `,` `{` $indices `}` attr-dict `:` functional-type(operands, results)";
-  let hasVerifier = 0;
+  let hasVerifier = 1;
 }
 
 

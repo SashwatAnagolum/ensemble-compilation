@@ -13,7 +13,7 @@ module {
         %h_gate_1q = ensemble.gate "H" 1 : () -> (!ensemble.gate)
         %sdag_gate = ensemble.gate "Sdag" 1 : () -> (!ensemble.gate)
         %gates_1 = ensemble.gate_distribution %i_gate, %h_gate_1q, %sdag_gate : (!ensemble.gate, !ensemble.gate, !ensemble.gate) -> (!ensemble.gate_distribution)
-        %gates_2 = ensemble.gate_distribution %i_gate, %i_gate, %h_gate_1q   vvvvvvv: (!ensemble.gate, !ensemble.gate, !ensemble.gate) -> (!ensemble.gate_distribution)
+        %gates_2 = ensemble.gate_distribution %i_gate, %i_gate, %h_gate_1q : (!ensemble.gate, !ensemble.gate, !ensemble.gate) -> (!ensemble.gate_distribution)
 
         // circuit description - GHZ on 8 qubits
         ensemble.quantum_program_iteration {
