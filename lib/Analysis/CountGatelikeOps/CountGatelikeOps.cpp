@@ -53,9 +53,16 @@ int CountGatelikeOps::countOps(Operation *op) {
 }
 
 CountGatelikeOps::CountGatelikeOps(Operation *op) {
-    this->numGatelikeOps = this->countOps(op);
-
-    llvm::outs() << "Counting the number of operations in the program now: " << this->numGatelikeOps << "\n";
+    op->walk([this](Operation *op) {
+        // get the quantum_program_iteration block,
+        // and count the number of gates in it.
+        if (dyn_cast<ensemble::QuantumProgramIteration>(op) != nullptr) {
+            this->numGatelikeOps = this->countOps(op);
+            return WalkResult::interrupt();
+        } else {
+            return WalkResult::advance();
+        }
+    });
 }
 
 }  // namespace ensemble

@@ -22,14 +22,49 @@ namespace ensemble {
 
 using arith::ConstantOp;
 
+struct AddRandomGateIndexSamples : public OpRewritePattern<QuantumProgramIteration> {
+    int numGates = 0;
+
+    AddRandomGateIndexSamples(mlir::MLIRContext *context, int numGates) 
+        : OpRewritePattern<QuantumProgramIteration>(context, 1) {
+        this->numGates = numGates;
+    }
+
+    LogicalResult matchAndRewrite(QuantumProgramIteration op, PatternRewriter &rewriter) const override {
+        if (op->getAttr("random-samples-added")) {
+            return failure();
+        }
+
+        // get first region of op, set in sertion point to begining of region
+        for (Operation &childOp : op.getRegion().getOps()) {
+            llvm::outs() << childOp.getName() << "\n";
+        }
+        // add a new UniformIntegerDistribution op with shape equal to
+        // the output of the gate count analysis pass
+    
+        // prevent infinite application of the pass
+        rewriter.updateRootInPlace(op, [&]() { 
+            op->setAttr("random-samples-added", rewriter.getUnitAttr()); 
+        });
+
+        return success();
+    }
+};
+
 struct CliffordDataRegression
     : impl::CliffordDataRegressionBase<CliffordDataRegression> {
   using CliffordDataRegressionBase::CliffordDataRegressionBase;
 
   void runOnOperation() {
     Operation *op = getOperation();
-
     CountGatelikeOps gateOpsCounter(op);
+
+    mlir::RewritePatternSet patterns(&getContext());
+    patterns.add<AddRandomGateIndexSamples>(
+        &getContext(), gateOpsCounter.getGatelikeOpsCount()
+    );
+
+    (void)applyPatternsAndFoldGreedily(op, std::move(patterns));
   }
 };
 
