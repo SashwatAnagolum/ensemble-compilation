@@ -37,15 +37,17 @@ LogicalResult ApplyGate::verify() {
   if (!gateOp) {
     return emitOpError("Gate must be defined by a GateConstructorOp");
   }
-
   // Check if the number of operands matches the number of qubits
   if (gateOp.getNumOperands() != getInput().size()) {
     return emitOpError("Number of gate operands (")
            << gateOp.getNumOperands()
            << ") must match number of input qubits ("
-           << getInput().size() << ")";
+           << getInput().size() << ") for gate '"
+           << gateOp.getName() << "'"
+           << (gateOp->hasAttr("inverse") ? 
+               " with inverse '" + gateOp->getAttrOfType<StringAttr>("inverse").getValue().str() + "'" 
+               : "");
   }
-  
   return success();
 }
 

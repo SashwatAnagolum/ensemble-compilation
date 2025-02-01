@@ -19,6 +19,7 @@
 #include "mlir/IR/PatternMatch.h"
 #include "mlir/Transforms/GreedyPatternRewriteDriver.h"
 #include "mlir/include/mlir/Pass/Pass.h"
+#include "mlir/Dialect/SCF/IR/SCF.h"
 #include "unordered_map"
 
 namespace mlir {
@@ -31,93 +32,8 @@ namespace ensemble {
 using arith::ConstantOp;
 using mlir::affine::AffineForOp;
 using mlir::affine::AffineYieldOp;
+using mlir::scf::ForOp;
 
-// template <typename T>
-// LogicalResult zneRewritePattern(T &op, PatternRewriter &rewriter) {
-//   // if we have already processed the op, exit.
-//   if (op->getAttr("zne-applied")) {
-//     return failure();
-//   } else {
-//     // Save the current insertion point and get the op location
-//     auto insertionPoint = rewriter.saveInsertionPoint();
-//     auto loc = op.getLoc();
-//     rewriter.setInsertionPointAfter(op);
-
-//     // get the Operation object associated with the op
-//     mlir::Operation *operation = op.getOperation();
-
-//     // Insert an affine for loop
-//     auto forOp = rewriter.create<AffineForOp>(loc, 0, 10, 1);
-    
-
-//     // Set the insertion point to the start of the loop body
-//     rewriter.setInsertionPointToStart(forOp.getBody());
-
-//     // Clone the original operation inside the loop body
-//     // and create two copies of the original gate
-//     mlir::Operation *newGateOp = rewriter.clone(*operation);
-//     mlir::Operation *newGateOpAdjoint = rewriter.clone(*operation);
-
-//     // mark the second copy as adjoint
-//     newGateOpAdjoint->setAttr("adjoint", rewriter.getUnitAttr());
-
-//     // set the operands of the first new gate as the results
-//     // of the original gate
-//     newGateOp->setOperands(operation->getResults());
-
-//     // set the operands of the adjoint gate as the
-//     // results of the first new gate
-//     newGateOpAdjoint->setOperands(newGateOp->getResults());
-
-//     // replaces all uses of the result of the original gate
-//     // with the result of the new adjoint gate
-//     int numResults = (int) operation->getNumResults();
-
-//     for (int resultIndex = 0; resultIndex < numResults; resultIndex++) {
-//       operation->replaceUsesOfWith(operation->getResult(resultIndex),
-//                                    newGateOpAdjoint->getResult(resultIndex));
-//     }
-
-//     // mark the new gates as already processed
-//     // to prevent infinite loops
-//     newGateOp->setAttr("zne-applied", rewriter.getUnitAttr());
-//     newGateOpAdjoint->setAttr("zne-applied", rewriter.getUnitAttr());
-
-//     // Restore the original insertion point
-//     rewriter.restoreInsertionPoint(insertionPoint);
-
-//     rewriter.updateRootInPlace(
-//         op, [&]() { op->setAttr("zne-applied", rewriter.getUnitAttr()); });
-
-//     return success();
-//   }
-// }
-
-
-
-// // Add an affine for loop after every gate op containing
-// // the same gate and its adjoint.
-// struct AddGateAndAdjointPairs1Q : public OpRewritePattern<Gate1QOp> {
-//   AddGateAndAdjointPairs1Q(mlir::MLIRContext *context)
-//     // benefit: 1
-//       : OpRewritePattern<Ensemble>(context, 1) {}
-
-//   LogicalResult matchAndRewrite(Gate1QOp op,
-//                                 PatternRewriter &rewriter) const override {
-//     return zneRewritePattern<Gate1QOp>(op, rewriter);
-//   }
-// };
-
-// struct AddGateAndAdjointPairs2Q : public OpRewritePattern<Gate2QOp> {
-//   AddGateAndAdjointPairs2Q(mlir::MLIRContext *context)
-//   // benefit: 1
-//       : OpRewritePattern<Gate2QOp>(context, 1) {}
-
-//   LogicalResult matchAndRewrite(Gate2QOp op,
-//                                 PatternRewriter &rewriter) const override {
-//     return zneRewritePattern<Gate2QOp>(op, rewriter);
-//   }
-// };
 
 struct AddTensorBeforeProgramIteration : public OpRewritePattern<QuantumProgramIteration> {
   AddTensorBeforeProgramIteration(mlir::MLIRContext *context)
@@ -125,6 +41,10 @@ struct AddTensorBeforeProgramIteration : public OpRewritePattern<QuantumProgramI
     : OpRewritePattern<QuantumProgramIteration>(context, 1) {}
   
   LogicalResult matchAndRewrite(QuantumProgramIteration op, PatternRewriter & rewriter) const override {
+    // if the op has already been touched, skip it
+    if (op->hasAttr("zero-noise-touched")) {
+      return failure();
+    }
     auto the_one_before = op.getOperation()->getPrevNode();
     auto insertionPoint = rewriter.saveInsertionPoint();
     auto loc = the_one_before->getLoc();
@@ -138,21 +58,20 @@ struct AddTensorBeforeProgramIteration : public OpRewritePattern<QuantumProgramI
     auto denseAttr = DenseIntElementsAttr::get(tensorType, values);
     
     // Create the constant operation with the dense tensor attribute
-    auto constantOp = rewriter.create<arith::ConstantOp>(loc, tensorType, denseAttr);
+    rewriter.create<arith::ConstantOp>(loc, tensorType, denseAttr);
 
     // create a loop from 0 to 8
     auto loop = rewriter.create<AffineForOp>(loc, 0, 8, 1);
     rewriter.setInsertionPointToStart(loop.getBody());
-
+    // rewriter.create<AffineYieldOp>(loop.getBody()->getTerminator()->getLoc());
+    
     // move the QuantumProgramIteration op inside the loop
-    
-
-    
-
-    
-
+    op.getOperation()->moveBefore(loop.getBody()->getTerminator());
 
     rewriter.restoreInsertionPoint(insertionPoint);
+    rewriter.updateRootInPlace(op, [&]() {
+      op->setAttr("zero-noise-touched", rewriter.getUnitAttr());
+    });
     return success();
   }
 };
@@ -169,24 +88,18 @@ struct AddTransposeToGateConstructor : public OpRewritePattern<GateConstructorOp
     // If we have already processed this operation, skip it
     if (op->hasAttr("zero-noise-created") || op->hasAttr("zero-noise-touched")) {
       // print this op, its gate name and inverse attribute and print the one after it
-      std::cout << "This one already touched:" << op.getOperation()->getName().getStringRef().str() << std::endl;
-      if (auto inverseAttr = op.getOperation()->getAttr("inverse")) {
-        std::cout << "Inverse attribute: " << inverseAttr.cast<StringAttr>().getValue().str() << std::endl;
-      }
+      
       // if it has a next node and the next node is a gate constructor op, then print it too
       if (op.getOperation()->getNextNode() && llvm::isa<GateConstructorOp>(op.getOperation()->getNextNode())) {
-        std::cout << "This one after it already touched:" << op.getOperation()->getNextNode()->getName().getStringRef().str() << std::endl;
         if (auto nextInverseAttr = op.getOperation()->getNextNode()->getAttr("inverse")) {
-          std::cout << "Inverse attribute: " << nextInverseAttr.cast<StringAttr>().getValue().str() << std::endl;
         }
       }
 
-      std::cout << std::endl;
       return failure();
     }
 
     // Get the location for the new operations
-    auto loc = op.getLoc();
+    // auto loc = op.getLoc();
 
     // Create a transpose version of the gate right after the original
     rewriter.setInsertionPointAfter(op);
@@ -199,14 +112,7 @@ struct AddTransposeToGateConstructor : public OpRewritePattern<GateConstructorOp
     transposeGate->setAttr("inverse", rewriter.getStringAttr("transpose"));
 
 
-    
-    // auto transposeGate = rewriter.create<GateConstructorOp>(
-    //     loc, 
-    //     op.getType(),
-    //     op.getNameAttr(),
-    //     rewriter.getStringAttr("inverse"),
-    //     op.getNum_operandsAttr(),
-    //     op.getParameters());
+  
 
     // Mark the original operation as processed
     rewriter.updateRootInPlace(op, [&]() {
@@ -217,6 +123,86 @@ struct AddTransposeToGateConstructor : public OpRewritePattern<GateConstructorOp
   }
 };
 
+struct AddZNEToEachApplyGate : public OpRewritePattern<ApplyGate> {
+  AddZNEToEachApplyGate(MLIRContext *context)
+      : OpRewritePattern<ApplyGate>(context, /*benefit=*/1) {}
+
+  LogicalResult matchAndRewrite(ApplyGate op,
+                               PatternRewriter &rewriter) const override {
+    
+    // if the op has already been touched, skip it
+    if (op->hasAttr("zero-noise-touched") || op->hasAttr("zero-noise-created")) {
+      return failure();
+    }
+
+    // get the gate constructor op
+    auto gateConstructor = op.getOperation()->getOperand(0).getDefiningOp<GateConstructorOp>();
+    if (!gateConstructor) {
+      return failure();
+    }
+
+    // get the op after the gate constructor op
+    auto opAfterGateConstructor = gateConstructor.getOperation()->getNextNode();
+    if (!opAfterGateConstructor || !llvm::isa<GateConstructorOp>(opAfterGateConstructor)) {
+      return failure();
+    } 
+
+    // get the loop op, one step above the quantum program iteration op
+    Operation *quantumprogiter_maybe = op.getOperation()->getParentOfType<QuantumProgramIteration>();
+    if (!quantumprogiter_maybe) {
+      return failure();
+    }
+    auto loop = quantumprogiter_maybe->getParentOfType<AffineForOp>();
+    if (!loop) {
+      return failure();
+    }
+
+    // get the index of the loop
+    auto index_value = loop.getInductionVar();
+
+    // get the value of the index
+    // auto index_value = loop.getBody()->getTerminator()->getOperand(0);
+    auto loc = op.getOperation()->getLoc();
+    rewriter.setInsertionPointAfter(op);
+    // create an scf for loop from 0 to index_value
+    // create a 0 Value of type index
+    auto zero = rewriter.create<arith::ConstantIndexOp>(loc, 0);
+    // create a 1 Value of type index
+    auto one = rewriter.create<arith::ConstantIndexOp>(loc, 1);
+    auto forLoop = rewriter.create<scf::ForOp>(loc, zero, index_value, one);
+    // clone the apply gate op inside the loop
+    auto clonedApplyGate = rewriter.clone(*op.getOperation());
+    // move the cloned apply gate op inside the loop
+    clonedApplyGate->moveBefore(forLoop.getBody()->getTerminator());
+    rewriter.setInsertionPointAfter(clonedApplyGate);
+
+    auto clonedApplyGateTranspose = rewriter.clone(*op.getOperation());
+    clonedApplyGateTranspose->moveAfter(clonedApplyGate);
+    
+    clonedApplyGateTranspose->setOperand(0, clonedApplyGate->getOperand(0).getDefiningOp<GateConstructorOp>()->getNextNode()->getResult(0));
+    // replace the operands of the cloned apply gate op with the results of the original apply gate op
+    // for (int i = 0; i < op.getOperation()->getNumOperands(); i++) {
+    //   clonedApplyGate->setOperand(i, op.getOperation()->getOperand(i));
+    // }
+    
+    
+    // mark the cloned apply gate op as zero-noise-touched
+    clonedApplyGate->setAttr("zero-noise-created", rewriter.getUnitAttr());  
+    clonedApplyGateTranspose->setAttr("zero-noise-created", rewriter.getUnitAttr());
+
+    op->setAttr("zero-noise-touched", rewriter.getUnitAttr());
+    
+    // update the original apply gate op as zero-noise-touched
+    rewriter.updateRootInPlace(op, [&]() {
+      op->setAttr("zero-noise-touched", rewriter.getUnitAttr());
+    });
+    
+    return success();
+    
+    
+    
+  }
+};
 struct ZeroNoiseExtrapolation
     : impl::ZeroNoiseExtrapolationBase<ZeroNoiseExtrapolation> {
   using ZeroNoiseExtrapolationBase::ZeroNoiseExtrapolationBase;
@@ -229,7 +215,7 @@ struct ZeroNoiseExtrapolation
     // patterns.add<AddGateAndAdjointPairs2Q>(&getContext());
     // patterns.add<AddTransposeBeforeGate>(&getContext());
     patterns.add<AddTransposeToGateConstructor>(&getContext());
-
+    patterns.add<AddZNEToEachApplyGate>(&getContext());
     (void)applyPatternsAndFoldGreedily(getOperation(), std::move(patterns));
   }
 };
