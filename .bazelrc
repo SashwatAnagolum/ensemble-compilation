@@ -1,2 +1,8 @@
 build --action_env=BAZEL_CXXOPTS=-std=c++17
 test --test_output=all
+build --define=LLVM_NATIVE_TARGET=AArch64
+build --define=LLVM_NATIVE_TARGETINFO=AArch64
+build --define=LLVM_NATIVE_TARGETMC=AArch64
+build --define=LLVM_NATIVE_ASMPRINTER=AArch64
+build --define=LLVM_NATIVE_ASMPARSER=AArch64
+build --define=LLVM_NATIVE_DISASSEMBLER=AArch64
