@@ -60,7 +60,6 @@ def Ensemble_QubitMeasurement : Ensemble_GateOp<"measure"> {
 
 // Qubit reset
 
-
 def Ensemble_ResetQubits : Ensemble_GateOp<"reset"> {
   let summary = "variadic qubit reset.";
   let arguments = (ins Variadic<AnyQubit>:$input);
