@@ -42,4 +42,15 @@ def Inlinex : Pass<"inlinex"> {
   ];
 }
 
+def Nativization : Pass<"nativization"> {
+  let summary = "Apply nativization to the circuit";
+  let description = [{
+    Apply nativization to the circuit
+  }];
+  let dependentDialects = [
+    "mlir::affine::AffineDialect",
+    "mlir::arith::ArithDialect",
+    "mlir::qe::ensemble::EnsembleDialect",
+  ];
+}
 #endif  // LIB_TRANSFORM_ENSEMBLE_PASSES_TD_
