@@ -16,6 +16,7 @@
 #include "mlir/include/mlir/Pass/Pass.h"
 #include "mlir/include/mlir/IR/Value.h"
 #include "mlir/Dialect/Tensor/IR/Tensor.h"
+#include "mlir/Dialect/MemRef/IR/MemRef.h"
 
 namespace mlir {
 namespace qe {
@@ -167,15 +168,21 @@ struct AddCliffordGateDistribution : public OpRewritePattern<QuantumProgramItera
 
         cliffordDistribution->setAttr("is-clifford-distribution", rewriter.getUnitAttr());       
     
-        // add a tensor with a single element to keep track of 
-        // how many gates we have processed (for later)
-        SmallVector<int32_t, 9> values = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-        auto tensorType = RankedTensorType::get({9}, rewriter.getI32Type());
-        auto dencseAttr = DenseIntElementsAttr::get(tensorType, values);
-        
-        // Create the constant operation with the dense tensor attribute
-        auto addedTensor = rewriter.create<arith::ConstantOp>(loc, tensorType, denseAttr);
-        addedTensor->setAttr("is-count-tensor", rewriter.getUnitAttr());
+        // add a memref to keep track of the number of gates
+        // we have changed to clifford distributions so far.
+        auto counter = rewriter.create<memref::AllocOp>(
+            loc,
+            MemRefType::get({}, rewriter.getI32Type())
+        );
+
+        counter->setAttr("is-cdr-counter", rewriter.getUnitAttr());
+
+        Value zero = rewriter.create<arith::ConstantOp>(
+            loc, 
+            rewriter.getI32IntegerAttr(0)
+        );
+
+        rewriter.create<memref::StoreOp>(loc, zero, counter);
 
         // prevent infinite application of the pass
         rewriter.updateRootInPlace(op, [&]() { 
@@ -193,7 +200,7 @@ struct ChangeGatesToCliffordDistributions : public OpRewritePattern<ApplyGate> {
     mlir::Value cliffordDistribution;
     mlir::Value integerIndices;
     int num1QGatesReplaced = 0;
-    mlir::Value gateApplicationCount;
+    mlir::Value gateApplicationCounter;
 
     ChangeGatesToCliffordDistributions(mlir::MLIRContext *context, mlir::Operation *op) 
         : OpRewritePattern<ApplyGate>(context, 70) {
@@ -210,22 +217,16 @@ struct ChangeGatesToCliffordDistributions : public OpRewritePattern<ApplyGate> {
                     UniformIntegerDistributionOp cliffordInds = dyn_cast<ensemble::UniformIntegerDistributionOp>(op);
                     this->integerIndices = cliffordInds->getResult(0);
                 }
-            } else if (dyn_cast<arith::ConstantOp>(op) != nullptr) {
-                if (op->getAttr("is-count-tensor")) {
-                    arith::ConstantOp countTensor = dyn_cast<arith::ConstantOp>(op);
-                    this->gateApplicationCount = countTensor->getResult(0);
+            } else if (dyn_cast<memref::AllocOp>(op) != nullptr) {
+                if (op->getAttr("is-cdr-counter")) {
+                    memref::AllocOp counter = dyn_cast<memref::AllocOp>(op);
+                    this->gateApplicationCounter = counter->getResult(0);
                 }
             }
         });
-
-        llvm::outs() << this->gateApplicationCount << "\n";
     }
 
     LogicalResult matchAndRewrite(ApplyGate op, PatternRewriter &rewriter) const override {
-        if (op->getAttr("gate-replaced-with-clifford-distribution")) {
-            return failure();
-        }
-
         // save insertion point from before
         auto insertionPoint = rewriter.saveInsertionPoint();
         auto loc = op.getLoc();
@@ -236,15 +237,13 @@ struct ChangeGatesToCliffordDistributions : public OpRewritePattern<ApplyGate> {
         // use the clifford distribution for 1Q gates
         // for 2Q gates, always use CNOT
         if (op.getNumOperands() == 2) {
-            Value index = rewriter.create<arith::ConstantOp>(
-                loc,
-                rewriter.getIndexAttr(0)
-            );
+            auto counterValue = rewriter.create<memref::LoadOp>(loc, this->gateApplicationCounter);
+            Value counterValueIndex = rewriter.create<arith::IndexCastOp>(loc, rewriter.getIndexType(), counterValue);
 
             auto tensorExtractOp = rewriter.create<tensor::ExtractOp>(
                 loc,
                 this->integerIndices,
-                index
+                counterValueIndex
             );
 
             rewriter.create<ensemble::ApplyGateDistribution>(
@@ -253,12 +252,20 @@ struct ChangeGatesToCliffordDistributions : public OpRewritePattern<ApplyGate> {
                 tensorExtractOp.getResult(),
                 op.getOperand(1)
             );
+            
+            // increment the counter and store the updated value in memory
+            Value one = rewriter.create<arith::ConstantOp>(
+                loc,
+                rewriter.getI32IntegerAttr(1)
+            );
+
+            Value newCount = rewriter.create<arith::AddIOp>(loc, counterValue, one);
+            rewriter.create<memref::StoreOp>(loc, newCount, this->gateApplicationCounter);
+        } else {
+            // always use CNOT for 2Q gates
         }
-    
-        // prevent infinite application of the pass
-        rewriter.updateRootInPlace(op, [&]() { 
-            op->setAttr("gate-replaced-with-clifford-distribution", rewriter.getUnitAttr()); 
-        });
+
+        op.erase();
 
         // restore insertion point
         rewriter.restoreInsertionPoint(insertionPoint);
@@ -266,6 +273,10 @@ struct ChangeGatesToCliffordDistributions : public OpRewritePattern<ApplyGate> {
         return success();
     }
 };
+
+// need to create a struct that does the ChangeGatesToCliffordDistributions
+// but for Apply Distribtion operations -> just subsititute the distribution
+// being used for the clifford distribution, and change the index used
 
 struct CliffordDataRegression
     : impl::CliffordDataRegressionBase<CliffordDataRegression> {
