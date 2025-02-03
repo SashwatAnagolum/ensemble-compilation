@@ -95,13 +95,36 @@ cc_library(
 )
 
 cc_library(
+    name = "Nativization",
+    srcs = ["Nativization.cpp"],
+    hdrs = [
+        "Nativization.h",
+        "Passes.h",
+    ],
+    deps = [
+        ":pass_inc_gen",
+        "//lib/Dialect/Ensemble",
+        "@llvm-project//mlir:AffineDialect",
+        "@llvm-project//mlir:AffineUtils",
+        "@llvm-project//mlir:ArithDialect",
+        "@llvm-project//mlir:FuncDialect",
+        "@llvm-project//mlir:Pass",
+        "@llvm-project//mlir:Transforms",
+    ],
+)
+
+cc_library(
     name = "Passes",
     hdrs = ["Passes.h"],
     deps = [
         ":ZeroNoiseExtrapolation",
         ":PDagParse",
         ":Inlinex",
+        ":Nativization",
         ":pass_inc_gen",
     ],
 )
+
+
+
 

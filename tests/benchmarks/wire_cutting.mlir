@@ -9,7 +9,10 @@ module {
         %SX_gate = ensemble.gate "SX" 1 : () -> !ensemble.gate
         %SXdag_gate = ensemble.gate "SXdag" 1 : () -> !ensemble.gate
         %twice_beta = arith.mulf %beta_value, %two_f64 : f64
-        %RZZ_gate = ensemble.gate "RZZ" 2 (%twice_beta) :(f64) -> !ensemble.gate
+        %zero_f64 = arith.constant 0.0 : f64
+        // %RZZ_gate = ensemble.gate "RZZ" 2 (%twice_beta) :(f64) -> !ensemble.gate
+        %CNOT_gate = ensemble.gate "CNOT" 2 : () -> !ensemble.gate
+        %RZZ_U3_gate = ensemble.gate "U3" 1 (%twice_beta, %zero_f64, %zero_f64) : (f64, f64, f64) -> !ensemble.gate
         %twice_gamma = arith.mulf %gamma_value, %two_f64 : f64
         %RX_gate = ensemble.gate "RX" 1 (%twice_gamma) :(f64) -> !ensemble.gate
 
@@ -68,13 +71,17 @@ module {
                     %qubit_i = tensor.extract %qubits[%i] : tensor<9x!ensemble.physical_qubit>
                     %i_plus_one = arith.addi %i, %one_index : index
                     %qubit_i_plus_one = tensor.extract %qubits[%i_plus_one] : tensor<9x!ensemble.physical_qubit>
-                    ensemble.apply %RZZ_gate %qubit_i, %qubit_i_plus_one : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                    ensemble.apply %CNOT_gate %qubit_i, %qubit_i_plus_one : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                    ensemble.apply %RZZ_U3_gate %qubit_i_plus_one : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                    ensemble.apply %CNOT_gate %qubit_i, %qubit_i_plus_one : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
                 }
                 scf.for %qubit_1_index = %zero_index to %four_index step %one_index {
                     scf.for %qubit_2_index = %four_index to %nine_index step %one_index {
                         %qubit_1 = tensor.extract %qubits[%qubit_1_index] : tensor<9x!ensemble.physical_qubit>
                         %qubit_2 = tensor.extract %qubits[%qubit_2_index] : tensor<9x!ensemble.physical_qubit>
-                        ensemble.apply %RZZ_gate %qubit_1, %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                        ensemble.apply %CNOT_gate %qubit_1, %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                        ensemble.apply %RZZ_U3_gate %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                        ensemble.apply %CNOT_gate %qubit_1, %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
                     }
                 }
 
@@ -107,7 +114,9 @@ module {
                     scf.for %qubit_2_index = %five_index to %nine_index step %one_index {
                         %qubit_1 = tensor.extract %qubits[%qubit_1_index] : tensor<9x!ensemble.physical_qubit>
                         %qubit_2 = tensor.extract %qubits[%qubit_2_index] : tensor<9x!ensemble.physical_qubit>
-                        ensemble.apply %RZZ_gate %qubit_1, %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                        ensemble.apply %CNOT_gate %qubit_1, %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                        ensemble.apply %RZZ_U3_gate %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                        ensemble.apply %CNOT_gate %qubit_1, %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
                     }
                 }
 
@@ -115,7 +124,9 @@ module {
                     %qubit_1 = tensor.extract %qubits[%i] : tensor<9x!ensemble.physical_qubit>
                     %i_plus_one = arith.addi %i, %one_index : index
                     %qubit_2 = tensor.extract %qubits[%i_plus_one] : tensor<9x!ensemble.physical_qubit>
-                    ensemble.apply %RZZ_gate %qubit_1, %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                    ensemble.apply %CNOT_gate %qubit_1, %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                    ensemble.apply %RZZ_U3_gate %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                    ensemble.apply %CNOT_gate %qubit_1, %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
                 }
 
                 scf.for %qubit_index = %zero_index to %nine_index step %one_index {

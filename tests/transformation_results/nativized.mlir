@@ -1,8 +1,11 @@
 module {
   func.func @main() {
-    %cst = arith.constant 2.000000e-01 : f64
-    %cst_0 = arith.constant 4.200000e-01 : f64
-    %cst_1 = arith.constant 0.000000e+00 : f64
+    %cst = arith.constant 3.1415926535897931 : f64
+    %cst_0 = arith.constant 1.5707963267948966 : f64
+    %cst_1 = arith.constant -1.5707963267948966 : f64
+    %cst_2 = arith.constant 2.000000e-01 : f64
+    %cst_3 = arith.constant 4.200000e-01 : f64
+    %cst_4 = arith.constant 0.000000e+00 : f64
     %c8 = arith.constant 8 : index
     %c64 = arith.constant 64 : index
     %c512 = arith.constant 512 : index
@@ -20,14 +23,14 @@ module {
     %0 = ensemble.program_alloc 9 : () -> tensor<9x!ensemble.physical_qubit>
     %1 = ensemble.alloc_cbits 9 : () -> tensor<9x!ensemble.cbit>
     scf.for %arg0 = %c0 to %c12288 step %c1 {
-      %2 = ensemble.gate "I" 1 : () -> !ensemble.gate
-      %3 = ensemble.gate "H" 1 : () -> !ensemble.gate
-      %4 = ensemble.gate "X" 1 : () -> !ensemble.gate
-      %5 = ensemble.gate "SX" 1 : () -> !ensemble.gate
-      %6 = ensemble.gate "SXdag" 1 : () -> !ensemble.gate
-      %7 = ensemble.gate "CNOT" 2 : () -> !ensemble.gate
-      %8 = ensemble.gate "U3" 1(%cst_0, %cst_1, %cst_1) : (f64, f64, f64) -> !ensemble.gate
-      %9 = ensemble.gate "RX" 1(%cst) : (f64) -> !ensemble.gate
+      %2 = ensemble.gate "U3" 1(%cst_4, %cst_4, %cst_4) {"nativized-created", "nativized-peeked"} : (f64, f64, f64) -> !ensemble.gate
+      %3 = ensemble.gate "U3" 1(%cst_0, %cst_4, %cst) {"nativized-created", "nativized-peeked"} : (f64, f64, f64) -> !ensemble.gate
+      %4 = ensemble.gate "U3" 1(%cst, %cst_4, %cst) {"nativized-created", "nativized-peeked"} : (f64, f64, f64) -> !ensemble.gate
+      %5 = ensemble.gate "U3" 1(%cst_0, %cst_1, %cst_0) {"nativized-created", "nativized-peeked"} : (f64, f64, f64) -> !ensemble.gate
+      %6 = ensemble.gate "U3" 1(%cst_0, %cst_0, %cst_1) {"nativized-created", "nativized-peeked"} : (f64, f64, f64) -> !ensemble.gate
+      %7 = ensemble.gate "CNOT" 2 {"nativized-peeked"} : () -> !ensemble.gate
+      %8 = ensemble.gate "U3" 1(%cst_3, %cst_4, %cst_4) {"nativized-created", "nativized-peeked"} : (f64, f64, f64) -> !ensemble.gate
+      %9 = ensemble.gate "U3" 1(%cst_2, %cst_1, %cst_0) {"nativized-created", "nativized-peeked"} : (f64, f64, f64) -> !ensemble.gate
       %10 = ensemble.gate_distribution %2, %2, %3, %3, %5, %5, %2, %2 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
       %11 = ensemble.gate_distribution %2, %4, %3, %4, %6, %4, %2, %4 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
       %12 = ensemble.gate_distribution %2, %2, %2, %3, %2, %6, %2, %2 : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
@@ -56,18 +59,18 @@ module {
           scf.for %arg1 = %c0 to %c3 step %c1 {
             %extracted = tensor.extract %0[%arg1] : tensor<9x!ensemble.physical_qubit>
             %27 = arith.addi %arg1, %c1 : index
-            %extracted_2 = tensor.extract %0[%27] : tensor<9x!ensemble.physical_qubit>
-            ensemble.apply %7 %extracted, %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
-            ensemble.apply %8 %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-            ensemble.apply %7 %extracted, %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+            %extracted_5 = tensor.extract %0[%27] : tensor<9x!ensemble.physical_qubit>
+            ensemble.apply %7 %extracted, %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+            ensemble.apply %8 %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+            ensemble.apply %7 %extracted, %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
           }
           scf.for %arg1 = %c0 to %c4 step %c1 {
             scf.for %arg2 = %c4 to %c9 step %c1 {
               %extracted = tensor.extract %0[%arg1] : tensor<9x!ensemble.physical_qubit>
-              %extracted_2 = tensor.extract %0[%arg2] : tensor<9x!ensemble.physical_qubit>
-              ensemble.apply %7 %extracted, %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
-              ensemble.apply %8 %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-              ensemble.apply %7 %extracted, %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+              %extracted_5 = tensor.extract %0[%arg2] : tensor<9x!ensemble.physical_qubit>
+              ensemble.apply %7 %extracted, %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+              ensemble.apply %8 %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+              ensemble.apply %7 %extracted, %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
             }
           }
           scf.for %arg1 = %c0 to %c4 step %c1 {
@@ -77,16 +80,16 @@ module {
           scf.for %arg1 = %c0 to %c5 step %c1 {
             %27 = arith.addi %arg1, %c4 : index
             %extracted = tensor.extract %0[%27] : tensor<9x!ensemble.physical_qubit>
-            %extracted_2 = tensor.extract %from_elements[%arg1] : tensor<5xindex>
-            ensemble.apply_distribution %10[%extracted_2] %extracted : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+            %extracted_5 = tensor.extract %from_elements[%arg1] : tensor<5xindex>
+            ensemble.apply_distribution %10[%extracted_5] %extracted : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
           }
         }
         scf.if %26 {
           scf.for %arg1 = %c0 to %c5 step %c1 {
             %extracted = tensor.extract %0[%arg1] : tensor<9x!ensemble.physical_qubit>
-            %extracted_2 = tensor.extract %from_elements[%arg1] : tensor<5xindex>
-            ensemble.apply_distribution %11[%extracted_2] %extracted : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
-            ensemble.apply_distribution %12[%extracted_2] %extracted : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+            %extracted_5 = tensor.extract %from_elements[%arg1] : tensor<5xindex>
+            ensemble.apply_distribution %11[%extracted_5] %extracted : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+            ensemble.apply_distribution %12[%extracted_5] %extracted : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
           }
           scf.for %arg1 = %c5 to %c9 step %c1 {
             %extracted = tensor.extract %0[%arg1] : tensor<9x!ensemble.physical_qubit>
@@ -95,19 +98,19 @@ module {
           scf.for %arg1 = %c0 to %c5 step %c1 {
             scf.for %arg2 = %c5 to %c9 step %c1 {
               %extracted = tensor.extract %0[%arg1] : tensor<9x!ensemble.physical_qubit>
-              %extracted_2 = tensor.extract %0[%arg2] : tensor<9x!ensemble.physical_qubit>
-              ensemble.apply %7 %extracted, %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
-              ensemble.apply %8 %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-              ensemble.apply %7 %extracted, %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+              %extracted_5 = tensor.extract %0[%arg2] : tensor<9x!ensemble.physical_qubit>
+              ensemble.apply %7 %extracted, %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+              ensemble.apply %8 %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+              ensemble.apply %7 %extracted, %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
             }
           }
           scf.for %arg1 = %c5 to %c8 step %c1 {
             %extracted = tensor.extract %0[%arg1] : tensor<9x!ensemble.physical_qubit>
             %27 = arith.addi %arg1, %c1 : index
-            %extracted_2 = tensor.extract %0[%27] : tensor<9x!ensemble.physical_qubit>
-            ensemble.apply %7 %extracted, %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
-            ensemble.apply %8 %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-            ensemble.apply %7 %extracted, %extracted_2 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+            %extracted_5 = tensor.extract %0[%27] : tensor<9x!ensemble.physical_qubit>
+            ensemble.apply %7 %extracted, %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+            ensemble.apply %8 %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+            ensemble.apply %7 %extracted, %extracted_5 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
           }
           scf.for %arg1 = %c0 to %c9 step %c1 {
             %extracted = tensor.extract %0[%arg1] : tensor<9x!ensemble.physical_qubit>
@@ -116,8 +119,8 @@ module {
         }
         scf.for %arg1 = %c0 to %c9 step %c1 {
           %extracted = tensor.extract %0[%arg1] : tensor<9x!ensemble.physical_qubit>
-          %extracted_2 = tensor.extract %1[%arg1] : tensor<9x!ensemble.cbit>
-          ensemble.measure %extracted, %extracted_2 : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
+          %extracted_5 = tensor.extract %1[%arg1] : tensor<9x!ensemble.cbit>
+          ensemble.measure %extracted, %extracted_5 : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
         }
         ensemble.transmit_results %1 : (tensor<9x!ensemble.cbit>) -> ()
       }

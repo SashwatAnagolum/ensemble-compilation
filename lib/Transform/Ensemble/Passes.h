@@ -5,6 +5,7 @@
 #include "lib/Transform/Ensemble/PDagParse.h"
 #include "lib/Transform/Ensemble/Inlinex.h"
 #include "lib/Transform/Ensemble/PDag.h"
+#include "lib/Transform/Ensemble/Nativization.h"
 
 namespace mlir {
 namespace qe {

@@ -32,10 +32,10 @@ module {
             }
 
             // cycle 2
-            %pi_f32 = arith.constant 3.141592653589793 : f32
-            %pi_over_4_f32 = arith.constant 0.7853981633974483 : f32
-            %pi_over_8_f32 = arith.constant 0.39269908169872414 : f32
-            %pi_over_16_f32 = arith.constant 0.19634954084936207 : f32
+            %pi_f64 = arith.constant 3.141592653589793 : f64
+            %pi_over_4_f64 = arith.constant 0.7853981633974483 : f64
+            %pi_over_8_f64 = arith.constant 0.39269908169872414 : f64
+            %pi_over_16_f64 = arith.constant 0.19634954084936207 : f64
 
             %two_index = arith.constant 2 : index
             %three_index = arith.constant 3 : index
@@ -43,9 +43,9 @@ module {
             %qubit_2 = tensor.extract %qubits[%two_index] : tensor<4 x !ensemble.physical_qubit>
             %qubit_3 = tensor.extract %qubits[%three_index] : tensor<4 x !ensemble.physical_qubit>
 
-            %RZ_gate_pi_over_4 = ensemble.gate "RZ" 1 (%pi_over_4_f32): (f32) -> (!ensemble.gate)
-            %RZ_gate_pi_over_8 = ensemble.gate "RZ" 1 (%pi_over_8_f32) : (f32) -> (!ensemble.gate)
-            %RZ_gate_pi_over_16 = ensemble.gate "RZ" 1 (%pi_over_16_f32) : (f32) -> (!ensemble.gate)
+            %RZ_gate_pi_over_4 = ensemble.gate "RZ" 1 (%pi_over_4_f64): (f64) -> (!ensemble.gate)
+            %RZ_gate_pi_over_8 = ensemble.gate "RZ" 1 (%pi_over_8_f64) : (f64) -> (!ensemble.gate)
+            %RZ_gate_pi_over_16 = ensemble.gate "RZ" 1 (%pi_over_16_f64) : (f64) -> (!ensemble.gate)
 
             ensemble.apply %RZ_gate_pi_over_4 %qubit_1 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
             ensemble.apply %RZ_gate_pi_over_8 %qubit_2 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
@@ -67,8 +67,8 @@ module {
             ensemble.apply_distribution %pauli_right_slices[%left_slice_index_1] %qubit_0 : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
 
             // cycle 4
-            %neg_pi_over_4_f32 = arith.constant -0.7853981633974483 : f32
-            %RZ_gate_neg_pi_over_4 = ensemble.gate "RZ" 1 (%neg_pi_over_4_f32) : (f32) -> (!ensemble.gate)
+            %neg_pi_over_4_f64 = arith.constant -0.7853981633974483 : f64
+            %RZ_gate_neg_pi_over_4 = ensemble.gate "RZ" 1 (%neg_pi_over_4_f64) : (f64) -> (!ensemble.gate)
             ensemble.apply %RZ_gate_neg_pi_over_4 %qubit_0 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
 
             // cycle 5
@@ -97,8 +97,8 @@ module {
             ensemble.apply_distribution %pauli_right_slices[%cycle_7_pri_21] %qubit_0 : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
 
             // cycle 8
-            %neg_pi_over_8_f32 = arith.constant -0.39269908169872414 : f32
-            %RZ_gate_neg_pi_over_8 = ensemble.gate "RZ" 1 (%neg_pi_over_8_f32) : (f32) -> (!ensemble.gate)
+            %neg_pi_over_8_f64 = arith.constant -0.39269908169872414 : f64
+            %RZ_gate_neg_pi_over_8 = ensemble.gate "RZ" 1 (%neg_pi_over_8_f64) : (f64) -> (!ensemble.gate)
             ensemble.apply %RZ_gate_neg_pi_over_8 %qubit_0 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
 
             // cycle 9
@@ -142,8 +142,8 @@ module {
             ensemble.apply_distribution %pauli_right_slices[%cycle_11_pri_51] %qubit_1 : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
 
             // cycle 12
-            %neg_pi_over_16_f32 = arith.constant -0.19634954084936207 : f32
-            %RZ_gate_neg_pi_over_16 = ensemble.gate "RZ" 1 (%neg_pi_over_16_f32) : (f32) -> (!ensemble.gate)
+            %neg_pi_over_16_f64 = arith.constant -0.19634954084936207 : f64
+            %RZ_gate_neg_pi_over_16 = ensemble.gate "RZ" 1 (%neg_pi_over_16_f64) : (f64) -> (!ensemble.gate)
             ensemble.apply %RZ_gate_neg_pi_over_16 %qubit_0 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
             ensemble.apply %RZ_gate_neg_pi_over_4 %qubit_1 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
 

@@ -41,8 +41,8 @@ struct AddTensorBeforeProgramIteration : public OpRewritePattern<QuantumProgramI
     : OpRewritePattern<QuantumProgramIteration>(context, 1) {}
   
   LogicalResult matchAndRewrite(QuantumProgramIteration op, PatternRewriter & rewriter) const override {
-    // if the op has already been touched, skip it
-    if (op->hasAttr("zero-noise-touched")) {
+    // if the op has already been peeked, skip it
+    if (op->hasAttr("zero-noise-peeked")) {
       return failure();
     }
     auto the_one_before = op.getOperation()->getPrevNode();
@@ -70,7 +70,7 @@ struct AddTensorBeforeProgramIteration : public OpRewritePattern<QuantumProgramI
 
     rewriter.restoreInsertionPoint(insertionPoint);
     rewriter.updateRootInPlace(op, [&]() {
-      op->setAttr("zero-noise-touched", rewriter.getUnitAttr());
+      op->setAttr("zero-noise-peeked", rewriter.getUnitAttr());
     });
     return success();
   }
@@ -86,7 +86,7 @@ struct AddTransposeToGateConstructor : public OpRewritePattern<GateConstructorOp
   LogicalResult matchAndRewrite(GateConstructorOp op,
                                PatternRewriter &rewriter) const override {
     // If we have already processed this operation, skip it
-    if (op->hasAttr("zero-noise-created") || op->hasAttr("zero-noise-touched")) {
+    if (op->hasAttr("zero-noise-created") || op->hasAttr("zero-noise-peeked")) {
       // print this op, its gate name and inverse attribute and print the one after it
       
       // if it has a next node and the next node is a gate constructor op, then print it too
@@ -106,7 +106,7 @@ struct AddTransposeToGateConstructor : public OpRewritePattern<GateConstructorOp
     auto transposeGate = rewriter.clone(*op.getOperation());
     // make a mapping from the original gate to the transpose gate
     // mark both gates as transpose-created
-    op->setAttr("zero-noise-touched", rewriter.getUnitAttr());
+    op->setAttr("zero-noise-peeked", rewriter.getUnitAttr());
     transposeGate->setAttr("zero-noise-created", rewriter.getUnitAttr());
     // mark the transpose gate by setting the inverse attribute as transpose
     transposeGate->setAttr("inverse", rewriter.getStringAttr("transpose"));
@@ -116,7 +116,7 @@ struct AddTransposeToGateConstructor : public OpRewritePattern<GateConstructorOp
 
     // Mark the original operation as processed
     rewriter.updateRootInPlace(op, [&]() {
-      op->setAttr("zero-noise-touched", rewriter.getUnitAttr());
+      op->setAttr("zero-noise-peeked", rewriter.getUnitAttr());
     });
 
     return success();
@@ -130,8 +130,8 @@ struct AddZNEToEachApplyGate : public OpRewritePattern<ApplyGate> {
   LogicalResult matchAndRewrite(ApplyGate op,
                                PatternRewriter &rewriter) const override {
     
-    // if the op has already been touched, skip it
-    if (op->hasAttr("zero-noise-touched") || op->hasAttr("zero-noise-created")) {
+    // if the op has already been peeked, skip it
+    if (op->hasAttr("zero-noise-peeked") || op->hasAttr("zero-noise-created")) {
       return failure();
     }
 
@@ -186,15 +186,15 @@ struct AddZNEToEachApplyGate : public OpRewritePattern<ApplyGate> {
     // }
     
     
-    // mark the cloned apply gate op as zero-noise-touched
+    // mark the cloned apply gate op as zero-noise-peeked
     clonedApplyGate->setAttr("zero-noise-created", rewriter.getUnitAttr());  
     clonedApplyGateTranspose->setAttr("zero-noise-created", rewriter.getUnitAttr());
 
-    op->setAttr("zero-noise-touched", rewriter.getUnitAttr());
+    op->setAttr("zero-noise-peeked", rewriter.getUnitAttr());
     
-    // update the original apply gate op as zero-noise-touched
+    // update the original apply gate op as zero-noise-peeked
     rewriter.updateRootInPlace(op, [&]() {
-      op->setAttr("zero-noise-touched", rewriter.getUnitAttr());
+      op->setAttr("zero-noise-peeked", rewriter.getUnitAttr());
     });
     
     return success();
