@@ -54,13 +54,21 @@ struct NativizeGateConstructor : public OpRewritePattern<GateConstructorOp> {
     // use the rewriter to create a new gate constructor op with the name U3 and operands 0, 0, 0 by initializing the three floating point numbers as SSA values above the gate constructor op
     rewriter.setInsertionPointAfter(gateConstructor);
     auto loc = gateConstructor->getLoc();
-    auto zero = rewriter.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(0.0));
-    auto pi = rewriter.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(3.14159265358979323846));
-    auto pi_half = rewriter.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(1.57079632679489661923));
+    auto zero = rewriter.create<arith::ConstantOp>(loc, rewriter.getF64FloatAttr(0.0));
+    auto pi = rewriter.create<arith::ConstantOp>(loc, rewriter.getF64FloatAttr(3.14159265358979323846));
+    auto pi_half = rewriter.create<arith::ConstantOp>(loc, rewriter.getF64FloatAttr(1.57079632679489661923));
+    auto neg_pi_half = rewriter.create<arith::ConstantOp>(loc, rewriter.getF64FloatAttr(-1.57079632679489661923));
+    auto neg_one = rewriter.create<arith::ConstantOp>(loc, rewriter.getF64FloatAttr(-1.0));
+
+    // Create the U3 operation after defining all constants
     auto u3 = rewriter.clone(*op.getOperation());
     u3->setAttr("name", rewriter.getStringAttr("U3"));
 
-    // depending upon the gate name of the gate constructor op, apply different parameters to the u3 op
+    // set insertion point before the u3 op by setting it after the previous op
+    rewriter.setInsertionPointAfter(u3->getPrevNode());
+    
+
+
     // depending upon the gate name of the gate constructor op, apply different parameters to the u3 op
     auto gateName = op.getOperation()->getAttr("name").cast<StringAttr>().getValue();
     if (gateName == "H") {
@@ -83,28 +91,70 @@ struct NativizeGateConstructor : public OpRewritePattern<GateConstructorOp> {
         // S gate has parameters u3(0, 0, pi/2)
         u3->setOperands({zero, zero, pi_half});
     }
+    else if (gateName == "SDag") {
+        // SDag gate has parameters u3(0, 0, -pi/2)
+        u3->setOperands({zero, zero, neg_pi_half});
+    }
+    else if (gateName == "RX") {
+        // RX gate has parameters RX(θ)=U3(θ,−π/2,π/2)
+        auto theta = op.getOperation()->getOperand(0);
+        u3->setOperands({theta, neg_pi_half, pi_half});
+    }
+    else if (gateName == "RY") {
+        // RY gate has parameters RY(θ)=U3(θ,0,0)
+        auto theta = op.getOperation()->getOperand(0);
+        u3->setOperands({theta, zero, zero});
+    }
+    else if (gateName == "RZ") {
+        // RZ gate has parameters RZ(θ)=U3(0,−θ/2,θ/2)
+        auto theta = op.getOperation()->getOperand(0);
+        
+        auto half = rewriter.create<arith::ConstantOp>(loc, rewriter.getF64FloatAttr(0.5));
+        auto theta_times_half = rewriter.create<arith::MulFOp>(loc, theta, half);
+        auto neg_theta_half = rewriter.create<arith::MulFOp>(loc, theta_times_half, neg_one);
+        u3->setOperands({zero, neg_theta_half, theta_times_half});
+    }
+    else if (gateName == "SX") {
+        // SX gate has parameters SX=U3(π/2,−π/2,π/2)
+        u3->setOperands({pi_half, neg_pi_half, pi_half});
+    }
+
+    else if (gateName == "SXdag") {
+        // SXdag gate has parameters SXdag=U3(π/2,π/2,−π/2)
+        u3->setOperands({pi_half, pi_half, neg_pi_half});
+    }
+
+    else if (gateName == "U3") {
+        // U3 gate has parameters U3(θ,ϕ,λ)
+        auto theta = op.getOperation()->getOperand(0);
+        auto phi = op.getOperation()->getOperand(1);
+        auto lambda = op.getOperation()->getOperand(2);
+        u3->setOperands({theta, phi, lambda});
+    }
+    
     else {
         u3->setOperands({zero, zero, zero});
     }
 
     // if the original gate has a inverse attribute that has the value transpose, do this to the u3 op: U3 †(θ,ϕ,λ)=U3(−θ,−λ,−ϕ)
+    // do this by using the arith dialect to multiply the original values by -1.0 using arith.mulf
     if (op.getOperation()->hasAttr("inverse") && op.getOperation()->getAttr("inverse").cast<StringAttr>().getValue() == "transpose") {
         auto operands = u3->getOperands();
-        // Extract the float values from the operands
-        auto thetaValue = operands[0].getDefiningOp<arith::ConstantOp>().getValue().cast<FloatAttr>().getValueAsDouble();
-        auto phiValue = operands[2].getDefiningOp<arith::ConstantOp>().getValue().cast<FloatAttr>().getValueAsDouble();
-        auto lambdaValue = operands[1].getDefiningOp<arith::ConstantOp>().getValue().cast<FloatAttr>().getValueAsDouble();
+        auto theta = operands[0];
+        auto lambda = operands[1];
+        auto phi = operands[2];
 
-        // Create three new constants with the negated values
-        auto neg_theta = rewriter.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(-thetaValue));
-        auto neg_phi = rewriter.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(-phiValue));
-        auto neg_lambda = rewriter.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(-lambdaValue));
+        auto neg_theta = rewriter.create<arith::MulFOp>(loc, theta, neg_one);
+        auto neg_lambda = rewriter.create<arith::MulFOp>(loc, lambda, neg_one);
+        auto neg_phi = rewriter.create<arith::MulFOp>(loc, phi, neg_one);
 
         u3->setOperands({neg_theta, neg_lambda, neg_phi});
     }
 
+    // Ensure the U3 operation is inserted after all operands are defined
+    rewriter.setInsertionPointAfter(u3);
+
     // mark the gate constructor op as nativized-peeked and the u3 op as nativized-created
-    
     u3->setAttr("nativized-created", rewriter.getUnitAttr());
 
     // replace the gate constructor op with the u3 op
@@ -123,9 +173,6 @@ struct NativizeGateConstructor : public OpRewritePattern<GateConstructorOp> {
 
     }
 
-    
-    
-    
     return success();
   }
 };
