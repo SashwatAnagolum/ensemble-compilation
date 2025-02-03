@@ -26,5 +26,6 @@ fi
 # ./bazel-bin/tools/qe-opt --inline="op-pipelines=func.func(canonicalize,cse),inline-threshold=100000000" $1 -o inlined.mlir
 
 ./bazel-bin/tools/qe-opt -inline -inline-threshold=100000000  $1 -o inlined.mlir
-./bazel-bin/tools/qe-opt -zero-noise-extrapolation inlined.mlir -o tests/transformation_results/zero_noise_extrapolated.mlir
+# ./bazel-bin/tools/qe-opt -zero-noise-extrapolation inlined.mlir -o tests/transformation_results/zero_noise_extrapolated.mlir
 
+./bazel-bin/tools/qe-opt -nativization inlined.mlir -o tests/transformation_results/nativized.mlir
