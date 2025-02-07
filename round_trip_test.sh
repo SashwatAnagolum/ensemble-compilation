@@ -29,3 +29,7 @@ fi
 # ./bazel-bin/tools/qe-opt -zero-noise-extrapolation inlined.mlir -o tests/transformation_results/zero_noise_extrapolated.mlir
 
 ./bazel-bin/tools/qe-opt -nativization inlined.mlir -o tests/transformation_results/nativized.mlir
+
+./bazel-bin/tools/qe-opt -scf-to-affine tests/transformation_results/nativized.mlir -o tests/transformation_results/scf_to_affine.mlir
+
+./bazel-bin/tools/qe-opt --affine-loop-fusion tests/transformation_results/scf_to_affine.mlir -o tests/transformation_results/affine_loop_fusion.mlir

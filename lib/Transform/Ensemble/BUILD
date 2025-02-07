@@ -114,6 +114,22 @@ cc_library(
 )
 
 cc_library(
+    name = "SCFToAffine",
+    srcs = ["SCFToAffine.cpp"],
+    hdrs = ["SCFToAffine.h", "Passes.h"],
+    deps = [
+        ":pass_inc_gen",
+        "//lib/Dialect/Ensemble",
+        "@llvm-project//mlir:AffineDialect",
+        "@llvm-project//mlir:AffineUtils",
+        "@llvm-project//mlir:ArithDialect",
+        "@llvm-project//mlir:SCFDialect",
+        "@llvm-project//mlir:Pass",
+        "@llvm-project//mlir:Transforms",
+    ],
+)
+
+cc_library(
     name = "Passes",
     hdrs = ["Passes.h"],
     deps = [
@@ -121,9 +137,11 @@ cc_library(
         ":PDagParse",
         ":Inlinex",
         ":Nativization",
+        ":SCFToAffine",
         ":pass_inc_gen",
     ],
 )
+
 
 
 
