@@ -53,4 +53,17 @@ def Nativization : Pass<"nativization"> {
     "mlir::qe::ensemble::EnsembleDialect",
   ];
 }
+
+def SCFToAffine : Pass<"scf-to-affine"> {
+  let summary = "Convert SCF loops to Affine loops";
+  let description = [{
+    Convert SCF loops to Affine loops
+  }];
+  let dependentDialects = [
+    "mlir::affine::AffineDialect",
+    "mlir::arith::ArithDialect",
+    "mlir::scf::SCFDialect",
+  ];
+}
+
 #endif  // LIB_TRANSFORM_ENSEMBLE_PASSES_TD_
