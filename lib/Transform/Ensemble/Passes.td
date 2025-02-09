@@ -66,4 +66,15 @@ def SCFToAffine : Pass<"scf-to-affine"> {
   ];
 }
 
+def GateMerging : Pass<"gate-merging"> {
+  let summary = "Merge gates in the circuit";
+  let description = [{
+    Merge gates in the circuit
+  }];
+  let dependentDialects = [
+    "mlir::affine::AffineDialect",
+    "mlir::arith::ArithDialect",
+    "mlir::qe::ensemble::EnsembleDialect",
+  ];
+}
 #endif  // LIB_TRANSFORM_ENSEMBLE_PASSES_TD_

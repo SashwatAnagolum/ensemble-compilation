@@ -4,8 +4,10 @@
 include "EnsembleDialect.td"
 include "EnsembleTypes.td"
 
+include "mlir/Interfaces/SideEffectInterfaces.td"
 
-class Ensemble_GateOp<string mnemonic> : Op<Ensemble_Dialect, mnemonic>; 
+
+class Ensemble_GateOp<string mnemonic, list<Trait> traits = []> : Op<Ensemble_Dialect, mnemonic, traits>; 
 
 class Ensemble_DistributionOp<string mnemonic> : Op<Ensemble_Dialect, mnemonic>; 
 
@@ -32,7 +34,7 @@ def Ensemble_AllocCbitsOp : Ensemble_UserInputOp<"alloc_cbits"> {
 }
 
 // Gate operations
-def Ensemble_GateConstructorOp : Ensemble_GateOp<"gate"> {
+def Ensemble_GateConstructorOp : Ensemble_GateOp<"gate", [Pure]> {
   let summary = "Gate constructor. Takes in a name, optional inverse annotation, and variadic floating point parameters.";
   let arguments = (ins StrAttr:$name, OptionalAttr<StrAttr>:$inverse, I32Attr:$num_operands,  Variadic<AnyFloat>:$parameters);
   let results = (outs Gate:$output);
@@ -84,7 +86,7 @@ def Ensemble_ResetQubitTensor : Ensemble_GateOp<"reset_tensor"> {
 
 // Gate distribution constructor that accepts a variable number of gates 
 
-def Ensemble_GateDistributionConstructor : Ensemble_GateOp<"gate_distribution"> {
+def Ensemble_GateDistributionConstructor : Ensemble_GateOp<"gate_distribution", [Pure]> {
   let summary = "Gate distribution constructor that accepts a variable number of gates";
   let arguments = (ins Variadic<Gate>:$gates);
   let results = (outs GateDistribution:$output);
@@ -93,7 +95,7 @@ def Ensemble_GateDistributionConstructor : Ensemble_GateOp<"gate_distribution"> 
 }
 
 
-// Gate distribution operations
+// Gate distribution operations  
 def Ensemble_ApplyGateDistribution : Ensemble_GateOp<"apply_distribution"> {
   let summary = "Gate distribution on a variable number of qubits and gates";
   let arguments = (ins GateDistribution:$gates, AnyIndexType:$index, Variadic<AnyQubit>:$inputs);

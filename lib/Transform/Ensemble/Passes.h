@@ -7,7 +7,7 @@
 #include "lib/Transform/Ensemble/PDag.h"
 #include "lib/Transform/Ensemble/Nativization.h"
 #include "lib/Transform/Ensemble/SCFToAffine.h"
-
+#include "lib/Transform/Ensemble/GateMerging.h"
 namespace mlir {
 namespace qe {
 namespace ensemble {

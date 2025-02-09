@@ -3,6 +3,7 @@
 
 #include "lib/Dialect/Ensemble/EnsembleDialect.h"
 #include "lib/Dialect/Ensemble/EnsembleTypes.h"
+#include "mlir/Interfaces/SideEffectInterfaces.h"
 #include "mlir/IR/Types.h"
 
 //
