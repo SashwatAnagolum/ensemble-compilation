@@ -34,4 +34,4 @@ fi
 
 ./bazel-bin/tools/qe-opt --affine-loop-fusion tests/transformation_results/scf_to_affine.mlir -o tests/transformation_results/affine_loop_fusion.mlir
 
-./bazel-bin/tools/qe-opt --gate-merging tests/transformation_results/affine_loop_fusion.mlir -o tests/transformation_results/gate_merged.mlir
+./bazel-bin/tools/qe-opt --gate-merging tests/transformation_results/affine_loop_fusion.mlir  -o tests/transformation_results/gate_merged.mlir 

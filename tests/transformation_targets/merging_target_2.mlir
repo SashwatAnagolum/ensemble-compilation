@@ -1,35 +1,33 @@
 module {
   func.func @main() {
     %c0 = arith.constant 0 : index
-    %cst = arith.constant 7.854000e-01 : f64
-    %cst_0 = arith.constant 3.141600e+00 : f64
-    %cst_1 = arith.constant 0.000000e+00 : f64
-    %cst_2 = arith.constant 1.570800e+00 : f64
-    %0 = ensemble.program_alloc 1 : () -> tensor<1x!ensemble.physical_qubit>
+    %c1 = arith.constant 1 : index
+    %cst_0 = arith.constant 0.000000e+00 : f64
+    %cst_1 = arith.constant 1.000000e+00 : f64
+    %cst_2 = arith.constant 2.000000e+00 : f64
+    %cst_3 = arith.constant 3.000000e+00 : f64
+
+    %0 = ensemble.program_alloc 2 : () -> tensor<2x!ensemble.physical_qubit>
+    %results = ensemble.alloc_cbits 2 : () -> tensor<2x!ensemble.cbit>
     %1 = ensemble.gate "U3" 1(%cst_2, %cst_1, %cst_0) : (f64, f64, f64) -> !ensemble.gate
-    %2 = ensemble.gate "U3" 1(%cst, %cst_2, %cst_1) : (f64, f64, f64) -> !ensemble.gate
-    %3 = ensemble.gate "CNOT" 2 : () -> !ensemble.gate
-    %extracted = tensor.extract %0[%c0] : tensor<1x!ensemble.physical_qubit>
+    %2 = ensemble.gate "U3" 1(%cst_0, %cst_1, %cst_2) : (f64, f64, f64) -> !ensemble.gate
+    %3 = ensemble.gate "U3" 1(%cst_2, %cst_2, %cst_2) : (f64, f64, f64) -> !ensemble.gate
 
+    // [2, 1, 0] , [0, 1, 2]
+    %4 = ensemble.gate_distribution %1, %2: (!ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
+    // [0, 1, 2] , [2, 2, 2]
+    %5 = ensemble.gate_distribution %2, %3: (!ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
 
-    affine.for %i = 0 to 1 {
-      // first applies the first U3 1.5708, 0, 3.1416
-      // then applies the second U3 1.5708, 0, 3.1416
-      // then applies the third U3 0.7854, 1.5708, 0 
-
-      // merged becomes the sum of the parameters of the first, second, and third U3
-      // the merged gate is applied once
-      // merged gate is U3 1.5708 + 1.5708 + 0.7854, 0 + 0 + 1.5708, 3.1416 + 3.1416 + 0 which is U3 3.927, 1.5708, 6.2832
-
-      ensemble.apply %1 {"first-apply"} %extracted : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-      %cst_3 = arith.constant 0.000000e+00 : f64
-
-      %u3_1 = ensemble.gate "U3" 1(%cst_2, %cst_3, %cst_0) : (f64, f64, f64) -> !ensemble.gate
-      ensemble.apply %u3_1 {"second-apply"} %extracted : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-      ensemble.apply %2 {"third-apply"} %extracted : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+    %q0 = tensor.extract %0[%c0] : tensor<2x!ensemble.physical_qubit>
+    %q1 = tensor.extract %0[%c1] : tensor<2x!ensemble.physical_qubit>
+    ensemble.quantum_program_iteration {
+      ensemble.apply_distribution %4 [%c0]  %q0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+      ensemble.apply %1  %q0 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+      // [2, 1, 0] , [0, 1, 2] merged with [2, 1, 0]. is [4, 2, 0], [2, 2, 2]
+      ensemble.apply_distribution %5 [%c1] %q1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+      ensemble.apply %2  %q1 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+      ensemble.transmit_results %results : (tensor<2x!ensemble.cbit>) -> ()
     }
-
-    
 
     return
   }
