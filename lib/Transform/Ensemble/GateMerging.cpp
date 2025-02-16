@@ -1,6 +1,7 @@
 #include "lib/Transform/Ensemble/GateMerging.h"
 
 #include <iostream>
+#include <cassert>
 
 #include "lib/Dialect/Ensemble/EnsembleOps.h"
 #include "lib/Dialect/Ensemble/EnsembleTypes.h"
@@ -82,6 +83,7 @@ struct MergeEnsembleApply : public OpRewritePattern<ApplyGate> {
 
     // Get the block containing the operation
     Block *block = op->getBlock();
+    assert(block && "Block is null");
 
     // Create a vector to store the apply operations
     Operation* mergingWith = nullptr;
@@ -103,6 +105,8 @@ struct MergeEnsembleApply : public OpRewritePattern<ApplyGate> {
       nextOp = nextOp->getNextNode();
     }
 
+
+
     if (!mergingWith) {
       op->setAttr("cannot-merge", rewriter.getUnitAttr());
       return failure();
@@ -113,15 +117,25 @@ struct MergeEnsembleApply : public OpRewritePattern<ApplyGate> {
     bool mergingWithIsU3 = mergingWithGateOp.getName() == "U3";
     assert(isU3 && mergingWithIsU3);
 
+
+
     // get the parameters of the gate operation
     auto params = gateOp.getOperands();
+    assert(params.size() == 3 && "Gate operation parameters size is not 3");
 
     // get the parameters of the mergingWith operation
     auto mergingParams = mergingWithGateOp.getOperands();
+    assert(mergingParams.size() == 3 && "MergingWith operation parameters size is not 3");
+
+
+  
+
+
+    auto mergedParameters = mergedU3GateParameters(params[0], params[1], params[2], mergingParams[0], mergingParams[1], mergingParams[2], rewriter, op->getLoc());
 
     Operation* fusedGateConstructor = rewriter.clone(*mergingWithGateOp);
 
-    auto mergedParameters = mergedU3GateParameters(params[0], params[1], params[2], mergingParams[0], mergingParams[1], mergingParams[2], rewriter, op.getLoc());
+
     fusedGateConstructor->setOperands(mergedParameters);
     fusedGateConstructor->setAttr("generated-by-merging", rewriter.getUnitAttr());
 
@@ -198,6 +212,7 @@ struct MergeEnsembleApplyDistribution : public OpRewritePattern<ApplyGateDistrib
 
     // Get the gates from the gate distribution operation
     auto gates = gateDistributionConstructorOp.getGates();
+    assert(!gates.empty() && "Gates are empty");
 
     // Check if the gates are all U3 gates
     for (auto gate : gates) {
@@ -206,6 +221,7 @@ struct MergeEnsembleApplyDistribution : public OpRewritePattern<ApplyGateDistrib
     }
 
     Block *block = op->getBlock();
+    assert(block && "Block is null");
 
     Operation* mergingWith = nullptr;
 
@@ -246,11 +262,14 @@ struct MergeEnsembleApplyDistribution : public OpRewritePattern<ApplyGateDistrib
       rewriter.setInsertionPointAfter(mergingWith);
       Operation* fusedGateConstructor = rewriter.clone(*gate.getDefiningOp<GateConstructorOp>());
       auto params = fusedGateConstructor->getOperands();
+      assert(params.size() == 3 && "Gate operation parameters size is not 3");
       auto mergingParams = mergingWiths_GateConstructorOp.getOperands();
-      auto mergedParameters = mergedU3GateParameters(params[0], params[1], params[2], mergingParams[0], mergingParams[1], mergingParams[2], rewriter, op.getLoc());
+      assert(mergingParams.size() == 3 && "MergingWith operation parameters size is not 3");
+      rewriter.setInsertionPointAfter(fusedGateConstructor->getPrevNode());
+      auto mergedParameters = mergedU3GateParameters(params[0], params[1], params[2], mergingParams[0], mergingParams[1], mergingParams[2], rewriter, fusedGateConstructor->getPrevNode()->getLoc());
       fusedGateConstructor->setOperands(mergedParameters);
       fusedDistributionGateConstructor->setOperand(i, fusedGateConstructor->getResult(0));
-      fusedGateConstructor->setAttr("generated-by-merging", rewriter.getUnitAttr());
+      fusedGateConstructor->setAttr("generated-by-merging-here", rewriter.getUnitAttr());
       i++;
     }
 
@@ -273,7 +292,7 @@ struct GateMerging
   void runOnOperation() {
     mlir::RewritePatternSet patterns(&getContext());
     patterns.add<MergeEnsembleApply>(&getContext());
-    patterns.add<MergeEnsembleApplyDistribution>(&getContext());
+    // patterns.add<MergeEnsembleApplyDistribution>(&getContext());
  
 
     (void)applyPatternsAndFoldGreedily(getOperation(), std::move(patterns));
