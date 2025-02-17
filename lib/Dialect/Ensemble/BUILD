@@ -13,6 +13,8 @@ td_library(
     includes = [],
     deps = [
         "@llvm-project//mlir:OpBaseTdFiles",
+        "@llvm-project//mlir:SideEffectInterfacesTdFiles",
+
     ],
 )
 
@@ -31,7 +33,8 @@ gentbl_cc_library(
     tblgen = "@llvm-project//mlir:mlir-tblgen",
     td_file = "EnsembleDialect.td",
     deps = [
-        ":td_files"
+        ":td_files",
+        "@llvm-project//mlir:SideEffectInterfaces",
     ],
 )
 
@@ -50,8 +53,10 @@ gentbl_cc_library(
     tblgen = "@llvm-project//mlir:mlir-tblgen",
     td_file = "EnsembleTypes.td",
     deps = [
+        "@llvm-project//mlir:SideEffectInterfaces",
         ":dialect_inc_gen",
         ":td_files",
+        
     ],
 )
 
@@ -70,6 +75,7 @@ gentbl_cc_library(
     tblgen = "@llvm-project//mlir:mlir-tblgen",
     td_file = "EnsembleOps.td",
     deps = [
+        "@llvm-project//mlir:SideEffectInterfaces",
         ":dialect_inc_gen",
         ":td_files",
         ":types_inc_gen",
@@ -91,7 +97,8 @@ cc_library(
         ":ops_inc_gen",
         "@llvm-project//mlir:IR",
         "@llvm-project//mlir:Support",
-        "@llvm-project//mlir:ArithDialect"
+        "@llvm-project//mlir:ArithDialect",
+        "@llvm-project//mlir:SideEffectInterfaces"
     ],
 )
 
@@ -102,5 +109,6 @@ cc_library(
     deps = [
         "@llvm-project//mlir:IR",
         "@llvm-project//mlir:Support",
+        "@llvm-project//mlir:SideEffectInterfaces",
     ],
 )

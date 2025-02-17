@@ -11,6 +11,7 @@ _LLVM_TARGETS = [
     # is included. @j2kun asked the LLVM maintainers for tips on how to fix this,
     # see https://github.com/llvm/llvm-project/issues/63135
     "NVPTX",
+    "AArch64",
 ]
 
 def setup_llvm(name):

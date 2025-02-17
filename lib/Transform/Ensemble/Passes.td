@@ -53,4 +53,39 @@ def Inlinex : Pass<"inlinex"> {
   ];
 }
 
+def Nativization : Pass<"nativization"> {
+  let summary = "Apply nativization to the circuit";
+  let description = [{
+    Apply nativization to the circuit
+  }];
+  let dependentDialects = [
+    "mlir::affine::AffineDialect",
+    "mlir::arith::ArithDialect",
+    "mlir::qe::ensemble::EnsembleDialect",
+  ];
+}
+
+def SCFToAffine : Pass<"scf-to-affine"> {
+  let summary = "Convert SCF loops to Affine loops";
+  let description = [{
+    Convert SCF loops to Affine loops
+  }];
+  let dependentDialects = [
+    "mlir::affine::AffineDialect",
+    "mlir::arith::ArithDialect",
+    "mlir::scf::SCFDialect",
+  ];
+}
+
+def GateMerging : Pass<"gate-merging"> {
+  let summary = "Merge gates in the circuit";
+  let description = [{
+    Merge gates in the circuit
+  }];
+  let dependentDialects = [
+    "mlir::affine::AffineDialect",
+    "mlir::arith::ArithDialect",
+    "mlir::qe::ensemble::EnsembleDialect",
+  ];
+}
 #endif  // LIB_TRANSFORM_ENSEMBLE_PASSES_TD_

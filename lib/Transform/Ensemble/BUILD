@@ -113,6 +113,57 @@ cc_library(
 )
 
 cc_library(
+    name = "Nativization",
+    srcs = ["Nativization.cpp"],
+    hdrs = [
+        "Nativization.h",
+        "Passes.h",
+    ],
+    deps = [
+        ":pass_inc_gen",
+        "//lib/Dialect/Ensemble",
+        "@llvm-project//mlir:AffineDialect",
+        "@llvm-project//mlir:AffineUtils",
+        "@llvm-project//mlir:ArithDialect",
+        "@llvm-project//mlir:FuncDialect",
+        "@llvm-project//mlir:Pass",
+        "@llvm-project//mlir:Transforms",
+    ],
+)
+
+cc_library(
+    name = "SCFToAffine",
+    srcs = ["SCFToAffine.cpp"],
+    hdrs = ["SCFToAffine.h", "Passes.h"],
+    deps = [
+        ":pass_inc_gen",
+        "//lib/Dialect/Ensemble",
+        "@llvm-project//mlir:AffineDialect",
+        "@llvm-project//mlir:AffineUtils",
+        "@llvm-project//mlir:ArithDialect",
+        "@llvm-project//mlir:SCFDialect",
+        "@llvm-project//mlir:Pass",
+        "@llvm-project//mlir:Transforms",
+    ],
+)
+
+cc_library(
+    name = "GateMerging",
+    srcs = ["GateMerging.cpp"],
+    hdrs = ["GateMerging.h", "Passes.h"],
+    deps = [
+        ":pass_inc_gen",
+        "//lib/Dialect/Ensemble",
+        "@llvm-project//mlir:AffineDialect",
+        "@llvm-project//mlir:AffineUtils",
+        "@llvm-project//mlir:ArithDialect",
+        "@llvm-project//mlir:FuncDialect",
+        "@llvm-project//mlir:Pass",
+        "@llvm-project//mlir:Transforms",
+    ],
+)
+
+cc_library(
     name = "Passes",
     hdrs = ["Passes.h"],
     deps = [
@@ -120,7 +171,14 @@ cc_library(
         ":CliffordDataRegression",
         ":PDagParse",
         ":Inlinex",
+        ":Nativization",
+        ":SCFToAffine",
+        ":GateMerging",
         ":pass_inc_gen",
     ],
 )
+
+
+
+
 
