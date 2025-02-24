@@ -758,6 +758,8 @@ for (layer_index = 0; layer_index < 4; layer_index++) {
 
 	pauli_frame_layer += 1;
 
+    # Checkpoint 1
+
 	for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
 		gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
 		gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
@@ -771,6 +773,8 @@ for (layer_index = 0; layer_index < 4; layer_index++) {
 		gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
 		gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
 	}
+
+    # Checkpoint 2
 
 	pauli_frame_layer += 1;
 
@@ -790,6 +794,8 @@ for (layer_index = 0; layer_index < 4; layer_index++) {
 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
 		}
 
+        # Checkpoint 3
+
 		for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer + 1][qubit_index // 2]][0] qubits[qubit_index];
 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer + 1][qubit_index // 2]][1] qubits[qubit_index + 1];
@@ -804,6 +810,8 @@ for (layer_index = 0; layer_index < 4; layer_index++) {
 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer + 1][qubit_index // 2]][1] qubits[qubit_index + 1];
 		}
 
+        # Checkpoint 4
+
 		for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer + 2][qubit_index // 2]][0] qubits[qubit_index];
 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer + 2][qubit_index // 2]][1] qubits[qubit_index + 1];
@@ -817,6 +825,8 @@ for (layer_index = 0; layer_index < 4; layer_index++) {
 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer + 2][qubit_index // 2]][0] qubits[qubit_index];
 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer + 2][qubit_index // 2]][1] qubits[qubit_index + 1];
 		}
+
+        # Checkpoint 5
 
 		for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer + 3][qubit_index // 2]][0] qubits[qubit_index];

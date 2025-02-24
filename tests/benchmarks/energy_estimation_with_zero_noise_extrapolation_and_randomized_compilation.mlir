@@ -1,6 +1,214 @@
-module {
+// # inputs from user
+// num_circuits = 63840;
+// num_zne_stretch_factors = 3;
+// zne_loop_repetitions = [0, 1, 2];
+// num_frame_randomizations = 32;
 
-    func.func @main() {
+// hea_params = [
+// 	[
+// 		[0.1, 0.5, 0.3, 0.4, -0.2, 0.8, 0.5, 0.4, 0.7, 0.7, 0.9, 0.2, 0.1, 0.3],
+// 		[0.1, 0.5, 0.3, 0.4, -0.2, 0.8, 0.5, 0.4, 0.7, 0.7, 0.9, 0.2, 0.1, 0.3],
+// 	],
+// 	...
+// 	[
+// 		[0.1, 0.5, 0.3, 0.4, -0.2, 0.8, 0.5, 0.4, 0.7, 0.7, 0.9, 0.2, 0.1, 0.3],
+// 		[0.1, 0.5, 0.3, 0.4, -0.2, 0.8, 0.5, 0.4, 0.7, 0.7, 0.9, 0.2, 0.1, 0.3],
+// 	],	
+// ]; # size (5, 2, 14)
+
+// # precomputed values before circuit sampling
+// # 0 -> I, 1 -> X, 2 -> Y, 3 -> Z
+// # we exclude the first all I measurement basis
+// pauli_measurement_indices = [
+//     [3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//     [3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//     [0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//...
+//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3],
+// ];
+
+// pauli_left_slices = [
+// 	["I", "I"], ["I", "X"], ["I", "Y"], ["I", "Z"],
+// 	["X", "I"], ["X", "X"], ["X", "Y"], ["X", "Z"],
+// 	["Y", "I"], ["Y", "X"], ["Y", "Y"], ["Y", "Z"],
+// 	["Z", "I"], ["Z", "X"], ["Z", "Y"], ["Z", "Z"],
+// ]
+
+// pauli_right_slices = [
+// 	["I", "I"], ["I", "X"], ["Z", "Y"], ["Z", "Z"],
+// 	["X", "X"], ["X", "I"], ["Y", "Z"], ["Y", "Y"],
+// 	["Y", "X"], ["Y", "I"], ["X", "Z"], ["X", "Y"],
+// 	["Z", "I"], ["Z", "X"], ["I", "Y"], ["I", "Z"],
+// ]
+
+// # values passed in during circuit sampling
+// global circuit_index;
+
+// # random variables sampled every time we sample a circuit
+// measurement_basis_index = circuit_index // (3 * 32);
+// num_loop_repetitions = zne_loop_repetitions[(circuit_index // 32) % 3];
+
+// pauli_frame_randomization_indices = int_uniform(
+// 	low=0,
+// 	high=16,
+// 	size=(8 * (1 + 2 * num_loop_repetitions), 7),
+// );
+
+// # qubits and classical bits
+// qubit qubits[14];
+// bit bits[14];
+
+// # circuit description - HEA-14 for BeH2 molecule ground state energy estimation
+// # ansatze has 4 layers
+// reset qubits;
+
+// pauli_frame_layer = 0;
+
+// for (layer_index = 0; layer_index < 4; layer_index++) {
+// 	for (qubit_index = 0; qubit_index < 14; qubit_index++) {
+// 		gate1q "RY" hea_params[layer_index][0][qubit_index] qubits[qubit_index];
+
+// 		for (rep_index = 0; rep_index < num_loop_repetititions; rep_index++) {
+// 			gate1q "RY" hea_params[layer_index][0][qubit_index] qubits[qubit_index];
+// 			@ inverse gate1q "RY" hea_params[layer_index][0][qubit_index] qubits[qubit_index];			
+// 		}
+
+// 		gate1q "RZ" hea_params[layer_index][1][qubit_index] qubits[qubit_index];
+
+// 		for (rep_index = 0; rep_index < num_loop_repetititions; rep_index++) {
+// 			gate1q "RZ" hea_params[layer_index][1][qubit_index] qubits[qubit_index];
+// 			@inverse gate1q "RZ" hea_params[layer_index][1][qubit_index] qubits[qubit_index];		
+// 		}
+// 	}
+
+// 	# original CNOT layer - can be done in 2 time slices
+// 	for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 		gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+// 		gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 	}
+
+// 	for (control_index = 0; control_index < 14; control_index+= 2) {
+// 		gate2q "CX" qubits[control_index], qubits[control_index + 1];	
+// 	}
+
+// 	for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 		gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+// 		gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 	}
+
+// 	pauli_frame_layer += 1;
+
+// 	for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 		gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+// 		gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 	}
+
+// 	for (control_index = 1; control_index < 13; control_index+= 2) {
+// 		gate2q "CX" qubits[control_index], qubits[control_index + 1];	
+// 	}
+
+// 	for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 		gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+// 		gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 	}
+
+// 	pauli_frame_layer += 1;
+
+// 	# ZNE stretched CNOT layers
+// 	for (rep_index = 0; rep_index < num_loop_repetititions; rep_index++) {
+// 		for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+// 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 		}
+
+// 		for (control_index = 0; control_index < 14; control_index+= 2) {
+// 			gate2q "CX" qubits[control_index], qubits[control_index + 1];	
+// 		}
+
+// 		for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+// 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 		}
+
+// 		for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer + 1][qubit_index // 2]][0] qubits[qubit_index];
+// 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer + 1][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 		}
+
+// 		for (control_index = 1; control_index < 13; control_index+= 2) {
+// 			gate2q "CX" qubits[control_index], qubits[control_index + 1];	
+// 		}
+
+// 		for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer + 1][qubit_index // 2]][0] qubits[qubit_index];
+// 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer + 1][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 		}
+
+// 		for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer + 2][qubit_index // 2]][0] qubits[qubit_index];
+// 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer + 2][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 		}
+
+// 		for (control_index = 0; control_index < 14; control_index+= 2) {
+// 			gate2q "CX" qubits[control_index], qubits[control_index + 1];	
+// 		}
+
+// 		for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer + 2][qubit_index // 2]][0] qubits[qubit_index];
+// 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer + 2][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 		}
+
+// 		for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer + 3][qubit_index // 2]][0] qubits[qubit_index];
+// 			gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer + 3][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 		}
+
+// 		for (control_index = 1; control_index < 13; control_index+= 2) {
+// 			gate2q "CX" qubits[control_index], qubits[control_index + 1];	
+// 		}
+
+// 		for (qubit_index = 0; qubit_index < 14; qubit_index+= 2) {
+// 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer + 3][qubit_index // 2]][0] qubits[qubit_index];
+// 			gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer + 3][qubit_index // 2]][1] qubits[qubit_index + 1];
+// 		}
+
+// 		pauli_frame_layer += 4;
+// 	}
+// }
+
+// for (qubit_index = 0; qubit_index < 14; qubit_index++) {
+// 	gate1q "RY" hea_params[4][0][qubit_index] qubits[qubit_index];
+
+// 	for (rep_index = 0; rep_index < num_loop_repetititions; rep_index++) {
+// 		gate1q "RY" hea_params[4][0][qubit_index] qubits[qubit_index];
+// 		@ inverse gate1q "RY" hea_params[4][0][qubit_index] qubits[qubit_index];			
+// 	}
+
+// 	gate1q "RZ" hea_params[4][1][qubit_index] qubits[qubit_index];
+
+// 	for (rep_index = 0; rep_index < num_loop_repetititions; rep_index++) {
+// 		gate1q "RZ" hea_params[4][1][qubit_index] qubits[qubit_index];
+// 		@inverse gate1q "RZ" hea_params[4][1][qubit_index] qubits[qubit_index];		
+// 	}
+
+//     gate1q ["I", "H", "Sdag"][pauli_measurement_indices[circuit_index // (num_frame_randomizations * num_zne_stretch_factors)][i] % 3] qubits[i];
+//     gate1q ["I", "I", "H"][pauli_measurement_indices[circuit_index // (num_frame_randomizations * num_zne_stretch_factors)][i] % 3] qubits[i];
+//     measure qubits[i], bits[i];
+
+// }
+
+// measure qubits, bits;	
+
+
+
+
+
+
+module {
+    func.func private @iteration_body(%qubits: tensor<14 x !ensemble.physical_qubit>, %cbits: tensor<14 x !ensemble.cbit>, %circuit_index : index) {
+        %num_zne_stretch_factors = arith.constant 3 : index
+        %num_frame_randomizations = arith.constant 32 : index
+
         %hea_params = arith.constant dense<[
             [[0.1, 0.5, 0.3, 0.4, -0.2, 0.8, 0.5, 0.4, 0.7, 0.7, 0.9, 0.2, 0.1, 0.3], [0.1, 0.5, 0.3, 0.4, -0.2, 0.8, 0.5, 0.4, 0.7, 0.7, 0.9, 0.2, 0.1, 0.3]],
             [[0.1, 0.5, 0.3, 0.4, -0.2, 0.8, 0.5, 0.4, 0.7, 0.7, 0.9, 0.2, 0.1, 0.3], [0.1, 0.5, 0.3, 0.4, -0.2, 0.8, 0.5, 0.4, 0.7, 0.7, 0.9, 0.2, 0.1, 0.3]],
@@ -767,12 +975,467 @@ module {
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 3, 3],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3]
-            ]> : tensor<8192x14xi32>
+            ]> : tensor<757x14xindex>
 
+        %I_gate = ensemble.gate "I" 1 : () -> (!ensemble.gate)
+        %X_gate = ensemble.gate "X" 1 : () -> (!ensemble.gate)
+        %Y_gate = ensemble.gate "Y" 1 : () -> (!ensemble.gate)
+        %Z_gate = ensemble.gate "Z" 1 : () -> (!ensemble.gate)
+        %H_gate = ensemble.gate "H" 1 : () -> (!ensemble.gate)
+
+        %pauli_left_slices = ensemble.gate_distribution %I_gate, %I_gate, %I_gate, %X_gate, %I_gate, %Y_gate, %I_gate, %Z_gate, %X_gate, %I_gate, %X_gate, %X_gate, %X_gate, %Y_gate, %X_gate, %Z_gate, %Y_gate, %I_gate, %Y_gate, %X_gate, %Y_gate, %Y_gate, %Y_gate, %Z_gate, %Z_gate, %I_gate, %Z_gate, %X_gate, %Z_gate, %Y_gate, %Z_gate, %Z_gate : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
+
+        // pauli_right_slices = [
+// 	["I", "I"], ["I", "X"], ["Z", "Y"], ["Z", "Z"],
+// 	["X", "X"], ["X", "I"], ["Y", "Z"], ["Y", "Y"],
+// 	["Y", "X"], ["Y", "I"], ["X", "Z"], ["X", "Y"],
+// 	["Z", "I"], ["Z", "X"], ["I", "Y"], ["I", "Z"],
+// ]
+
+        // to index into the following distribution, %pauli_frame_index[index_one][index_two] becomes %pauli_frame_index[index_one * 2 + index_two]
+
+        %pauli_right_slices = ensemble.gate_distribution %I_gate, %I_gate, %I_gate, %X_gate, %Z_gate, %Y_gate, %Z_gate, %Z_gate, %X_gate, %X_gate, %X_gate, %I_gate, %Y_gate, %Z_gate, %Y_gate, %Y_gate, %Y_gate, %X_gate, %Y_gate, %I_gate, %X_gate, %Z_gate, %X_gate, %Y_gate, %Z_gate, %I_gate, %Z_gate, %X_gate, %I_gate, %Y_gate, %I_gate, %Z_gate : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate,  !ensemble.gate, !ensemble.gate) -> !ensemble.gate_distribution
+        // measurement_basis_index = circuit_index // (3 * 32);
+        
+        %ninety_six = arith.constant 96 : index
+        %thirty_two = arith.constant 32 : index
+        %three = arith.constant 3 : index
+        %eight = arith.constant 8 : i32
+        %two = arith.constant 2 : i32
+        %one = arith.constant 1 : i32
+        %zero = arith.constant 0 : i32
+        %CX_gate = ensemble.gate "CX" 2 : () -> (!ensemble.gate)
+        %measurement_basis_index = arith.divsi %circuit_index, %ninety_six : index
+        %circuit_index_div_32 = arith.divsi %circuit_index, %thirty_two : index
+        %circuit_index_div_32_mod_3 = arith.remsi %circuit_index_div_32, %three : index
+        %zne_loop_repetitions = arith.constant dense<[0, 1, 2]> : tensor<3xi32>
+        %num_loop_repetitions = tensor.extract %zne_loop_repetitions[%circuit_index_div_32_mod_3] : tensor<3xi32>
+        %num_loop_repetitions_index = arith.index_cast %num_loop_repetitions : i32 to index
+        %twice_num_loop_repetitions = arith.muli %num_loop_repetitions, %two : i32
+        %one_plus_twice_num_loop_repetitions = arith.addi %twice_num_loop_repetitions, %one : i32
+        %eight_times_one_plus_twice_num_loop_repetitions = arith.muli %eight, %one_plus_twice_num_loop_repetitions : i32
+        %sixteen = arith.constant 16 : i32
+        %seven = arith.constant 7 : i32
+        %pauli_frame_randomization_indices = ensemble.int_uniform %zero, %sixteen, [%eight_times_one_plus_twice_num_loop_repetitions, %seven] : (i32, i32, i32, i32) -> tensor<?x7xi32>
+        ensemble.quantum_program_iteration {
+            ensemble.reset_tensor %qubits : (tensor<14x!ensemble.physical_qubit>) -> ()
+
+            %four_index = arith.constant 4 : index
+            %zero_index = arith.constant 0 : index
+            %one_index = arith.constant 1 : index
+            %fourteen_index = arith.constant 14 : index
+            %thirteen_index = arith.constant 13 : index
+            %two_index = arith.constant 2 : index
+            scf.for %layer_index = %zero_index to %four_index step %one_index {
+                // this is going to be layer_index * (2+ 4 *num_loop_iterations)
+                %four_times_num_loop_iterations = arith.muli %four_index, %num_loop_repetitions_index : index
+                %two_plus_four_times_num_loop_iterations = arith.addi %two_index, %four_times_num_loop_iterations : index
+                %pauli_frame_layer = arith.muli %layer_index, %two_plus_four_times_num_loop_iterations : index
+
+                scf.for %qubit_index = %zero_index to %fourteen_index step %one_index {
+                    
+                    %ry_param = tensor.extract %hea_params[%layer_index, %zero_index, %qubit_index] : tensor<5x2x14xf64>
+                    %qubit_i = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                    %RY_gate = ensemble.gate "RY" 1 (%ry_param)  : (f64) -> (!ensemble.gate)
+                    ensemble.apply %RY_gate %qubit_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+
+
+                    scf.for %rep_index = %zero_index to %num_loop_repetitions_index step %one_index {
+                        
+                        ensemble.apply %RY_gate %qubit_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                        %inverse_RY_gate = ensemble.gate "RY" "inverse" 1 (%ry_param)  : (f64) -> (!ensemble.gate)
+                        ensemble.apply %inverse_RY_gate %qubit_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                        
+                    }
+
+                    %rz_param = tensor.extract %hea_params[%layer_index, %one_index, %qubit_index] : tensor<5x2x14xf64>
+                    %RZ_gate = ensemble.gate "RZ" 1 (%rz_param)  : (f64) -> (!ensemble.gate)
+                    ensemble.apply %RZ_gate %qubit_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+
+                    scf.for %rep_index = %zero_index to %num_loop_repetitions_index step %one_index {
+                        ensemble.apply %RZ_gate %qubit_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                        %inverse_RZ_gate = ensemble.gate "RZ" "inverse" 1 (%rz_param)  : (f64) -> (!ensemble.gate)
+                        ensemble.apply %inverse_RZ_gate %qubit_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                    }
+
+                }
+                // original CNOT layer - can be done in 2 time slices
+                %zero_i32 = arith.constant 0 : index
+
+                
+
+                scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                    //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+                    //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+                    
+
+                    %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                    %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer, %qubit_index_over_2] : tensor<?x7xi32>
+                    %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                    %pauli_left_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                    %pauli_left_slice_index_number_two = arith.addi %pauli_left_slice_index, %one_index : index
+
+                    %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                    %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                    %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                    
+                    ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                }
+
+                scf.for %control_index = %zero_index to %thirteen_index step %two_index {
+                    %qubit_0 = tensor.extract %qubits[%control_index] : tensor<14x!ensemble.physical_qubit>
+                    %qubit_index_plus_one = arith.addi %control_index, %one_index : index
+                    %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                    ensemble.apply %CX_gate %qubit_0, %qubit_1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                }
+
+                scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                    //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+                    //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+                    
+
+                    %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                    %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer, %qubit_index_over_2] : tensor<?x7xi32>
+                    %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                    %pauli_right_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                    %pauli_right_slice_index_number_two = arith.addi %pauli_right_slice_index, %one_index : index
+
+                    %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                    %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                    %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                    
+                    ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                }
+
+                %pauli_frame_layer_plus_one = arith.addi %pauli_frame_layer, %one_index : index
+                // Checkpoint 1
+
+                scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                    //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer+1][qubit_index // 2]][0] qubits[qubit_index];
+                    //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer+1][qubit_index // 2]][1] qubits[qubit_index + 1];
+                    
+
+                    %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                    %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer_plus_one, %qubit_index_over_2] : tensor<?x7xi32>
+                    %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                    %pauli_left_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                    %pauli_left_slice_index_number_two = arith.addi %pauli_left_slice_index, %one_index : index
+
+                    %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                    %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                    %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                    
+                    ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                }
+
+                scf.for %control_index = %one_index to %thirteen_index step %two_index {
+                    %qubit_0 = tensor.extract %qubits[%control_index] : tensor<14x!ensemble.physical_qubit>
+                    %qubit_index_plus_one = arith.addi %control_index, %one_index : index
+                    %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                    ensemble.apply %CX_gate %qubit_0, %qubit_1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                }
+
+                scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                    //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+                    //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+                    
+
+                    %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                    %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer_plus_one, %qubit_index_over_2] : tensor<?x7xi32>
+                    %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                    %pauli_right_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                    %pauli_right_slice_index_number_two = arith.addi %pauli_right_slice_index, %one_index : index
+
+                    %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                    %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                    %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                    
+                    ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                }
+
+                // Checkpoint 2
+                %pauli_frame_layer_plus_two = arith.addi %pauli_frame_layer_plus_one, %one_index : index
+
+                // Its going to be 4 * num_loop_repetitions is the amount that pauli_frame is added in the following
+
+                scf.for %rep_index = %zero_index to %num_loop_repetitions_index step %one_index {
+                    %pauli_frame_inner_bias = arith.muli %pauli_frame_layer_plus_two, %four_index : index
+                    %pauli_frame_layer_bias_plus_zero = arith.addi %pauli_frame_inner_bias, %zero_index : index
+                    %pauli_frame_layer_bias_plus_one = arith.addi %pauli_frame_layer, %one_index : index
+                    %pauli_frame_layer_bias_plus_two = arith.addi %pauli_frame_layer_bias_plus_one, %one_index : index
+                    %pauli_frame_layer_bias_plus_three = arith.addi %pauli_frame_layer_bias_plus_two, %one_index : index
+
+                    scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                        //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer+1][qubit_index // 2]][0] qubits[qubit_index];
+                        //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer+1][qubit_index // 2]][1] qubits[qubit_index + 1];
+                        
+
+                        %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                        %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer_bias_plus_zero, %qubit_index_over_2] : tensor<?x7xi32>
+                        %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                        %pauli_left_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                        %pauli_left_slice_index_number_two = arith.addi %pauli_left_slice_index, %one_index : index
+
+                        %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        
+                        ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                        ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    }
+
+                    scf.for %control_index = %one_index to %thirteen_index step %two_index {
+                        %qubit_0 = tensor.extract %qubits[%control_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %control_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        ensemble.apply %CX_gate %qubit_0, %qubit_1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                    }
+
+                    scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                        //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+                        //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+                        
+
+                        %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                        %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer_bias_plus_zero, %qubit_index_over_2] : tensor<?x7xi32>
+                        %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                        %pauli_right_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                        %pauli_right_slice_index_number_two = arith.addi %pauli_right_slice_index, %one_index : index
+
+                        %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        
+                        ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                        ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    }
+
+                    // Checkpoint 3
+
+                    scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                        //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer+1][qubit_index // 2]][0] qubits[qubit_index];
+                        //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer+1][qubit_index // 2]][1] qubits[qubit_index + 1];
+                        
+
+                        %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                        %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer_bias_plus_one, %qubit_index_over_2] : tensor<?x7xi32>
+                        %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                        %pauli_left_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                        %pauli_left_slice_index_number_two = arith.addi %pauli_left_slice_index, %one_index : index
+
+                        %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        
+                        ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                        ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    }
+
+                    scf.for %control_index = %one_index to %thirteen_index step %two_index {
+                        %qubit_0 = tensor.extract %qubits[%control_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %control_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        ensemble.apply %CX_gate %qubit_0, %qubit_1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                    }
+
+                    scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                        //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+                        //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+                        
+
+                        %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                        %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer_bias_plus_one, %qubit_index_over_2] : tensor<?x7xi32>
+                        %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                        %pauli_right_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                        %pauli_right_slice_index_number_two = arith.addi %pauli_right_slice_index, %one_index : index
+
+                        %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        
+                        ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                        ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    }
+
+                    // Checkpoint 4
+
+                    scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                        //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer+1][qubit_index // 2]][0] qubits[qubit_index];
+                        //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer+1][qubit_index // 2]][1] qubits[qubit_index + 1];
+                        
+
+                        %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                        %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer_bias_plus_two, %qubit_index_over_2] : tensor<?x7xi32>
+                        %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                        %pauli_left_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                        %pauli_left_slice_index_number_two = arith.addi %pauli_left_slice_index, %one_index : index
+
+                        %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        
+                        ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                        ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    }
+
+                    scf.for %control_index = %one_index to %thirteen_index step %two_index {
+                        %qubit_0 = tensor.extract %qubits[%control_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %control_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        ensemble.apply %CX_gate %qubit_0, %qubit_1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                    }
+
+                    scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                        //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+                        //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+                        
+
+                        %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                        %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer_bias_plus_two, %qubit_index_over_2] : tensor<?x7xi32>
+                        %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                        %pauli_right_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                        %pauli_right_slice_index_number_two = arith.addi %pauli_right_slice_index, %one_index : index
+
+                        %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        
+                        ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                        ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    }
+
+                    // Checkpoint 5
+
+                    scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                        //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer+1][qubit_index // 2]][0] qubits[qubit_index];
+                        //gate1q pauli_left_slices[pauli_frame_randomization_indices[pauli_frame_layer+1][qubit_index // 2]][1] qubits[qubit_index + 1];
+                        
+
+                        %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                        %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer_bias_plus_three, %qubit_index_over_2] : tensor<?x7xi32>
+                        %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                        %pauli_left_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                        %pauli_left_slice_index_number_two = arith.addi %pauli_left_slice_index, %one_index : index
+
+                        %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        
+                        ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                        ensemble.apply_distribution %pauli_left_slices[%pauli_left_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    }
+
+                    scf.for %control_index = %one_index to %thirteen_index step %two_index {
+                        %qubit_0 = tensor.extract %qubits[%control_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %control_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        ensemble.apply %CX_gate %qubit_0, %qubit_1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
+                    }
+
+                    scf.for %qubit_index = %zero_index to %fourteen_index step %two_index {
+                        //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][0] qubits[qubit_index];
+                        //gate1q pauli_right_slices[pauli_frame_randomization_indices[pauli_frame_layer][qubit_index // 2]][1] qubits[qubit_index + 1];
+                        
+
+                        %qubit_index_over_2 = arith.divsi %qubit_index, %two_index : index
+                        %pauli_frame_index_i32 = tensor.extract %pauli_frame_randomization_indices[%pauli_frame_layer_bias_plus_three, %qubit_index_over_2] : tensor<?x7xi32>
+                        %pauli_frame_index = arith.index_cast %pauli_frame_index_i32 : i32 to index
+                        %pauli_right_slice_index = arith.muli %pauli_frame_index, %two_index : index
+                        %pauli_right_slice_index_number_two = arith.addi %pauli_right_slice_index, %one_index : index
+
+                        %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+                        %qubit_index_plus_one = arith.addi %qubit_index, %one_index : index
+                        %qubit_1 = tensor.extract %qubits[%qubit_index_plus_one] : tensor<14x!ensemble.physical_qubit>
+                        
+                        ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                        ensemble.apply_distribution %pauli_right_slices[%pauli_right_slice_index_number_two] %qubit_1 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    }
+
+
+
+                }
+
+                scf.for %qubit_index = %zero_index to %fourteen_index step %one_index {
+                    %qubit_0 = tensor.extract %qubits[%qubit_index] : tensor<14x!ensemble.physical_qubit>
+       
+                    %RY_param = tensor.extract %hea_params[%four_index, %zero_index, %qubit_index] : tensor<5x2x14xf64>
+
+
+                    %RY_gate = ensemble.gate "RY" 1 (%RY_param) : (f64) -> (!ensemble.gate)
+                    ensemble.apply %RY_gate %qubit_0 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+
+                    scf.for %rep_index = %zero_index to %num_loop_repetitions_index step %one_index {
+                        ensemble.apply %RY_gate %qubit_0 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                        %RY_inverse = ensemble.gate "RY" "inverse" 1 (%RY_param) : (f64) -> (!ensemble.gate)
+                        ensemble.apply %RY_inverse %qubit_0 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                    }
+
+                    %RZ_param = tensor.extract %hea_params[%four_index, %one_index, %qubit_index] : tensor<5x2x14xf64>
+                    %RZ_gate = ensemble.gate "RZ" 1 (%RZ_param) : (f64) -> (!ensemble.gate)
+                    ensemble.apply %RZ_gate %qubit_0 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+
+                    scf.for %rep_index = %zero_index to %num_loop_repetitions_index step %one_index {
+                        ensemble.apply %RZ_gate %qubit_0 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                        %RZ_inverse = ensemble.gate "RZ" "inverse" 1 (%RZ_param) : (f64) -> (!ensemble.gate)
+                        ensemble.apply %RZ_inverse %qubit_0 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
+                    }
+
+                    %Sdag_gate = ensemble.gate "Sdag" 1 : () -> (!ensemble.gate)
+
+                    %IHS_distribution = ensemble.gate_distribution %I_gate, %H_gate, %Sdag_gate: (!ensemble.gate, !ensemble.gate, !ensemble.gate) -> (!ensemble.gate_distribution)
+                    %IIH_distribution = ensemble.gate_distribution %I_gate, %I_gate, %H_gate: (!ensemble.gate, !ensemble.gate, !ensemble.gate) -> (!ensemble.gate_distribution)
+
+                    %num_frame_randomizations_times_num_zne_stretch_factors = arith.muli %num_frame_randomizations, %num_zne_stretch_factors : index
+                    %circuit_index_over_num_frame_randomizations_times_num_zne_stretch_factors = arith.divsi %circuit_index, %num_frame_randomizations_times_num_zne_stretch_factors : index
+                    %the_measurement_index_one = tensor.extract %pauli_indices[%circuit_index_over_num_frame_randomizations_times_num_zne_stretch_factors, %qubit_index] : tensor<757x14xindex>
+                    %three_index = arith.constant 3 : index
+                    %measurement_index_modulo_three = arith.remsi %the_measurement_index_one, %three_index : index
+                    ensemble.apply_distribution %IHS_distribution [%measurement_index_modulo_three] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+                    ensemble.apply_distribution %IIH_distribution [%measurement_index_modulo_three] %qubit_0 : (!ensemble.gate_distribution, index, !ensemble.physical_qubit) -> ()
+
+                    %cbit_zero = tensor.extract %cbits[%qubit_index] : tensor<14x!ensemble.cbit>
+                    ensemble.measure %qubit_0, %cbit_zero : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
+                    
+                    
+                    
+                }
+
+
+
+                
+
+            }
+            ensemble.transmit_results %cbits : (tensor<14x!ensemble.cbit>) -> ()
+
+
+
+
+        }
+
+        
+
+        
 
         return
 
 
+    }
+    func.func @main() {
+        %qubits = ensemble.program_alloc 14 : (i32) -> tensor<14 x !ensemble.physical_qubit>
+        %cbits = ensemble.alloc_cbits 14 : (i32) -> tensor<14 x !ensemble.cbit>
+
+        %zero = arith.constant 0 : index
+        %six_thousand_three_hundred_eighty_four = arith.constant 6384 : index
+        %one = arith.constant 1 : index
+        scf.for %circuit_index = %zero to %six_thousand_three_hundred_eighty_four step %one {
+
+            func.call @iteration_body(%qubits, %cbits, %circuit_index) : (tensor<14 x !ensemble.physical_qubit>, tensor<14 x !ensemble.cbit>, index) -> ()
+        }
+        return
     }
 
 }

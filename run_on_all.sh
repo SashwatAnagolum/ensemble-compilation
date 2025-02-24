@@ -1,3 +1,6 @@
+# clear the transformation log
+> transformation_log.txt
+
 for file in tests/benchmarks/*; do
        echo "Testing '$file'"
        # Run the command for each file

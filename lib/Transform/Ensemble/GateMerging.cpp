@@ -127,11 +127,13 @@ struct MergeEnsembleApply : public OpRewritePattern<ApplyGate> {
     auto mergingParams = mergingWithGateOp.getOperands();
     assert(mergingParams.size() == 3 && "MergingWith operation parameters size is not 3");
 
+    bool sameBlock = gateOp->getBlock() == mergingWithGateOp->getBlock();
+    bool beforeInBlock = sameBlock && gateOp->isBeforeInBlock(mergingWithGateOp);
 
-  
 
+    rewriter.setInsertionPointAfter(mergingWith->getPrevNode());
 
-    auto mergedParameters = mergedU3GateParameters(params[0], params[1], params[2], mergingParams[0], mergingParams[1], mergingParams[2], rewriter, op->getLoc());
+    auto mergedParameters = mergedU3GateParameters(params[0], params[1], params[2], mergingParams[0], mergingParams[1], mergingParams[2], rewriter, mergingWithGateOp->getLoc());
 
     Operation* fusedGateConstructor = rewriter.clone(*mergingWithGateOp);
 
@@ -251,26 +253,30 @@ struct MergeEnsembleApplyDistribution : public OpRewritePattern<ApplyGateDistrib
     assert(mergingWithIsU3);
 
     // Set insertion point after the last gate in the distribution
-    rewriter.setInsertionPointAfter(mergingWith);
+    rewriter.setInsertionPointAfter(mergingWith->getPrevNode());
 
     // Create a new gate distribution constructor
-    Operation* fusedDistributionGateConstructor = rewriter.clone(*gateDistributionConstructorOp);
 
     // For each of the gates, fuse the parameters with the mergingWithGateOp
+    std::vector<OpResult> fusedGates;
     int i = 0;
     for (auto gate : gates) {
-      rewriter.setInsertionPointAfter(mergingWith);
-      Operation* fusedGateConstructor = rewriter.clone(*gate.getDefiningOp<GateConstructorOp>());
-      auto params = fusedGateConstructor->getOperands();
+      rewriter.setInsertionPointAfter(mergingWith->getPrevNode());
+      auto params = (*gate.getDefiningOp<GateConstructorOp>()).getOperands();
       assert(params.size() == 3 && "Gate operation parameters size is not 3");
       auto mergingParams = mergingWiths_GateConstructorOp.getOperands();
       assert(mergingParams.size() == 3 && "MergingWith operation parameters size is not 3");
-      rewriter.setInsertionPointAfter(fusedGateConstructor->getPrevNode());
-      auto mergedParameters = mergedU3GateParameters(params[0], params[1], params[2], mergingParams[0], mergingParams[1], mergingParams[2], rewriter, fusedGateConstructor->getPrevNode()->getLoc());
+      auto mergedParameters = mergedU3GateParameters(params[0], params[1], params[2], mergingParams[0], mergingParams[1], mergingParams[2], rewriter, (*gate.getDefiningOp<GateConstructorOp>()).getLoc());
+      Operation* fusedGateConstructor = rewriter.clone(*gate.getDefiningOp<GateConstructorOp>());
       fusedGateConstructor->setOperands(mergedParameters);
-      fusedDistributionGateConstructor->setOperand(i, fusedGateConstructor->getResult(0));
+      fusedGates.push_back(fusedGateConstructor->getResult(0));
       fusedGateConstructor->setAttr("generated-by-merging-here", rewriter.getUnitAttr());
       i++;
+    }
+
+    Operation* fusedDistributionGateConstructor = rewriter.clone(*gateDistributionConstructorOp);
+    for (int i = 0; i < fusedGates.size(); i++) {
+      fusedDistributionGateConstructor->setOperand(i, fusedGates[i]);
     }
 
     rewriter.setInsertionPointAfter(fusedDistributionGateConstructor);
@@ -292,7 +298,7 @@ struct GateMerging
   void runOnOperation() {
     mlir::RewritePatternSet patterns(&getContext());
     patterns.add<MergeEnsembleApply>(&getContext());
-    // patterns.add<MergeEnsembleApplyDistribution>(&getContext());
+    patterns.add<MergeEnsembleApplyDistribution>(&getContext());
  
 
     (void)applyPatternsAndFoldGreedily(getOperation(), std::move(patterns));
