@@ -8,6 +8,8 @@ qiskit = "*"
 matplotlib = "*"
 ipykernel = "*"
 networkx = "*"
+tqdm = "*"
+qiskit-qasm3-import = "*"
 
 [dev-packages]
 

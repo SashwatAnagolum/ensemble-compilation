@@ -3,6 +3,7 @@ import networkx as nx
 import numpy as np
 import qiskit.circuit
 import pickle as pkl
+import tqdm
 
 from read_identify_and_peel import union_find
 
@@ -43,10 +44,13 @@ class ReadIdentifyPeel:
         self,
         circuit: qiskit.QuantumCircuit,
     ) -> qiskit.QuantumCircuit:
-        new_circuit = qiskit.QuantumCircuit(
-            circuit.num_qubits,
-            circuit.num_clbits,
-        )
+        new_circuit = qiskit.QuantumCircuit()
+
+        for creg in circuit.cregs:
+            new_circuit.add_register(creg)
+
+        for qreg in circuit.qregs:
+            new_circuit.add_register(qreg)
 
         for op, qargs, cargs in circuit.data:
             if (len(qargs) == 1) and len(cargs) == 0:
@@ -95,7 +99,7 @@ class ReadIdentifyPeel:
         for op, qargs, _ in circuit.data:
             circuit_graph.add_node(
                 node_index,
-                gate_name=op.name,
+                op_name=op.name,
                 targets=[qarg._index for qarg in qargs],
             )
 
@@ -129,6 +133,30 @@ class ReadIdentifyPeel:
 
         return circuit_graphs, circuit_param_lists
 
+    def convert_graph_to_string(self, circuit_graph: nx.DiGraph) -> str:
+        nodes_info = []
+        edges_info = []
+
+        for node_id in sorted(circuit_graph.nodes()):
+            node_attrs = circuit_graph.nodes[node_id]
+            if "op_name" in node_attrs:
+                targets = ",".join(str(t) for t in node_attrs.get("targets", []))
+                nodes_info.append(f"{node_attrs['op_name']}[{targets}]")
+            else:
+                nodes_info.append(f"Q[{node_id}]")
+
+        for source, target in sorted(circuit_graph.edges()):
+            edges_info.append(f"{source}->{target}")
+
+        return (
+            "NODES:"
+            + ";".join(nodes_info)
+            + ";"
+            + "EDGES:"
+            + ";".join(edges_info)
+            + ";"
+        )
+
     def identify_unique_circuits(
         self,
         circuit_graphs: list[nx.DiGraph],
@@ -138,13 +166,21 @@ class ReadIdentifyPeel:
         circuit_groups = []
         parameter_groups = []
 
-        for circuit_graph_index, circuit_graph in enumerate(circuit_graphs):
+        circuit_graph_strings = [
+            self.convert_graph_to_string(circuit_graph)
+            for circuit_graph in circuit_graphs
+        ]
+
+        for circuit_graph_index, circuit_graph in tqdm.tqdm(
+            enumerate(circuit_graphs),
+            total=len(circuit_graphs),
+        ):
             for other_graph_index, other_graph in enumerate(
                 circuit_graphs[:circuit_graph_index]
             ):
-                if nx.utils.misc.graphs_equal(
-                    circuit_graph,
-                    other_graph,
+                if (
+                    circuit_graph_strings[circuit_graph_index]
+                    == circuit_graph_strings[other_graph_index]
                 ):
                     uf.connect(circuit_graph_index, other_graph_index)
 
@@ -160,34 +196,33 @@ class ReadIdentifyPeel:
             for circuit_index in circuit_groups[-1]:
                 cluster_parameters.append(circuit_parameters[circuit_index])
 
-            parameter_groups.append(cluster_parameters)
+            parameter_groups.append(np.array(cluster_parameters))
 
         return circuit_groups, parameter_groups
 
-    def peel_parameters_from_circuits(
+    def construct_circuit_templates(
         self,
         circuit_groups: list[list[int]],
         circuits: list[qiskit.QuantumCircuit],
-        parameter_groups: list[list[float]],
-    ) -> tuple[list[qiskit.QuantumCircuit], list[list[dict]]]:
+    ) -> list[qiskit.QuantumCircuit]:
         circuit_templates = []
-        parameter_group_dicts = []
 
         for group_index, circuit_group in enumerate(circuit_groups):
             unique_circuit = circuits[circuit_group[0]]
-            group_param_dicts = []
-
             param_index = 0
-            new_circuit = qiskit.QuantumCircuit(
-                unique_circuit.num_qubits,
-                unique_circuit.num_clbits,
-            )
+            new_circuit = qiskit.QuantumCircuit()
+
+            for creg in unique_circuit.cregs:
+                new_circuit.add_register(creg)
+
+            for qreg in unique_circuit.qregs:
+                new_circuit.add_register(qreg)
 
             for op, qargs, cargs in unique_circuit.data:
                 # this is the only case where we replace params with symbolic vars
                 # i.e. when we know that it is a phase gate / Z rotation
                 if len(qargs) == 1 and len(op.params) == 1:
-                    gate_param = qiskit.circuit.Parameter(f"param_{param_index}")
+                    gate_param = qiskit.circuit.Parameter(f"p_{param_index}")
                     new_circuit.append(
                         qiskit.circuit.library.PhaseGate(gate_param),
                         qargs,
@@ -203,23 +238,17 @@ class ReadIdentifyPeel:
                     )
 
             circuit_templates.append(new_circuit)
-            parameter_group_dicts.append(
-                [
-                    {
-                        f"param_{param_index}": params[param_index]
-                        for param_index in range(len(params))
-                    }
-                    for params in parameter_groups[group_index]
-                ]
-            )
 
-        return circuit_templates, parameter_group_dicts
+        return circuit_templates
 
     def get_templates_and_peeled_parameters(
         self,
         circuits: list[qiskit.QuantumCircuit],
+        circuits_are_nativized: bool = False,
     ) -> tuple[list[qiskit.QuantumCircuit], list[list[dict]], list[list[int]]]:
-        circuits = [self.convert_1q_gates_to_zxzxz(circuit) for circuit in circuits]
+        if not circuits_are_nativized:
+            circuits = [self.convert_1q_gates_to_zxzxz(circuit) for circuit in circuits]
+
         circuit_graphs, circuit_params = self.construct_circuit_graphs(circuits)
 
         (
@@ -230,16 +259,12 @@ class ReadIdentifyPeel:
             circuit_params,
         )
 
-        (
-            circuit_templates,
-            peeled_params,
-        ) = self.peel_parameters_from_circuits(
+        circuit_templates = self.construct_circuit_templates(
             circuit_groups,
             circuits,
-            parameter_groups,
         )
 
-        return circuit_templates, peeled_params, circuit_groups
+        return circuit_templates, parameter_groups, circuit_groups
 
     def get_ripped_and_binarized_circuits(
         self, circuits: list[qiskit.QuantumCircuit]
