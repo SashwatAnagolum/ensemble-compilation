@@ -16,12 +16,18 @@ module {
         %h_gate = ensemble.gate "H" 1 : () -> (!ensemble.gate)
         %cx_gate = ensemble.gate "CX" 2 : () -> (!ensemble.gate)
 
+        %s_gate = ensemble.gate "S" 1 : () -> (!ensemble.gate)
+        %z_gate = ensemble.gate "Z" 1 : () -> (!ensemble.gate)
+        %sdg_gate = ensemble.gate "Sdg" 1 : () -> (!ensemble.gate)
+        %i_gate = ensemble.gate "I" 1 : () -> (!ensemble.gate)
+
+        %s_gate_distribution = ensemble.gate_distribution %s_gate, %z_gate, %sdg_gate, %i_gate : (!ensemble.gate, !ensemble.gate, !ensemble.gate, !ensemble.gate) -> (!ensemble.gate_distribution)
+
         // reset qubits;
         // %0 = ensemble.Nq_reset %qubits : (tensor<16 x !ensemble.qubit>) -> (tensor<16 x !ensemble.qubit>)
         %sixteen_index = arith.constant 16 : index
         %fifteen_index = arith.constant 15 : index
         %one = arith.constant 1 : index
-        %s_gate = ensemble.gate "S" 1 : () -> (!ensemble.gate)
         %p_gate = ensemble.gate "P" 1 : () -> (!ensemble.gate)
 
         ensemble.quantum_program_iteration {
@@ -43,15 +49,9 @@ module {
                 // gate2q "CX" qubits[i], qubits[i + 1];
                 ensemble.apply %cx_gate %qubit_at_i, %qubit_at_i_plus_1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
 
-                %phase_gate_powers_0_i = tensor.extract %phase_gate_powers[%zero_index, %i] : tensor<4x16xi32>
-                %phase_gate_powers_0_i_index = arith.index_cast %phase_gate_powers_0_i : i32 to index
-                
-                // for (j = 0; j < phase_gate_powers[0][i]; j++)
-                // need to use an scf for because phase_gate_powers is not known at compile time
-                scf.for %j = %zero_index to %phase_gate_powers_0_i_index step %one { 
-                    // gate1q "S" qubits[i + 1];
-                    ensemble.apply %s_gate %qubit_at_i_plus_1 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-                }
+                // S gate powers
+                %gate_index_i = tensor.extract %phase_gate_powers[%zero_index, %i] : tensor<4x16xi32>      
+                ensemble.apply_distribution %s_gate_distribution [%gate_index_i] %qubit_at_i_plus_1 : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
                 
                 // gate2q "CX" qubits[i], qubits[i + 1];
                 ensemble.apply %cx_gate %qubit_at_i, %qubit_at_i_plus_1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
@@ -66,16 +66,9 @@ module {
                 ensemble.apply %s_gate %qubit_at_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
                 ensemble.apply %p_gate %qubit_at_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
 
-                // phase_gate_powers[1][i]
-                %phase_gate_powers_1_i = tensor.extract %phase_gate_powers[%one, %i] : tensor<4x16xi32>
-                %phase_gate_powers_1_i_index = arith.index_cast %phase_gate_powers_1_i : i32 to index
-                
-                // for (j = 0; j < phase_gate_powers[1][i]; j++)
-                // need to use an scf for because phase_gate_powers is not known at compile time
-                scf.for %j = %zero_index to %phase_gate_powers_1_i_index step %one { 
-                    // gate1q "S" qubits[i];
-                    ensemble.apply %s_gate %qubit_at_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-                }
+                // S gate powers
+                %gate_index_1_i = tensor.extract %phase_gate_powers[%one, %i] : tensor<4x16xi32>
+                ensemble.apply_distribution %s_gate_distribution [%gate_index_1_i] %qubit_at_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
 
                 //gate1q "P" qubits[i];
                 //gate1q "S" qubits[i];
@@ -95,14 +88,7 @@ module {
 
                 %two = arith.constant 2 : index
                 %phase_gate_powers_2_i = tensor.extract %phase_gate_powers[%two, %i] : tensor<4x16xi32>
-                %phase_gate_powers_2_i_index = arith.index_cast %phase_gate_powers_2_i : i32 to index
-                
-                // for (j = 0; j < phase_gate_powers[0][i]; j++)
-                // need to use an scf for because phase_gate_powers is not known at compile time
-                scf.for %j = %zero_index to %phase_gate_powers_2_i_index step %one { 
-                    // gate1q "S" qubits[i + 1];
-                    ensemble.apply %s_gate %qubit_at_i_plus_1 : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-                }
+                ensemble.apply_distribution %s_gate_distribution [%phase_gate_powers_2_i] %qubit_at_i_plus_1 : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
                 
                 // gate2q "CX" qubits[i], qubits[i + 1];
                 ensemble.apply %cx_gate %qubit_at_i, %qubit_at_i_plus_1 : (!ensemble.gate, !ensemble.physical_qubit, !ensemble.physical_qubit) -> ()
@@ -120,14 +106,7 @@ module {
                 // phase_gate_powers[1][i]
                 %three = arith.constant 3: index
                 %phase_gate_powers_3_i = tensor.extract %phase_gate_powers[%three, %i] : tensor<4x16xi32>
-                %phase_gate_powers_3_i_index = arith.index_cast %phase_gate_powers_3_i : i32 to index
-                
-                // for (j = 0; j < phase_gate_powers[1][i]; j++)
-                // need to use an scf for because phase_gate_powers is not known at compile time
-                scf.for %j = %zero_index to %phase_gate_powers_3_i_index step %one { 
-                    // gate1q "S" qubits[i];
-                    ensemble.apply %s_gate %qubit_at_i : (!ensemble.gate, !ensemble.physical_qubit) -> ()
-                }
+                ensemble.apply_distribution %s_gate_distribution [%phase_gate_powers_3_i] %qubit_at_i : (!ensemble.gate_distribution, i32, !ensemble.physical_qubit) -> ()
 
                 //gate1q "P" qubits[i];
                 //gate1q "S" qubits[i];
@@ -139,6 +118,7 @@ module {
                 //measure qubits[i], bits[i];
                 ensemble.measure %qubit_at_i, %cbit_at_i : (!ensemble.physical_qubit, !ensemble.cbit) -> ()
             }
+
             ensemble.transmit_results %cbits : (tensor<16x!ensemble.cbit>) -> ()
         }
 

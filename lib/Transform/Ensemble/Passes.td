@@ -16,6 +16,17 @@ def ZeroNoiseExtrapolation : Pass<"zero-noise-extrapolation"> {
   ];
 }
 
+def CliffordDataRegression : Pass<"clifford-data-regression"> {
+  let summary = "Transform a circuit to apply clifford data regression";
+  let description = [{
+    Transform a circuit to apply clifford data regression
+  }];
+  let dependentDialects = [
+    "mlir::arith::ArithDialect",
+    "mlir::qe::ensemble::EnsembleDialect"
+  ];
+}
+
 def PDagParse : Pass<"pdag-parse"> {
   let summary = "Parse the PDAG";
   let description = [{

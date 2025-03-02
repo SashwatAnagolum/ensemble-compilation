@@ -49,6 +49,25 @@ cc_library(
 )
 
 cc_library(
+    name = "CliffordDataRegression",
+    srcs = ["CliffordDataRegression.cpp"],
+    hdrs = [
+        "CliffordDataRegression.h",
+        "Passes.h",
+    ],
+    deps = [
+        ":pass_inc_gen",
+        "//lib/Dialect/Ensemble",
+        "//lib/Analysis/CountGatelikeOps",
+        "@llvm-project//mlir:ArithDialect",
+        "@llvm-project//mlir:FuncDialect",
+        "@llvm-project//mlir:MemRefDialect",
+        "@llvm-project//mlir:Pass",
+        "@llvm-project//mlir:Transforms",
+    ],
+)
+
+cc_library(
     name = "PDagParse",
     srcs = ["PDagParse.cpp"],
     hdrs = [
@@ -65,7 +84,6 @@ cc_library(
         "@llvm-project//mlir:Pass",
         "@llvm-project//mlir:Transforms",
         ":PDag",
-
     ],
 )
 
@@ -150,6 +168,7 @@ cc_library(
     hdrs = ["Passes.h"],
     deps = [
         ":ZeroNoiseExtrapolation",
+        ":CliffordDataRegression",
         ":PDagParse",
         ":Inlinex",
         ":Nativization",
