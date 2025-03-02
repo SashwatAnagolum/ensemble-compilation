@@ -10,6 +10,8 @@ ipykernel = "*"
 networkx = "*"
 tqdm = "*"
 qiskit-qasm3-import = "*"
+qiskit-ibm-runtime = "*"
+qiskit-addon-cutting = "*"
 
 [dev-packages]
 
