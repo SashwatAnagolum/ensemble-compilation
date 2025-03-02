@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pickle as pkl
 import json
 import tqdm
+import os
 
 from qiskit_ibm_runtime import QiskitRuntimeService
 
@@ -38,24 +39,24 @@ backend = QiskitRuntimeService(
 ).backend(backend_name)
 
 for benchmark in [
-    # CDRBenchmark(),
-    # ZNEBenchmark(),
-    # RandomizedCompilationBenchmark(),
-    # PECBenchmark(),
-    # CBBenchmark(),
-    # RCSBenchmark(backend),
-    # ShadowQPTBenchmark(),
-    # EntanglementEntropyBenchmark(),
-    # FidelityEstimationBenchmark(),
-    # CharacterizingTopologicalOrderBenchmark(),
-    # VNCDRBenchmark(),
-    # EnergyEstimationBenchmark(),
-    # GateCuttingBenchmark(),
-    # WireCuttingBenchmark(),
-    # CLOPSHBenchmark(backend),
-    EnergyEstimationWithZNEAndRCBenchmark(),
+    CDRBenchmark(),
+    ZNEBenchmark(),
+    RandomizedCompilationBenchmark(),
+    PECBenchmark(),
+    CBBenchmark(),
+    RCSBenchmark(backend),
+    ShadowQPTBenchmark(),
+    EntanglementEntropyBenchmark(),
+    FidelityEstimationBenchmark(),
+    CharacterizingTopologicalOrderBenchmark(),
+    VNCDRBenchmark(),
+    EnergyEstimationBenchmark(),
+    GateCuttingBenchmark(),
+    WireCuttingBenchmark(),
+    CLOPSHBenchmark(backend),
+    RobustShadowEstimationBenchmark(),
     # ACESBenchmark(backend),
-    # RobustShadowEstimationBenchmark(),
+    # EnergyEstimationWithZNEAndRCBenchmark(),
 ]:
     print(f"Benchmark: {benchmark.name}\n")
 
@@ -116,3 +117,43 @@ for benchmark in [
     )
 
     print("\n\n")
+
+    save_folder = os.path.join(
+        "./eval_results/circuits",
+        benchmark.name.replace(" ", "_"),
+    )
+
+    if not os.path.exists(save_folder):
+        os.makedirs(save_folder)
+
+    pkl.dump(
+        nativized_circuits,
+        open(
+            os.path.join(save_folder, "qiskit_nativized_circuits.pkl"),
+            "wb",
+        ),
+    )
+
+    pkl.dump(
+        circuit_templates,
+        open(
+            os.path.join(save_folder, "rip_circuit_templates.pkl"),
+            "wb",
+        ),
+    )
+
+    pkl.dump(
+        [p.astype(np.float32) for p in peeled_params],
+        open(
+            os.path.join(save_folder, "rip_parameters.pkl"),
+            "wb",
+        ),
+    )
+
+    pkl.dump(
+        circuit_groups,
+        open(
+            os.path.join(save_folder, "rip_circuit_groups.pkl"),
+            "wb",
+        ),
+    )
