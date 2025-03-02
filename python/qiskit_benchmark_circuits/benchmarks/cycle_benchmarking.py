@@ -8,8 +8,10 @@ from qiskit_benchmark_circuits.benchmarks import qiskit_benchmark
 
 class CBBenchmark(qiskit_benchmark.QiskitBenchmark):
     def __init__(self) -> None:
+        num_circuits = 1920
+        super().__init__(num_circuits, "Cycle Benchmarking")
+
         self.pauli_cycle = [0, 1, 0, 1, 0, 1]
-        self.num_circuits = 1920
         self.num_qubits = 6
         self.num_pauli_randomizations = 64
         self.num_circuits_per_initial_state = 30

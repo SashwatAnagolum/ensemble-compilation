@@ -10,7 +10,7 @@ from qiskit_benchmark_circuits.benchmarks import qiskit_benchmark
 
 class CDRBenchmark(qiskit_benchmark.QiskitBenchmark):
     def __init__(self) -> None:
-        self.num_circuits = 100
+        num_circuits = 100
         self.num_qubits = 16
         self.phase_gate_options = [
             qiskit.circuit.library.SGate(),
@@ -18,6 +18,8 @@ class CDRBenchmark(qiskit_benchmark.QiskitBenchmark):
             qiskit.circuit.library.SdgGate(),
             qiskit.circuit.library.IGate(),
         ]
+
+        super().__init__(num_circuits, "CDR")
 
     def _get_circuit(self, index: int) -> qiskit.QuantumCircuit:
         circuit = qiskit.QuantumCircuit(self.num_qubits)

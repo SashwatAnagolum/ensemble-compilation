@@ -8,8 +8,10 @@ from qiskit_benchmark_circuits.benchmarks import qiskit_benchmark
 
 class RandomizedCompilationBenchmark(qiskit_benchmark.QiskitBenchmark):
     def __init__(self) -> None:
-        self.num_circuits = 1024
+        num_circuits = 1024
         self.num_qubits = 4
+
+        super().__init__(num_circuits, "Randomized Compilation")
 
     def add_hard_cycle(
         self,

@@ -8,7 +8,9 @@ from qiskit_benchmark_circuits.benchmarks import qiskit_benchmark
 
 class PECBenchmark(qiskit_benchmark.QiskitBenchmark):
     def __init__(self) -> None:
-        self.num_circuits = 250
+        num_circuits = 250
+        super().__init__(num_circuits, "PEC")
+
         self.num_qubits = 8
         self.num_layers = 8
 

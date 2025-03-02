@@ -53,7 +53,7 @@ class ReadIdentifyPeel:
             new_circuit.add_register(qreg)
 
         for op, qargs, cargs in circuit.data:
-            if (len(qargs) == 1) and len(cargs) == 0:
+            if (len(qargs) == 1) and len(cargs) == 0 and (op.name != "reset"):
                 (
                     theta_angle,
                     phi_angle,
@@ -91,7 +91,12 @@ class ReadIdentifyPeel:
         last_nodes_for_qubit = dict()
         circuit_parameters = []
 
-        for qubit in range(circuit.num_qubits):
+        qubit_indices = set()
+
+        for _, qargs, _ in circuit.data:
+            qubit_indices.update([qarg._index for qarg in qargs])
+
+        for qubit in qubit_indices:
             circuit_graph.add_node(qubit)
             last_nodes_for_qubit[qubit] = node_index
             node_index += 1
@@ -174,6 +179,7 @@ class ReadIdentifyPeel:
         for circuit_graph_index, circuit_graph in tqdm.tqdm(
             enumerate(circuit_graphs),
             total=len(circuit_graphs),
+            desc="Identifying unique circuits",
         ):
             for other_graph_index, other_graph in enumerate(
                 circuit_graphs[:circuit_graph_index]

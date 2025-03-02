@@ -10,7 +10,7 @@ class ZNEBenchmark(qiskit_benchmark.QiskitBenchmark):
         num_circuits = 9
         self.num_qubits = 21
 
-        super().__init__(num_circuits)
+        super().__init__(num_circuits, "ZNE")
 
     def _get_circuit(self, index: int) -> qiskit.QuantumCircuit:
         circuit = qiskit.QuantumCircuit(self.num_qubits)
