@@ -3,63 +3,41 @@
 # precomputed values before circuit sampling
 
 # random variables sampled every time we sample a circuit
-phase_gate_powers = int_uniform(low=0, high=4, size=(4, 16))
+phase_gate_powers = int_uniform(low=0, high=4, size=(2, 32))
 
 # values passed in during circuit sampling
 global circuit_index;
 
 # qubits and classical bits
-qubit qubits[16];
-bit bits[16];
+qubit qubits[32];
+bit bits[32];
 
-# circuit description - 1D Ising QAOA on 16 qubits
+# circuit description - 1D Ising QAOA on 32 qubits
 # problem hamiltonian - adjacent ZZ terms
 # mixer hamiltonian - single-qubit Pauli X rotations
 reset qubits;
 
-for (i = 0; i < 16; i++) {
+for (i = 0; i < 32; i++) {
 	gate1q "H" qubits[i];
 }
 
-for (i = 0; i < 15; i++) {
+for (i = 0; i < 31; i+= 2) {
 	gate2q "CX" qubits[i], qubits[i + 1];
-	
-	for (j = 0; j < phase_gate_powers[0][i]; j++) {
-		gate1q "S" qubits[i + 1];
-	}
-
+	gate1q ["S", "Z", "Sdag", "I"][phase_gate_powers[0][i + 1]] qubits[i + 1];
 	gate2q "CX" qubits[i], qubits[i + 1];
 }
 
-for (i = 0; i < 16; i++) {
-	gate1q "S" qubits[i];
-	gate1q "SX" qubits[i];
-
-	for (j = 0; j < phase_gate_powers[1][i]; j++) {
-		gate1q "S" qubits[i];
-	}
-
-	gate1q "SX" qubits[i];
-	gate1q "S" qubits[i];
-}
-
-for (i = 0; i < 15; i++) {
+for (i = 1; i < 31; i+= 2) {
 	gate2q "CX" qubits[i], qubits[i + 1];
-	
-	for (j = 0; j < phase_gate_powers[2][i]; j++) {
-		gate1q "S" qubits[i + 1];
-	}
-
+	gate1q ["S", "Z", "Sdag", "I"][phase_gate_powers[0][i + 1]] qubits[i + 1];
 	gate2q "CX" qubits[i], qubits[i + 1];
 }
 
-for (i = 0; i < 16; i++) {
+for (i = 0; i < 32; i++) {
 	gate1q "S" qubits[i];
 	gate1q "SX" qubits[i];
 
-	for (j = 0; j < phase_gate_powers[3][i]; j++) {
-		gate1q "S" qubits[i];
-	}
+	gate1q ["S", "Z", "Sdag", "I"][phase_gate_powers[1][i]] qubits[i];
 
 	gate1q "SX" qubits[i];
 	gate1q "S" qubits[i];
