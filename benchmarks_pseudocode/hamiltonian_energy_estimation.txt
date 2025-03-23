@@ -13,16 +13,13 @@ hea_params = [
 ]; # size (5, 2, 14)
 
 # precomputed values before circuit sampling
-pauli_indices = [
-	[0, 1, 2, 0, 0, 1, 1, 2, 0, 0, 0, 1, 2, 1],
-	...
-	[0, 2, 2, 1, 0, 0, 1, 2, 2, 0, 1, 0, 0, 2],
-]; # size (8192, 14)
+
 
 # values passed in during circuit sampling
 global circuit_index;
 
 # random variables sampled every time we sample a circuit
+pauli_indices = int_random(low=0, high=15, size=(14,))
 
 # qubits and classical bits
 qubit qubits[14];
@@ -49,8 +46,8 @@ for (qubit_index = 0; qubit_index < 14; qubit_index++) {
 }
 
 for (qubit_index = 0; qubit_index < 14; i++) {
-	gate1q ["I", "H", "Sdag"][pauli_indices[circuit_index][qubit_index]] qubits[qubit_index];
-	gate1q ["I", "I", "H"][pauli_indices[circuit_index][qubit_index]] qubits[qubit_index];
+	gate1q ["I", "H", "Sdag"][pauli_indices[qubit_index]] qubits[qubit_index];
+	gate1q ["I", "I", "H"][pauli_indices[qubit_index]] qubits[qubit_index];
 
 	measure qubits[qubit_index], bits[qubit_index];	
 }

@@ -1,44 +1,53 @@
 # deterministic inputs
 beta_values = [0.21, 0.24, 0.13, 0.1, 0.8, 0.1, 0.23, 0.5];
 gamma_values = [0.1, 0.2, 0.1, 0.13, 0.5, 0.6, 0.3, 0.5];
+num_qubits = 16;
+num_layers = 8;
 
 # precomputed values before circuit sampling
 
 # random variables sampled every time we sample a circuit
-p_noisy_gate_choices = categorical([0.97, 0.01, 0.01, 0.01], size=(8, 8, 2));
-cx_noisy_gate_choices = categorical([0.92, 0.04, 0.04], size=(8, 14));
+p_noisy_gate_choices = categorical([0.97, 0.01, 0.02], size=(num_layers, num_qubits, 2));
+s_noisy_gate_choices = categorical([0.97, 0.01, 0.02], size=(num_layers, num_qubits, 2));
+cx_noisy_gate_choices = categorical([0.96, 0.04], size=(num_layers, (num_qubits - 1), 2));
 
 # values passed in during circuit sampling
 global circuit_index;
 
 # qubits and classical bits
-qubit qubits[8]; 
-bit bits[8];
+qubit qubits[num_qubits]; 
+bit bits[num_qubits];
 
-# circuit description - 1D Ising QAOA on 8 qubits
+# circuit description - 1D Ising QAOA on 16 qubits
 # problem hamiltonian - adjacent ZZ terms
 # mixer hamiltonian - single-qubit Pauli X rotations
-# 8 trotter steps
+# 8 trotter steps / layers in ansatze
 reset qubits;
 
-for (i = 0; i < 8; i++) {
-	for (j = 0; j < 8; j++) {
-		gate1q "S" qubits[j];
-		gate1q ["P", "X", "Z", "X X"][p_noisy_gate_choices[i][j][0]] qubits[j];
+for (i = 0; i < num_layers; i++) {
+	for (j = 0; j < num_qubits; j++) {
+		gate1q ["S", "X", "Z"][p_noisy_gate_choices[i][j][0]] qubits[j];
+		gate1q ["P", "X", "Z"][p_noisy_gate_choices[i][j][0]] qubits[j];
 
 		gate1q "RZ" (beta_values[i]) qubits[j];
 
-		gate1q ["P", "X", "Z", "X X"][p_noisy_gate_choices[i][j][1]] qubits[j];
-		gate1q "S" qubits[j];
+		gate1q ["P", "X", "Z"][p_noisy_gate_choices[i][j][1]] qubits[j];
+		gate1q ["S", "X", "Z"][s_noisy_gate_choices[i][j][1]] qubits[j];
 	}
 
-	for (j = 0; j < 7; j++) {
-		gate2q "CX" qubits[j], qubits[j + 1];
+	for (j = 0; j < num_qubits - 1; j += 2) {
+		gate2q ["CX", "CZ"][cx_noise_gate_choices[i][j][0]] qubits[j], qubits[j + 1];
 		gate1q "RZ" (gamma_values[i]) qubits[j + 1];
-		gate2q "CX" qubits[j], qubits[j + 1];
+		gate2q ["CX", "CZ"][cx_noise_gate_choices[i][j][1]] qubits[j], qubits[j + 1];
+	}
+
+	for (j = 1; j < num_qubits - 1; j += 2) {
+		gate2q ["CX", "CZ"][cx_noise_gate_choices[i][j][0]] qubits[j], qubits[j + 1];
+		gate1q "RZ" (gamma_values[i]) qubits[j + 1];
+		gate2q ["CX", "CZ"][cx_noise_gate_choices[i][j][1]] qubits[j], qubits[j + 1];
 	}
 }
 
-for (i = 0; i < 8; i++) {
+for (i = 0; i < num_qubits; i++) {
 	measure qubits[i], bits[i];
 }

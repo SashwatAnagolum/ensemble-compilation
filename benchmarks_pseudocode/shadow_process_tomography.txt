@@ -1,7 +1,7 @@
 # deterministic inputs
-num_circuits = 1024;
-num_measurement_bases = 1024;
-num_qubits = 4;
+num_circuits = 8192;
+num_measurement_bases = 128;
+num_qubits = 64;
  
 # values passed in during circuit sampling
 global circuit_index;
@@ -25,7 +25,7 @@ measurement_indices = int_uniform(low=0, high=6, size=(num_qubits))
 qubit qubits[num_qubits];
 bit bits[num_qubits];
 
-# circuit description - GHZ-4
+# circuit description - GHZ-64
 for (i = 0; i < num_qubits; i++) {
 	@inverse gate1q pauli_measurement_shifts[state_prep_indices[i]][2] qubits[i];
 	@inverse gate1q pauli_measurement_shifts[state_prep_indices[i]][1] qubits[i];

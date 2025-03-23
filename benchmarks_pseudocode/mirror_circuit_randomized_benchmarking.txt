@@ -3,7 +3,7 @@ num_circuits = 640;
 num_circuits_per_depth = 32;
 depths = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40];
 connectivity = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14], [14, 15]];
-num_qubits = 16;
+num_qubits = 40;
 
 # precomputed values before circuit sampling
 
@@ -33,7 +33,7 @@ qubit qubits[num_qubits];
 bit bits[num_qubits];
 
 # circuit description - Randomly generated mirror circuits
-# over 16 qubits, and randomly sampled variables
+# over 40 qubits, and randomly sampled variables
 reset qubits;
 
 for (qubit_index = 0; qubit_index < num_qubits; qubit_index++) {
