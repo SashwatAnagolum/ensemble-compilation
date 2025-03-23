@@ -1,0 +1,30 @@
+# deterministic inputs
+num_circuits = 60000;
+num_circuits_per_sequence_length = 15000;
+sequence_lengths = [4, 16, 64, 256];
+
+num_qubits = 2;
+ 
+# values passed in during circuit sampling
+global circuit_index;
+
+# precomputed values before circuit sampling
+sequence_index = circuit_index // num_circuits_per_sequence_length;
+
+# random variables sampled every time we sample a circuit
+clifford_indices = int_random(low=0, high=3, size=(sequence_lengths[sequence_length_index], num_qubits));
+
+# qubits and classical bits
+qubit qubits[num_qubits];
+bit bits[num_qubits];
+
+# circuit description - GHZ-64
+reset qubits;
+
+for (cycle = 0; cycle < sequence_lengths[sequence_length_index]; cycle++) {
+	gate1q ["H", "S", "X"][clifford_indices[cycle][0]] qubits[0];
+	gate1q ["H", "S", "X"][clifford_indices[cycle][1]] qubits[1];
+}
+
+measure qubits, bits;
+
