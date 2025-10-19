@@ -1,6 +1,6 @@
 # Quantum Ensemble Dialect
 
-Ensemble-IR examples can be found in tests/benchmarks and benchmarks_pseudocode.
+⭐️ Ensemble-IR programs can be found in tests/benchmarks and benchmarks_pseudocode.
 
 ## Setup
 
