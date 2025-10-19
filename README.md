@@ -1,5 +1,7 @@
 # Quantum Ensemble Dialect
 
+Ensemble-IR examples can be found in tests/benchmarks and benchmarks_pseudocode.
+
 ## Setup
 
 To build the dialect, you need to perform the following steps: 
